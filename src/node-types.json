@@ -200,14 +200,6 @@
           "named": true
         },
         {
-          "type": "inline_macro",
-          "named": true
-        },
-        {
-          "type": "inline_math",
-          "named": true
-        },
-        {
           "type": "italic",
           "named": true
         },
@@ -541,14 +533,6 @@
           "named": true
         },
         {
-          "type": "inline_macro",
-          "named": true
-        },
-        {
-          "type": "inline_math",
-          "named": true
-        },
-        {
           "type": "italic",
           "named": true
         },
@@ -584,52 +568,6 @@
     }
   },
   {
-    "type": "inline_macro",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "escape_sequence",
-          "named": true
-        },
-        {
-          "type": "free_form_close",
-          "named": true
-        },
-        {
-          "type": "free_form_open",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "inline_math",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "escape_sequence",
-          "named": true
-        },
-        {
-          "type": "free_form_close",
-          "named": true
-        },
-        {
-          "type": "free_form_open",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "italic",
     "named": true,
     "fields": {},
@@ -655,14 +593,6 @@
         },
         {
           "type": "inline_comment",
-          "named": true
-        },
-        {
-          "type": "inline_macro",
-          "named": true
-        },
-        {
-          "type": "inline_math",
           "named": true
         },
         {
@@ -783,14 +713,6 @@
         },
         {
           "type": "inline_comment",
-          "named": true
-        },
-        {
-          "type": "inline_macro",
-          "named": true
-        },
-        {
-          "type": "inline_math",
           "named": true
         },
         {
@@ -926,14 +848,6 @@
           "named": true
         },
         {
-          "type": "inline_macro",
-          "named": true
-        },
-        {
-          "type": "inline_math",
-          "named": true
-        },
-        {
           "type": "italic",
           "named": true
         },
@@ -994,14 +908,6 @@
         },
         {
           "type": "inline_comment",
-          "named": true
-        },
-        {
-          "type": "inline_macro",
-          "named": true
-        },
-        {
-          "type": "inline_math",
           "named": true
         },
         {
@@ -1092,14 +998,6 @@
           "named": true
         },
         {
-          "type": "inline_macro",
-          "named": true
-        },
-        {
-          "type": "inline_math",
-          "named": true
-        },
-        {
           "type": "italic",
           "named": true
         },
@@ -1160,14 +1058,6 @@
         },
         {
           "type": "inline_comment",
-          "named": true
-        },
-        {
-          "type": "inline_macro",
-          "named": true
-        },
-        {
-          "type": "inline_math",
           "named": true
         },
         {
@@ -1311,14 +1201,6 @@
           "named": true
         },
         {
-          "type": "inline_macro",
-          "named": true
-        },
-        {
-          "type": "inline_math",
-          "named": true
-        },
-        {
           "type": "italic",
           "named": true
         },
@@ -1454,14 +1336,6 @@
         },
         {
           "type": "inline_comment",
-          "named": true
-        },
-        {
-          "type": "inline_macro",
-          "named": true
-        },
-        {
-          "type": "inline_math",
           "named": true
         },
         {

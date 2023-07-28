@@ -2629,14 +2629,6 @@
             {
               "type": "SYMBOL",
               "name": "verbatim"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "inline_math"
-            },
-            {
-              "type": "SYMBOL",
-              "name": "inline_macro"
             }
           ]
         },
@@ -2697,14 +2689,6 @@
           },
           {
             "type": "SYMBOL",
-            "name": "inline_math_open"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "inline_macro_open"
-          },
-          {
-            "type": "SYMBOL",
             "name": "free_bold_open"
           },
           {
@@ -2738,14 +2722,6 @@
           {
             "type": "SYMBOL",
             "name": "free_verbatim_open"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "free_inline_math_open"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "free_inline_macro_open"
           },
           {
             "type": "SYMBOL",
@@ -2806,8 +2782,158 @@
                 "value": "_open"
               },
               {
-                "type": "SYMBOL",
-                "name": "_attached_mod_content"
+                "type": "PREC_RIGHT",
+                "value": 0,
+                "content": {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "REPEAT1",
+                      "content": {
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "escape_sequence"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_word"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_whitespace"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_punc"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_mod_conflict"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "italic"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "strikethrough"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "underline"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "spoiler"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "superscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "subscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "verbatim"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "inline_comment"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "CHOICE",
+                            "members": [
+                              {
+                                "type": "STRING",
+                                "value": "\n"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r\n"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "REPEAT1",
+                            "content": {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "escape_sequence"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_word"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_whitespace"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_punc"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_mod_conflict"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "italic"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "strikethrough"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "underline"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "spoiler"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "superscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "subscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "verbatim"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "inline_comment"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
               },
               {
                 "type": "ALIAS",
@@ -2873,8 +2999,158 @@
                 "value": "_open"
               },
               {
-                "type": "SYMBOL",
-                "name": "_attached_mod_content"
+                "type": "PREC_RIGHT",
+                "value": 0,
+                "content": {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "REPEAT1",
+                      "content": {
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "escape_sequence"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_word"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_whitespace"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_punc"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_mod_conflict"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "bold"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "strikethrough"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "underline"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "spoiler"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "superscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "subscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "verbatim"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "inline_comment"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "CHOICE",
+                            "members": [
+                              {
+                                "type": "STRING",
+                                "value": "\n"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r\n"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "REPEAT1",
+                            "content": {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "escape_sequence"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_word"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_whitespace"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_punc"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_mod_conflict"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "bold"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "strikethrough"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "underline"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "spoiler"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "superscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "subscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "verbatim"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "inline_comment"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
               },
               {
                 "type": "ALIAS",
@@ -2940,8 +3216,158 @@
                 "value": "_open"
               },
               {
-                "type": "SYMBOL",
-                "name": "_attached_mod_content"
+                "type": "PREC_RIGHT",
+                "value": 0,
+                "content": {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "REPEAT1",
+                      "content": {
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "escape_sequence"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_word"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_whitespace"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_punc"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_mod_conflict"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "bold"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "italic"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "underline"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "spoiler"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "superscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "subscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "verbatim"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "inline_comment"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "CHOICE",
+                            "members": [
+                              {
+                                "type": "STRING",
+                                "value": "\n"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r\n"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "REPEAT1",
+                            "content": {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "escape_sequence"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_word"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_whitespace"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_punc"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_mod_conflict"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "bold"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "italic"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "underline"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "spoiler"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "superscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "subscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "verbatim"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "inline_comment"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
               },
               {
                 "type": "ALIAS",
@@ -3007,8 +3433,158 @@
                 "value": "_open"
               },
               {
-                "type": "SYMBOL",
-                "name": "_attached_mod_content"
+                "type": "PREC_RIGHT",
+                "value": 0,
+                "content": {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "REPEAT1",
+                      "content": {
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "escape_sequence"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_word"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_whitespace"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_punc"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_mod_conflict"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "bold"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "italic"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "strikethrough"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "spoiler"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "superscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "subscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "verbatim"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "inline_comment"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "CHOICE",
+                            "members": [
+                              {
+                                "type": "STRING",
+                                "value": "\n"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r\n"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "REPEAT1",
+                            "content": {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "escape_sequence"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_word"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_whitespace"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_punc"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_mod_conflict"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "bold"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "italic"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "strikethrough"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "spoiler"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "superscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "subscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "verbatim"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "inline_comment"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
               },
               {
                 "type": "ALIAS",
@@ -3074,8 +3650,158 @@
                 "value": "_open"
               },
               {
-                "type": "SYMBOL",
-                "name": "_attached_mod_content"
+                "type": "PREC_RIGHT",
+                "value": 0,
+                "content": {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "REPEAT1",
+                      "content": {
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "escape_sequence"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_word"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_whitespace"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_punc"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_mod_conflict"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "bold"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "italic"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "strikethrough"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "underline"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "superscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "subscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "verbatim"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "inline_comment"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "CHOICE",
+                            "members": [
+                              {
+                                "type": "STRING",
+                                "value": "\n"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r\n"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "REPEAT1",
+                            "content": {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "escape_sequence"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_word"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_whitespace"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_punc"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_mod_conflict"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "bold"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "italic"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "strikethrough"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "underline"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "superscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "subscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "verbatim"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "inline_comment"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
               },
               {
                 "type": "ALIAS",
@@ -3141,8 +3867,158 @@
                 "value": "_open"
               },
               {
-                "type": "SYMBOL",
-                "name": "_attached_mod_content"
+                "type": "PREC_RIGHT",
+                "value": 0,
+                "content": {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "REPEAT1",
+                      "content": {
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "escape_sequence"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_word"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_whitespace"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_punc"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_mod_conflict"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "bold"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "italic"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "strikethrough"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "underline"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "spoiler"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "subscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "verbatim"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "inline_comment"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "CHOICE",
+                            "members": [
+                              {
+                                "type": "STRING",
+                                "value": "\n"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r\n"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "REPEAT1",
+                            "content": {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "escape_sequence"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_word"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_whitespace"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_punc"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_mod_conflict"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "bold"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "italic"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "strikethrough"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "underline"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "spoiler"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "subscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "verbatim"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "inline_comment"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
               },
               {
                 "type": "ALIAS",
@@ -3208,8 +4084,158 @@
                 "value": "_open"
               },
               {
-                "type": "SYMBOL",
-                "name": "_attached_mod_content"
+                "type": "PREC_RIGHT",
+                "value": 0,
+                "content": {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "REPEAT1",
+                      "content": {
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "escape_sequence"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_word"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_whitespace"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_punc"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_mod_conflict"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "bold"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "italic"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "strikethrough"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "underline"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "spoiler"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "superscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "verbatim"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "inline_comment"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "CHOICE",
+                            "members": [
+                              {
+                                "type": "STRING",
+                                "value": "\n"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r\n"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "REPEAT1",
+                            "content": {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "escape_sequence"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_word"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_whitespace"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_punc"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_mod_conflict"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "bold"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "italic"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "strikethrough"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "underline"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "spoiler"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "superscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "verbatim"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "inline_comment"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
               },
               {
                 "type": "ALIAS",
@@ -3275,8 +4301,158 @@
                 "value": "_open"
               },
               {
-                "type": "SYMBOL",
-                "name": "_attached_mod_content"
+                "type": "PREC_RIGHT",
+                "value": 0,
+                "content": {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "REPEAT1",
+                      "content": {
+                        "type": "CHOICE",
+                        "members": [
+                          {
+                            "type": "SYMBOL",
+                            "name": "escape_sequence"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_word"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_whitespace"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_punc"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "_mod_conflict"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "bold"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "italic"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "strikethrough"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "underline"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "spoiler"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "superscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "subscript"
+                          },
+                          {
+                            "type": "SYMBOL",
+                            "name": "verbatim"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "REPEAT",
+                      "content": {
+                        "type": "SEQ",
+                        "members": [
+                          {
+                            "type": "CHOICE",
+                            "members": [
+                              {
+                                "type": "STRING",
+                                "value": "\n"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r"
+                              },
+                              {
+                                "type": "STRING",
+                                "value": "\r\n"
+                              }
+                            ]
+                          },
+                          {
+                            "type": "REPEAT1",
+                            "content": {
+                              "type": "CHOICE",
+                              "members": [
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "escape_sequence"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_word"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_whitespace"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_punc"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "_mod_conflict"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "bold"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "italic"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "strikethrough"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "underline"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "spoiler"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "superscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "subscript"
+                                },
+                                {
+                                  "type": "SYMBOL",
+                                  "name": "verbatim"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
               },
               {
                 "type": "ALIAS",
@@ -3358,140 +4534,6 @@
           }
         }
       ]
-    },
-    "inline_math": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "PREC_DYNAMIC",
-          "value": 6,
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "free_inline_math_open"
-                },
-                "named": true,
-                "value": "free_form_open"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "_free_form_verbatim_mod_content"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "free_inline_math_close"
-                },
-                "named": true,
-                "value": "free_form_close"
-              }
-            ]
-          }
-        },
-        {
-          "type": "PREC_DYNAMIC",
-          "value": 5,
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "inline_math_open"
-                },
-                "named": false,
-                "value": "_open"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "_verbatim_paragraph_content"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "inline_math_close"
-                },
-                "named": false,
-                "value": "_close"
-              }
-            ]
-          }
-        }
-      ]
-    },
-    "inline_macro": {
-      "type": "CHOICE",
-      "members": [
-        {
-          "type": "PREC_DYNAMIC",
-          "value": 6,
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "free_inline_macro_open"
-                },
-                "named": true,
-                "value": "free_form_open"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "_free_form_verbatim_mod_content"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "free_inline_macro_close"
-                },
-                "named": true,
-                "value": "free_form_close"
-              }
-            ]
-          }
-        },
-        {
-          "type": "PREC_DYNAMIC",
-          "value": 5,
-          "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "inline_macro_open"
-                },
-                "named": false,
-                "value": "_open"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "_verbatim_paragraph_content"
-              },
-              {
-                "type": "ALIAS",
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "inline_macro_close"
-                },
-                "named": false,
-                "value": "_close"
-              }
-            ]
-          }
-        }
-      ]
     }
   },
   "extras": [
@@ -3535,14 +4577,6 @@
     ],
     [
       "verbatim",
-      "_mod_conflict"
-    ],
-    [
-      "inline_math",
-      "_mod_conflict"
-    ],
-    [
-      "inline_macro",
       "_mod_conflict"
     ],
     [
@@ -3729,38 +4763,6 @@
     {
       "type": "SYMBOL",
       "name": "free_verbatim_close"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "inline_math_open"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "inline_math_close"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "free_inline_math_open"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "free_inline_math_close"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "inline_macro_open"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "inline_macro_close"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "free_inline_macro_open"
-    },
-    {
-      "type": "SYMBOL",
-      "name": "free_inline_macro_close"
     },
     {
       "type": "SYMBOL",

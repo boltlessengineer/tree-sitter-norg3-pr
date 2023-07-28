@@ -50,14 +50,6 @@ module.exports = grammar({
         $.verbatim_close,
         $.free_verbatim_open,
         $.free_verbatim_close,
-        $.inline_math_open,
-        $.inline_math_close,
-        $.free_inline_math_open,
-        $.free_inline_math_close,
-        $.inline_macro_open,
-        $.inline_macro_close,
-        $.free_inline_macro_open,
-        $.free_inline_macro_close,
 
         $.link_modifier,
         $.escape_sequence_prefix,
@@ -83,8 +75,6 @@ module.exports = grammar({
         [$.subscript, $._mod_conflict],
         [$.inline_comment, $._mod_conflict],
         [$.verbatim, $._mod_conflict],
-        [$.inline_math, $._mod_conflict],
-        [$.inline_macro, $._mod_conflict],
         [$._attached_modifier, $._mod_conflict],
         [$._attached_modifier],
         [$.table_cell_single, $._punc],
@@ -627,8 +617,6 @@ module.exports = grammar({
                     $.subscript,
                     $.inline_comment,
                     $.verbatim,
-                    $.inline_math,
-                    $.inline_macro,
                 ),
                 optional($.link_modifier),
             ),
@@ -644,8 +632,6 @@ module.exports = grammar({
                     $.subscript_open,
                     $.inline_comment_open,
                     $.verbatim_open,
-                    $.inline_math_open,
-                    $.inline_macro_open,
                     $.free_bold_open,
                     $.free_italic_open,
                     $.free_strikethrough_open,
@@ -655,8 +641,6 @@ module.exports = grammar({
                     $.free_subscript_open,
                     $.free_inline_comment_open,
                     $.free_verbatim_open,
-                    $.free_inline_math_open,
-                    $.free_inline_macro_open,
                     $.link_modifier,
                 ),
             "_punc"),
@@ -669,8 +653,6 @@ module.exports = grammar({
         subscript: $ => gen_attached_modifier($, "subscript", false),
         inline_comment: $ => gen_attached_modifier($, "inline_comment", false),
         verbatim: $ => gen_attached_modifier($, "verbatim", true),
-        inline_math: $ => gen_attached_modifier($, "inline_math", true),
-        inline_macro: $ => gen_attached_modifier($, "inline_macro", true),
     },
 });
 
@@ -679,7 +661,42 @@ function gen_attached_modifier($, kind, verbatim) {
     let close = alias($[kind + "_close"], "_close");
     let free_open = alias($["free_" + kind + "_open"], $.free_form_open);
     let free_close = alias($["free_" + kind + "_close"], $.free_form_close);
-    let content = $._attached_mod_content;
+    const other_attached_modifiers = [
+        "bold",
+        "italic",
+        "strikethrough",
+        "underline",
+        "spoiler",
+        "superscript",
+        "subscript",
+        "verbatim",
+        "inline_comment",
+    ]
+        .filter((x) => x != kind)
+        .map((x) => $[x]);
+    let content = prec.right(seq(
+        repeat1(choice(
+            $.escape_sequence,
+            $._word,
+            $._whitespace,
+            $._punc,
+            $._mod_conflict,
+            ...other_attached_modifiers,
+        )),
+        repeat(
+            seq(
+                newline,
+                repeat1(choice(
+                    $.escape_sequence,
+                    $._word,
+                    $._whitespace,
+                    $._punc,
+                    $._mod_conflict,
+                    ...other_attached_modifiers,
+                )),
+            )
+        ),
+    ));
     let free_form_content = $._attached_mod_content;
     let precedence = 2;
 
