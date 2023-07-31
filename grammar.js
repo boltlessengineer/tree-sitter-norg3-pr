@@ -77,6 +77,17 @@ module.exports = grammar({
         [$.verbatim, $._mod_conflict],
         [$._attached_modifier, $._mod_conflict],
         [$._attached_modifier],
+        [$.bold_inline, $._mod_conflict],
+        [$.italic_inline, $._mod_conflict],
+        [$.strikethrough_inline, $._mod_conflict],
+        [$.underline_inline, $._mod_conflict],
+        [$.spoiler_inline, $._mod_conflict],
+        [$.superscript_inline, $._mod_conflict],
+        [$.subscript_inline, $._mod_conflict],
+        [$.inline_comment_inline, $._mod_conflict],
+        [$.verbatim_inline, $._mod_conflict],
+        [$._attached_modifier_inline, $._mod_conflict],
+        [$._attached_modifier_inline],
         [$.table_cell_single, $._punc],
         [$.detached_modifier_extension, $._punc],
     ],
@@ -148,13 +159,22 @@ module.exports = grammar({
                 ),
             ),
 
+        title: ($) => repeat1(choice(
+            $.escape_sequence,
+            $._word,
+            $._whitespace,
+            $._punc,
+            $._mod_conflict,
+            $._attached_modifier_inline,
+        )),
+
         heading: ($) =>
             prec.right(
                 seq(
                     $.heading_stars,
                     $._whitespace,
                     optional(seq($.detached_modifier_extension, $._whitespace)),
-                    alias(repeat1($._paragraph_inner), $.title),
+                    $.title,
                     newline_or_eof,
                     repeat(choice($.heading, $.non_structural)),
                     optional(choice($._dedent, $.weak_delimiting_modifier)),
@@ -620,6 +640,22 @@ module.exports = grammar({
                 ),
                 optional($.link_modifier),
             ),
+        _attached_modifier_inline: $ =>
+            seq(
+                optional($.link_modifier),
+                choice(
+                    $.bold_inline,
+                    $.italic_inline,
+                    $.strikethrough_inline,
+                    $.underline_inline,
+                    $.spoiler_inline,
+                    $.superscript_inline,
+                    $.subscript_inline,
+                    $.inline_comment_inline,
+                    $.verbatim_inline,
+                ),
+                optional($.link_modifier),
+            ),
         _mod_conflict: $ =>
             alias(
                 choice(
@@ -644,19 +680,29 @@ module.exports = grammar({
                     $.link_modifier,
                 ),
             "_punc"),
-        bold: $ => gen_attached_modifier($, "bold", false),
-        italic: $ => gen_attached_modifier($, "italic", false),
-        strikethrough: $ => gen_attached_modifier($, "strikethrough", false),
-        underline: $ => gen_attached_modifier($, "underline", false),
-        spoiler: $ => gen_attached_modifier($, "spoiler", false),
-        superscript: $ => gen_attached_modifier($, "superscript", false),
-        subscript: $ => gen_attached_modifier($, "subscript", false),
-        inline_comment: $ => gen_attached_modifier($, "inline_comment", false),
-        verbatim: $ => gen_attached_modifier($, "verbatim", true),
+        bold: $ => gen_attached_modifier($, "bold", false, false),
+        italic: $ => gen_attached_modifier($, "italic", false, false),
+        strikethrough: $ => gen_attached_modifier($, "strikethrough", false, false),
+        underline: $ => gen_attached_modifier($, "underline", false, false),
+        spoiler: $ => gen_attached_modifier($, "spoiler", false, false),
+        superscript: $ => gen_attached_modifier($, "superscript", false, false),
+        subscript: $ => gen_attached_modifier($, "subscript", false, false),
+        inline_comment: $ => gen_attached_modifier($, "inline_comment", false, false),
+        verbatim: $ => gen_attached_modifier($, "verbatim", true, false),
+
+        bold_inline: $ => gen_attached_modifier($, "bold", false, true),
+        italic_inline: $ => gen_attached_modifier($, "italic", false, true),
+        strikethrough_inline: $ => gen_attached_modifier($, "strikethrough", false, true),
+        underline_inline: $ => gen_attached_modifier($, "underline", false, true),
+        spoiler_inline: $ => gen_attached_modifier($, "spoiler", false, true),
+        superscript_inline: $ => gen_attached_modifier($, "superscript", false, true),
+        subscript_inline: $ => gen_attached_modifier($, "subscript", false, true),
+        inline_comment_inline: $ => gen_attached_modifier($, "inline_comment", false, true),
+        verbatim_inline: $ => gen_attached_modifier($, "verbatim", true, true),
     },
 });
 
-function gen_attached_modifier($, kind, verbatim) {
+function gen_attached_modifier($, kind, verbatim, inline) {
     let open = alias($[kind + "_open"], "_open");
     let close = alias($[kind + "_close"], "_close");
     let free_open = alias($["free_" + kind + "_open"], $.free_form_open);
@@ -669,11 +715,11 @@ function gen_attached_modifier($, kind, verbatim) {
         "spoiler",
         "superscript",
         "subscript",
-        "verbatim",
         "inline_comment",
+        "verbatim",
     ]
         .filter((x) => x != kind)
-        .map((x) => $[x]);
+        .map((x) => $[inline ? x + "_inline" : x]);
     let content = prec.right(seq(
         repeat1(choice(
             $.escape_sequence,
@@ -704,6 +750,28 @@ function gen_attached_modifier($, kind, verbatim) {
         content = $._verbatim_paragraph_content;
         free_form_content = $._free_form_verbatim_mod_content;
         precedence = 5;
+        if (inline) {
+            content = repeat1($._verbatim_paragraph_element);
+        }
+    } else if (inline) {
+        if (inline) {
+            content = repeat1(choice(
+                $.escape_sequence,
+                $._word,
+                $._whitespace,
+                $._punc,
+                $._mod_conflict,
+                ...other_attached_modifiers,
+            ));
+            free_form_content = repeat1(choice(
+                $.escape_sequence,
+                $._word,
+                $._whitespace,
+                $._punc,
+                $._mod_conflict,
+                ...other_attached_modifiers,
+            ))
+        }
     }
     return choice(
         prec.dynamic(precedence + 1, seq(

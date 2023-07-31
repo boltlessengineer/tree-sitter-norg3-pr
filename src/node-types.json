@@ -235,6 +235,61 @@
     }
   },
   {
+    "type": "bold_inline",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "free_form_close",
+          "named": true
+        },
+        {
+          "type": "free_form_open",
+          "named": true
+        },
+        {
+          "type": "inline_comment_inline",
+          "named": true
+        },
+        {
+          "type": "italic_inline",
+          "named": true
+        },
+        {
+          "type": "spoiler_inline",
+          "named": true
+        },
+        {
+          "type": "strikethrough_inline",
+          "named": true
+        },
+        {
+          "type": "subscript_inline",
+          "named": true
+        },
+        {
+          "type": "superscript_inline",
+          "named": true
+        },
+        {
+          "type": "underline_inline",
+          "named": true
+        },
+        {
+          "type": "verbatim_inline",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "content",
     "named": true,
     "fields": {},
@@ -568,6 +623,61 @@
     }
   },
   {
+    "type": "inline_comment_inline",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bold_inline",
+          "named": true
+        },
+        {
+          "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "free_form_close",
+          "named": true
+        },
+        {
+          "type": "free_form_open",
+          "named": true
+        },
+        {
+          "type": "italic_inline",
+          "named": true
+        },
+        {
+          "type": "spoiler_inline",
+          "named": true
+        },
+        {
+          "type": "strikethrough_inline",
+          "named": true
+        },
+        {
+          "type": "subscript_inline",
+          "named": true
+        },
+        {
+          "type": "superscript_inline",
+          "named": true
+        },
+        {
+          "type": "underline_inline",
+          "named": true
+        },
+        {
+          "type": "verbatim_inline",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "italic",
     "named": true,
     "fields": {},
@@ -625,6 +735,61 @@
         },
         {
           "type": "verbatim",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "italic_inline",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bold_inline",
+          "named": true
+        },
+        {
+          "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "free_form_close",
+          "named": true
+        },
+        {
+          "type": "free_form_open",
+          "named": true
+        },
+        {
+          "type": "inline_comment_inline",
+          "named": true
+        },
+        {
+          "type": "spoiler_inline",
+          "named": true
+        },
+        {
+          "type": "strikethrough_inline",
+          "named": true
+        },
+        {
+          "type": "subscript_inline",
+          "named": true
+        },
+        {
+          "type": "superscript_inline",
+          "named": true
+        },
+        {
+          "type": "underline_inline",
+          "named": true
+        },
+        {
+          "type": "verbatim_inline",
           "named": true
         }
       ]
@@ -883,6 +1048,61 @@
     }
   },
   {
+    "type": "spoiler_inline",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bold_inline",
+          "named": true
+        },
+        {
+          "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "free_form_close",
+          "named": true
+        },
+        {
+          "type": "free_form_open",
+          "named": true
+        },
+        {
+          "type": "inline_comment_inline",
+          "named": true
+        },
+        {
+          "type": "italic_inline",
+          "named": true
+        },
+        {
+          "type": "strikethrough_inline",
+          "named": true
+        },
+        {
+          "type": "subscript_inline",
+          "named": true
+        },
+        {
+          "type": "superscript_inline",
+          "named": true
+        },
+        {
+          "type": "underline_inline",
+          "named": true
+        },
+        {
+          "type": "verbatim_inline",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "strikethrough",
     "named": true,
     "fields": {},
@@ -940,6 +1160,61 @@
         },
         {
           "type": "verbatim",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "strikethrough_inline",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bold_inline",
+          "named": true
+        },
+        {
+          "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "free_form_close",
+          "named": true
+        },
+        {
+          "type": "free_form_open",
+          "named": true
+        },
+        {
+          "type": "inline_comment_inline",
+          "named": true
+        },
+        {
+          "type": "italic_inline",
+          "named": true
+        },
+        {
+          "type": "spoiler_inline",
+          "named": true
+        },
+        {
+          "type": "subscript_inline",
+          "named": true
+        },
+        {
+          "type": "superscript_inline",
+          "named": true
+        },
+        {
+          "type": "underline_inline",
+          "named": true
+        },
+        {
+          "type": "verbatim_inline",
           "named": true
         }
       ]
@@ -1033,6 +1308,61 @@
     }
   },
   {
+    "type": "subscript_inline",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bold_inline",
+          "named": true
+        },
+        {
+          "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "free_form_close",
+          "named": true
+        },
+        {
+          "type": "free_form_open",
+          "named": true
+        },
+        {
+          "type": "inline_comment_inline",
+          "named": true
+        },
+        {
+          "type": "italic_inline",
+          "named": true
+        },
+        {
+          "type": "spoiler_inline",
+          "named": true
+        },
+        {
+          "type": "strikethrough_inline",
+          "named": true
+        },
+        {
+          "type": "superscript_inline",
+          "named": true
+        },
+        {
+          "type": "underline_inline",
+          "named": true
+        },
+        {
+          "type": "verbatim_inline",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "superscript",
     "named": true,
     "fields": {},
@@ -1090,6 +1420,61 @@
         },
         {
           "type": "verbatim",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "superscript_inline",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bold_inline",
+          "named": true
+        },
+        {
+          "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "free_form_close",
+          "named": true
+        },
+        {
+          "type": "free_form_open",
+          "named": true
+        },
+        {
+          "type": "inline_comment_inline",
+          "named": true
+        },
+        {
+          "type": "italic_inline",
+          "named": true
+        },
+        {
+          "type": "spoiler_inline",
+          "named": true
+        },
+        {
+          "type": "strikethrough_inline",
+          "named": true
+        },
+        {
+          "type": "subscript_inline",
+          "named": true
+        },
+        {
+          "type": "underline_inline",
+          "named": true
+        },
+        {
+          "type": "verbatim_inline",
           "named": true
         }
       ]
@@ -1193,6 +1578,10 @@
           "named": true
         },
         {
+          "type": "bold_inline",
+          "named": true
+        },
+        {
           "type": "escape_sequence",
           "named": true
         },
@@ -1201,7 +1590,15 @@
           "named": true
         },
         {
+          "type": "inline_comment_inline",
+          "named": true
+        },
+        {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "italic_inline",
           "named": true
         },
         {
@@ -1213,7 +1610,15 @@
           "named": true
         },
         {
+          "type": "spoiler_inline",
+          "named": true
+        },
+        {
           "type": "strikethrough",
+          "named": true
+        },
+        {
+          "type": "strikethrough_inline",
           "named": true
         },
         {
@@ -1221,7 +1626,15 @@
           "named": true
         },
         {
+          "type": "subscript_inline",
+          "named": true
+        },
+        {
           "type": "superscript",
+          "named": true
+        },
+        {
+          "type": "superscript_inline",
           "named": true
         },
         {
@@ -1229,7 +1642,15 @@
           "named": true
         },
         {
+          "type": "underline_inline",
+          "named": true
+        },
+        {
           "type": "verbatim",
+          "named": true
+        },
+        {
+          "type": "verbatim_inline",
           "named": true
         }
       ]
@@ -1374,6 +1795,61 @@
     }
   },
   {
+    "type": "underline_inline",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bold_inline",
+          "named": true
+        },
+        {
+          "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "free_form_close",
+          "named": true
+        },
+        {
+          "type": "free_form_open",
+          "named": true
+        },
+        {
+          "type": "inline_comment_inline",
+          "named": true
+        },
+        {
+          "type": "italic_inline",
+          "named": true
+        },
+        {
+          "type": "spoiler_inline",
+          "named": true
+        },
+        {
+          "type": "strikethrough_inline",
+          "named": true
+        },
+        {
+          "type": "subscript_inline",
+          "named": true
+        },
+        {
+          "type": "superscript_inline",
+          "named": true
+        },
+        {
+          "type": "verbatim_inline",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "unordered_list",
     "named": true,
     "fields": {},
@@ -1442,6 +1918,29 @@
     "type": "verbatim_content",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "verbatim_inline",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "free_form_close",
+          "named": true
+        },
+        {
+          "type": "free_form_open",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "verbatim_ranged_tag",
