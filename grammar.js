@@ -50,6 +50,8 @@ module.exports = grammar({
         $.verbatim_close,
         $.free_verbatim_open,
         $.free_verbatim_close,
+        $.free_open,
+        $.free_close,
 
         $.link_modifier,
         $.escape_sequence_prefix,
@@ -703,10 +705,14 @@ module.exports = grammar({
 });
 
 function gen_attached_modifier($, kind, verbatim, inline) {
-    let open = alias($[kind + "_open"], "_open");
-    let close = alias($[kind + "_close"], "_close");
-    let free_open = alias($["free_" + kind + "_open"], $.free_form_open);
-    let free_close = alias($["free_" + kind + "_close"], $.free_form_close);
+    // let open = alias($[kind + "_open"], "_open");
+    // let close = alias($[kind + "_close"], "_close");
+    // let free_open = alias($["free_" + kind + "_open"], $.free_form_open);
+    // let free_close = alias($["free_" + kind + "_close"], $.free_form_close);
+    let open = $[kind + "_open"];
+    let close = $[kind + "_close"];
+    let free_open = $["free_" + kind + "_open"];
+    let free_close = $["free_" + kind + "_close"];
     const other_attached_modifiers = [
         "bold",
         "italic",
