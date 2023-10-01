@@ -1,9 +1,11 @@
 #include <bitset>
 #include <cwctype>
+#include <iostream>
 #include <algorithm>
 #include <cstring>
 #include <unordered_map>
 #include <vector>
+#include <list>
 
 #include "tree_sitter/parser.h"
 
@@ -86,12 +88,19 @@ bool is_word(char c) {
 
 struct Scanner {
     TSLexer* lexer;
-    std::unordered_map<char, std::vector<uint16_t>> indents;
-    const std::unordered_map<int32_t, TokenType> lookup = {
-        {'*', BOLD_OPEN},        {'/', ITALIC_OPEN},       {'-', STRIKETHROUGH_OPEN},
-        {'_', UNDERLINE_OPEN},   {'!', SPOILER_OPEN},      {'`', VERBATIM_OPEN},
-        {'^', SUPERSCRIPT_OPEN}, {',', SUBSCRIPT_OPEN},    {'%', INLINE_COMMENT_OPEN},
-    };
+    std::unordered_map< char, std::vector<uint16_t> > indents;
+    std::unordered_map<int32_t, TokenType> lookup;
+    Scanner() {
+        lookup['*'] = BOLD_OPEN;
+        lookup['/'] = ITALIC_OPEN;
+        lookup['-'] = STRIKETHROUGH_OPEN;
+        lookup['_'] = UNDERLINE_OPEN;
+        lookup['!'] = SPOILER_OPEN;
+        lookup['`'] = VERBATIM_OPEN;
+        lookup['^'] = SUPERSCRIPT_OPEN;
+        lookup[','] = SUBSCRIPT_OPEN;
+        lookup['%'] = INLINE_COMMENT_OPEN;
+    }
 
     TokenType last_token = WHITESPACE;
 
@@ -160,7 +169,7 @@ struct Scanner {
             return true;
         }
 
-        const auto n_attached_mod = lookup.find(lexer->lookahead);
+        std::unordered_map<int32_t, TokenType>::iterator  n_attached_mod = lookup.find(lexer->lookahead);
         if (cache == '|' && (n_attached_mod != lookup.end()) && valid_symbols[n_attached_mod->second + 3]) {
             advance();
             if (!lexer->lookahead || (!is_word(lexer->lookahead) && lexer->lookahead != n_attached_mod->first)) {
@@ -170,27 +179,25 @@ struct Scanner {
             }
             return false;
         }
-        const auto attached_mod = lookup.find(cache);
+        std::unordered_map<int32_t, TokenType>::iterator  attached_mod = lookup.find(cache);
         if (attached_mod != lookup.end() && valid_symbols[attached_mod->second + 2] && last_token != WORD && lexer->lookahead == '|') {
             // _FREE_OPEN
-            // (non word) ['*', '|']
+            // (-word) ['*', '|']
             advance();
             lexer->mark_end(lexer);
             lexer->result_symbol = last_token = (TokenType)(attached_mod->second + 2);
             return true;
         }
         if (attached_mod != lookup.end() && valid_symbols[attached_mod->second + 1] && last_token != WHITESPACE && (!lexer->lookahead || (!is_word(lexer->lookahead) && lexer->lookahead != attached_mod->first))) {
-        }
-        if (attached_mod != lookup.end() && valid_symbols[attached_mod->second + 1] && last_token != WHITESPACE && (!lexer->lookahead || (!is_word(lexer->lookahead) && lexer->lookahead != attached_mod->first))) {
             // _CLOSE
-            // (-ws) ["*", -(word | "*")]
+            // (-ws) ['*', -(word | '*')]
             lexer->mark_end(lexer);
             lexer->result_symbol = last_token = (TokenType)(attached_mod->second + 1);
             return true;
         }
         if (attached_mod != lookup.end() && valid_symbols[attached_mod->second] && last_token != WORD && lexer->lookahead && !iswspace(lexer->lookahead) && (lexer->lookahead != attached_mod->first)) {
             // _OPEN
-            // (-word) ["*", -(ws | "*")]
+            // (-word) ['*', -(ws | '*')]
             lexer->mark_end(lexer);
             lexer->result_symbol = last_token = attached_mod->second;
             return true;
@@ -262,12 +269,12 @@ extern "C" {
         size_t total_size = 0;
 
         buffer[total_size++] = scanner->last_token;
-        for (const std::pair<char, std::vector<uint16_t>>& kv : scanner->indents) {
-            uint16_t size = kv.second.size();
-            buffer[total_size] = kv.first;
+        for (std::unordered_map< char, std::vector<uint16_t> >::iterator kv = scanner->indents.begin(); kv != scanner->indents.end(); ++kv) {
+            uint16_t size = kv->second.size();
+            buffer[total_size] = kv->first;
 
             std::memcpy(&buffer[total_size + 1], &size, sizeof(size));
-            std::memcpy(&buffer[total_size + 3], kv.second.data(), size * sizeof(size));
+            std::memcpy(&buffer[total_size + 3], kv->second.data(), size * sizeof(size));
 
             total_size += (size * sizeof(size)) + 3;
         }
