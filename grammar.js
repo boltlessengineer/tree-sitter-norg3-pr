@@ -78,7 +78,6 @@ module.exports = grammar({
         [$.inline_comment, $._mod_conflict],
         [$.verbatim, $._mod_conflict],
         [$._attached_modifier, $._mod_conflict],
-        [$._attached_modifier],
         [$.bold_inline, $._mod_conflict],
         [$.italic_inline, $._mod_conflict],
         [$.strikethrough_inline, $._mod_conflict],
@@ -627,20 +626,22 @@ module.exports = grammar({
                 )
             ),
         _attached_modifier: $ =>
-            seq(
-                optional($.link_modifier),
-                choice(
-                    $.bold,
-                    $.italic,
-                    $.strikethrough,
-                    $.underline,
-                    $.spoiler,
-                    $.superscript,
-                    $.subscript,
-                    $.inline_comment,
-                    $.verbatim,
-                ),
-                optional($.link_modifier),
+            prec.right(
+                seq(
+                    optional($.link_modifier),
+                    choice(
+                        $.bold,
+                        $.italic,
+                        $.strikethrough,
+                        $.underline,
+                        $.spoiler,
+                        $.superscript,
+                        $.subscript,
+                        $.inline_comment,
+                        $.verbatim,
+                    ),
+                    optional($.link_modifier),
+                )
             ),
         _attached_modifier_inline: $ =>
             seq(
