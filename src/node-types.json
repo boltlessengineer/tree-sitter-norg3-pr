@@ -14,6 +14,16 @@
     ]
   },
   {
+    "type": "linkables",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "link_description",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "nestable_modifier",
     "named": true,
     "subtypes": [
@@ -135,6 +145,14 @@
       },
       {
         "type": "@",
+        "named": false
+      },
+      {
+        "type": "[",
+        "named": false
+      },
+      {
+        "type": "]",
         "named": false
       },
       {
@@ -311,6 +329,10 @@
         },
         {
           "type": "link_modifier",
+          "named": true
+        },
+        {
+          "type": "linkables",
           "named": true
         },
         {
@@ -672,6 +694,10 @@
           "named": true
         },
         {
+          "type": "linkables",
+          "named": true
+        },
+        {
           "type": "open",
           "named": true
         },
@@ -704,6 +730,10 @@
         },
         {
           "type": "free_open",
+          "named": true
+        },
+        {
+          "type": "linkables",
           "named": true
         },
         {
@@ -758,11 +788,82 @@
           "named": true
         },
         {
+          "type": "linkables",
+          "named": true
+        },
+        {
           "type": "null_modifier",
           "named": true
         },
         {
           "type": "open",
+          "named": true
+        },
+        {
+          "type": "punctuation",
+          "named": true
+        },
+        {
+          "type": "spoiler",
+          "named": true
+        },
+        {
+          "type": "strikethrough",
+          "named": true
+        },
+        {
+          "type": "subscript",
+          "named": true
+        },
+        {
+          "type": "superscript",
+          "named": true
+        },
+        {
+          "type": "underline",
+          "named": true
+        },
+        {
+          "type": "verbatim",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "link_description",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "bold",
+          "named": true
+        },
+        {
+          "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "inline_macro",
+          "named": true
+        },
+        {
+          "type": "inline_math",
+          "named": true
+        },
+        {
+          "type": "italic",
+          "named": true
+        },
+        {
+          "type": "link_modifier",
+          "named": true
+        },
+        {
+          "type": "null_modifier",
           "named": true
         },
         {
@@ -853,6 +954,10 @@
           "named": true
         },
         {
+          "type": "linkables",
+          "named": true
+        },
+        {
           "type": "open",
           "named": true
         },
@@ -940,6 +1045,10 @@
         },
         {
           "type": "link_modifier",
+          "named": true
+        },
+        {
+          "type": "linkables",
           "named": true
         },
         {
@@ -1110,6 +1219,10 @@
           "named": true
         },
         {
+          "type": "linkables",
+          "named": true
+        },
+        {
           "type": "null_modifier",
           "named": true
         },
@@ -1186,6 +1299,10 @@
         },
         {
           "type": "link_modifier",
+          "named": true
+        },
+        {
+          "type": "linkables",
           "named": true
         },
         {
@@ -1292,6 +1409,10 @@
           "named": true
         },
         {
+          "type": "linkables",
+          "named": true
+        },
+        {
           "type": "null_modifier",
           "named": true
         },
@@ -1368,6 +1489,10 @@
         },
         {
           "type": "link_modifier",
+          "named": true
+        },
+        {
+          "type": "linkables",
           "named": true
         },
         {
@@ -1699,6 +1824,10 @@
           "named": true
         },
         {
+          "type": "linkables",
+          "named": true
+        },
+        {
           "type": "null_modifier",
           "named": true
         },
@@ -1797,6 +1926,10 @@
         },
         {
           "type": "free_open",
+          "named": true
+        },
+        {
+          "type": "linkables",
           "named": true
         },
         {
@@ -1992,7 +2125,15 @@
     "named": false
   },
   {
+    "type": "[",
+    "named": false
+  },
+  {
     "type": "\\",
+    "named": false
+  },
+  {
+    "type": "]",
     "named": false
   },
   {

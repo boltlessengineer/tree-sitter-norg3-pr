@@ -16,6 +16,12 @@ const ATTACHED_MODIFIER_TYPES = [
     "inline_macro",
 ]
 
+const PREC_LEVEL_LINK = 5;
+const PREC_LEVEL_FREE_FORM_VERBATIM_ATTACHED_MODIFIER = 4;
+const PREC_LEVEL_VERBATIM_ATTACHED_MODIFIER = 3;
+const PREC_LEVEL_FREE_FORM_STANDARD_ATTACHED_MODIFIER = 2;
+const PREC_LEVEL_STANDARD_ATTACHED_MODIFIER = 1;
+
 /// General TODOS:
 //  - Abstract repeating patterns (e.g. nestable detached modifiers) into Javascript functions.
 //  - Add tests for link modifiers, then everything else.
@@ -54,6 +60,7 @@ module.exports = grammar({
         [$._punctuation, $._inline_macro_open],
         [$._punctuation, $.link_modifier],
         [$._punctuation, $._free_open],
+        [$._punctuation, $._link_desc_open],
 
         // make conflict for paragraph itself to allow breaking by precedence level on runtime
         [$.paragraph],
@@ -67,6 +74,7 @@ module.exports = grammar({
         [$.footnote_list_multi, $._punctuation],
         [$.definition_list_multi, $._punctuation],
         [$.table_cell_single, $._punctuation],
+        [$._link_desc_close, $._link_desc_close_conflict],
     ],
 
     inlines: ($) => [],
@@ -79,6 +87,7 @@ module.exports = grammar({
         $.todo_item,
         $.delimiting_modifier,
         $.punctuation,
+        $.linkables,
     ],
 
     rules: {
@@ -107,11 +116,14 @@ module.exports = grammar({
             $._heading_conflict,
             $._ul_conflict,
             $._ol_conflict,
+            $._link_desc_close_conflict,
         ),
         _punctuation: ($) => choice(
             // to make conflict with attached modifier openers
             // & repeated attached modifiers
             // the following code makes tokens like * and /\*\*+/
+            // NOTE: some openers are handled seperately to resolve conflict
+            // with structural detached modifiers
             ...[
                 // "*",
                 "/",
@@ -130,7 +142,9 @@ module.exports = grammar({
             ":",
             "|",
             "@",
-            token(/[^\n\r\p{Z}\p{L}\p{N}]/u),
+            "[",
+            // NOTE: "]" is also disallowed in the pattern below
+            token(/[^\n\r\p{Z}\p{L}\p{N}\]]/u),
         ),
         // these are for breaking attached modifier when structural modifiers come after eol
         _heading_conflict: (_) => choice(
@@ -142,6 +156,7 @@ module.exports = grammar({
         _ol_conflict: (_) => choice(
             "~", prec(1, token(seq("~", repeat1("~"))))
         ),
+        _link_desc_close_conflict: (_) => "]",
 
         _word: ($) => prec.right(-1, repeat1($._character)),
         _whitespace: (_) => token(prec(1, /\p{Zs}+/u)),
@@ -174,6 +189,7 @@ module.exports = grammar({
 
         paragraph: ($) => (repeat1(
             // "" is for end-of-string (e.g. test)
+            // NOTE: maybe use `choice(...)` for paragraph_segment_close like attached modifiers?
             seq($._paragraph_segment, choice(newline_or_eof, "")),
         )),
 
@@ -191,6 +207,7 @@ module.exports = grammar({
                 $._whitespace,
                 $.punctuation,
                 $.escape_sequence,
+                $.linkables,
             ),
             optional($._paragraph_segment)
         )),
@@ -733,6 +750,109 @@ module.exports = grammar({
             prec.right(seq("_", repeat1("_"), newline_or_eof)),
 
         // TODO: linkables
+        linkables: ($) => prec.dynamic(PREC_LEVEL_LINK, choice(
+            $.link_description,
+        )),
+
+        link_description: ($) => seq(
+            $._link_desc_open,
+            choice(
+                $._link_desc_word_segment,
+                $._link_desc_punc_segment,
+                $._link_desc_att_mod_segment,
+            )
+        ),
+        _link_desc_open: (_) => "[",
+        _link_desc_close: (_) => "]",
+        _link_desc_word_segment: ($) => seq(
+            $._word,
+            choice(
+                $._link_desc_ws_segment,
+                $._link_desc_punc_segment,
+                $._link_desc_newline_segment,
+                $._link_desc_close,
+                seq($.link_modifier, $._link_desc_att_mod_segment),
+            )
+        ),
+        _link_desc_ws_segment: ($) => seq(
+            $._whitespace,
+            choice(
+                $._link_desc_word_segment,
+                $._link_desc_ws_segment,
+                $._link_desc_punc_segment,
+                $._link_desc_att_mod_segment,
+                $._link_desc_newline_segment,
+            )
+        ),
+        // NOTE: this doesn't works... this either just disables bold inside link
+        // _link_desc_punc_segment: ($) => prec.dynamic(10, seq(
+        _link_desc_punc_segment: ($) => seq(
+            choice(
+                $.punctuation,
+                $.escape_sequence,
+            ),
+            choice(
+                $._link_desc_word_segment,
+                $._link_desc_ws_segment,
+                $._link_desc_punc_segment,
+                $._link_desc_att_mod_segment,
+                $._link_desc_newline_segment,
+                $._link_desc_close
+            )
+        ),
+        _link_desc_att_mod_segment: ($) => seq(
+            // sol: lower the attached modifier's precedence inside link_description
+            // ... no this just disables attached modifier inside linkable
+            choice(
+                ...ATTACHED_MODIFIER_TYPES.map(n => alias($["linkable_" + n], $[n])),
+            ),
+            choice(
+                $._link_desc_ws_segment,
+                $._link_desc_punc_segment,
+                $._link_desc_att_mod_segment,
+                $._link_desc_newline_segment,
+                $._link_desc_close,
+                seq($.link_modifier, $._link_desc_word_segment),
+            )
+        ),
+        _link_desc_safe_punc_segment: ($) => choice(
+            seq(
+                choice(
+                    $._heading_conflict,
+                    $._ul_conflict,
+                    $._ol_conflict,
+                ),
+                choice(
+                    $._link_desc_word_segment,
+                    $._link_desc_punc_segment,
+                    $._link_desc_att_mod_segment,
+                    $._link_desc_newline_segment,
+                    $._link_desc_close,
+                )
+            ),
+            seq(
+                choice(
+                    $._punctuation,
+                    $.escape_sequence,
+                ),
+                choice(
+                    $._link_desc_word_segment,
+                    $._link_desc_ws_segment,
+                    $._link_desc_punc_segment,
+                    $._link_desc_att_mod_segment,
+                    $._link_desc_newline_segment,
+                    $._link_desc_close,
+                ),
+            )
+        ),
+        _link_desc_newline_segment: ($) => seq(
+            newline,
+            choice(
+                $._link_desc_word_segment,
+                $._link_desc_safe_punc_segment,
+                $._link_desc_att_mod_segment,
+            ),
+        ),
 
         // TODO: slide
     },
@@ -741,10 +861,14 @@ module.exports = grammar({
 // TODO: use this function to make rule for link_description,
 // link_description is basically attached modifier
 // (with higher precedence level than verbatim attached modifier)
-function gen_attached_modifier(type, mod, verbatim, not_inline) {
+
+// NOTE: nope, that solution doesn't work,
+// because link_description is kinda _non-verbatim attached modifier_
+// we can't use solution same as verbatim modifier
+function gen_attached_modifier(type, mod, verbatim, not_inline, linkable) {
     const rules = {};
     const other_modifiers = ATTACHED_MODIFIER_TYPES.filter((t) => t != type);
-    const prefix = not_inline ? "" : "inline_"
+    const prefix = (not_inline ? "" : "inline_") + (linkable ? "linkable_" : "");
 
     const open = `_${type}_open`;
     const close = `_${prefix + type}_close`;
@@ -752,6 +876,7 @@ function gen_attached_modifier(type, mod, verbatim, not_inline) {
     const ws_segment = `_${prefix + type}_ws_segment`;
     const punc_segment = `_${prefix + type}_punc_segment`;
     const safe_punc_segment = `_${prefix + type}_safe_punc_segment`;
+    const link_desc_close_conflict = `_${prefix + type}_safe_link_close_punc_segment`
     const att_mod_segment = `_${prefix + type}_attached_modifier_segment`;
     const newline_segment = `_${type}_newline_segment`;
 
@@ -792,15 +917,39 @@ function gen_attached_modifier(type, mod, verbatim, not_inline) {
                 $[word_segment],
                 $[ws_segment],
                 $[punc_segment],
+                linkable ? $[link_desc_close_conflict] : null,
                 verbatim ? null : $[att_mod_segment],
                 not_inline ? $[newline_segment] : null,
             ].filter(n => n !== null)
         )
     )
+    if (linkable) {
+        rules[link_desc_close_conflict] = ($) => seq(
+            $._link_desc_close_conflict,
+            choice(
+                ...[
+                    $[word_segment],
+                    $[ws_segment],
+                    $[punc_segment],
+                    verbatim ? null : $[att_mod_segment],
+                    not_inline ? $[newline_segment] : null,
+                    $[close],
+                ].filter(n => n !== null)
+            )
+        )
+    }
     rules[punc_segment] = ($) => seq(
         choice(
-            $.punctuation,
+            ...[
+            $._punctuation,
+            $._heading_conflict,
+            $._ul_conflict,
+            $._ol_conflict,
+            linkable ? null : $._link_desc_close_conflict,
             $.escape_sequence,
+            // TODO: use inline varient too
+            $.linkables,
+            ].filter(n => n !== null)
         ),
         choice(
             ...[
@@ -852,6 +1001,7 @@ function gen_attached_modifier(type, mod, verbatim, not_inline) {
                 choice(
                     $._punctuation,
                     $.escape_sequence,
+                    $.linkables,
                 ),
                 choice(
                     ...[
@@ -932,7 +1082,11 @@ function gen_attached_modifier(type, mod, verbatim, not_inline) {
                     ...[
                         $[free_word_segment],
                         seq(
-                            $.punctuation,
+                            // $.punctuation,
+                            $._punctuation,
+                            $._heading_conflict,
+                            $._ul_conflict,
+                            $._ol_conflict,
                             choice(
                                 ...[
                                     $[free_word_segment],
@@ -976,8 +1130,14 @@ function gen_attached_modifier(type, mod, verbatim, not_inline) {
             )
         )
     }
+    const level = verbatim
+        ? PREC_LEVEL_VERBATIM_ATTACHED_MODIFIER
+        : PREC_LEVEL_STANDARD_ATTACHED_MODIFIER;
+    const free_form_level = verbatim
+        ? PREC_LEVEL_FREE_FORM_VERBATIM_ATTACHED_MODIFIER
+        : PREC_LEVEL_FREE_FORM_STANDARD_ATTACHED_MODIFIER;
     rules[prefix + type] = ($) => choice(
-        prec.dynamic(verbatim ? 3 : 1, seq(
+        prec.dynamic(level, seq(
             alias($[open], $.open),
             choice(
                 ...[
@@ -987,7 +1147,7 @@ function gen_attached_modifier(type, mod, verbatim, not_inline) {
                 ].filter(n => n !== null)
             )
         )),
-        prec.dynamic(verbatim ? 4 : 2, seq(
+        prec.dynamic(free_form_level, seq(
             alias($[free_open], $.free_open),
             choice(
                 ...[
@@ -1003,14 +1163,18 @@ function gen_attached_modifier(type, mod, verbatim, not_inline) {
 
 function gen_non_verbatim_attached_modifier(type, mod) {
     return {
-        ...gen_attached_modifier(type, mod, false, true),
-        ...gen_attached_modifier(type, mod, false, false),
+        ...gen_attached_modifier(type, mod, false, true, false),
+        ...gen_attached_modifier(type, mod, false, false, false),
+        ...gen_attached_modifier(type, mod, false, true, true),
+        ...gen_attached_modifier(type, mod, false, false, true),
     }
 }
 
 function gen_verbatim_attached_modifier(type, mod) {
     return {
-        ...gen_attached_modifier(type, mod, true, true),
-        ...gen_attached_modifier(type, mod, true, false),
+        ...gen_attached_modifier(type, mod, true, true, false),
+        ...gen_attached_modifier(type, mod, true, false, false),
+        ...gen_attached_modifier(type, mod, true, true, true),
+        ...gen_attached_modifier(type, mod, true, false, true),
     }
 }

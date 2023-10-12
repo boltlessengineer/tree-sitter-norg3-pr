@@ -1,0 +1,34 @@
+================================================================================
+Higher precedence than non-verbatim attached modifiers
+================================================================================
+[link but not *bold]*]
+
+[link but not *bold.]*]
+
+[link but not *bold] and not link here*]
+
+[link but not *including]bold*]
+
+[link and *bold ]*]
+
+*valid bold]*
+--------------------------------------------------------------------------------
+
+(document
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description
+      (bold
+        (open)
+        (close))))
+  (paragraph
+    (bold
+      (open)
+      (close))))
