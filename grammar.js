@@ -16,6 +16,8 @@ const ATTACHED_MODIFIER_TYPES = [
     "inline_macro",
 ]
 
+const PREC_LEVEL_STRUCTURAL_DETACHED = 7;
+const PREC_LEVEL_NESTABLE_DETACHED = 6;
 const PREC_LEVEL_LINK = 5;
 const PREC_LEVEL_FREE_FORM_VERBATIM_ATTACHED_MODIFIER = 4;
 const PREC_LEVEL_VERBATIM_ATTACHED_MODIFIER = 3;
@@ -271,6 +273,7 @@ module.exports = grammar({
         title: ($) => $._inline_paragraph_segment,
 
         heading: ($) =>
+            prec.dynamic(PREC_LEVEL_STRUCTURAL_DETACHED,
             prec.right(
                 seq(
                     $.heading_stars,
@@ -281,7 +284,7 @@ module.exports = grammar({
                     repeat(choice($.heading, $.non_structural)),
                     optional(choice($._dedent, $.weak_delimiting_modifier)),
                 ),
-            ),
+            )),
 
         nestable_modifier: ($) =>
             choice($.unordered_list, $.ordered_list, $.quote),
@@ -437,7 +440,7 @@ module.exports = grammar({
             ),
 
         verbatim_ranged_tag: ($) =>
-            prec.dynamic(5,
+            prec.dynamic(PREC_LEVEL_NESTABLE_DETACHED,
             seq(
                 "@",
                 $.tag_name,
@@ -761,88 +764,54 @@ module.exports = grammar({
 
         link_description: ($) => seq(
             $._link_desc_open,
-            choice(
-                $._link_desc_word_segment,
-                $._link_desc_ws_punc_segment,
-                $._link_desc_att_mod_segment,
-            )
+            $._link_desc_paragraph_segment,
+            repeat(seq(newline, $._link_desc_paragraph_segment)),
+            $._link_desc_close,
         ),
         // NOTE: this complex token is for filtering preceding whitespace
         // inside link description
         _link_desc_open: (_) => token(seq("[", optional(/\p{Zs}+/u))),
         _link_desc_close: (_) => "]",
-        _link_desc_word_segment: ($) => seq(
-            $._word,
-            choice(
-                $._link_desc_ws_punc_segment,
-                $._link_desc_newline_segment,
-                $._link_desc_close,
-                seq($.link_modifier, $._link_desc_att_mod_segment),
-            )
+        _link_desc_paragraph_segment: ($) => choice(
+            $._link_desc_word_segment,
+            $._link_desc_ws_punc_segment,
+            $._link_desc_att_mod_segment,
         ),
-        _link_desc_ws_punc_segment: ($) => seq(
+        _link_desc_word_segment: ($) => prec.right(seq(
+            $._word,
+            optional(
+                choice(
+                    $._link_desc_ws_punc_segment,
+                    seq($.link_modifier, $._link_desc_att_mod_segment),
+                )
+            )
+        )),
+        _link_desc_ws_punc_segment: ($) => prec.right(seq(
             choice(
                 $._whitespace,
                 $.linkable_punctuation,
                 $.escape_sequence,
             ),
-            choice(
-                $._link_desc_word_segment,
-                $._link_desc_ws_punc_segment,
-                $._link_desc_att_mod_segment,
-                $._link_desc_newline_segment,
-                $._link_desc_close
+            optional(
+                choice(
+                    $._link_desc_word_segment,
+                    $._link_desc_ws_punc_segment,
+                    $._link_desc_att_mod_segment,
+                )
             )
-        ),
-        _link_desc_att_mod_segment: ($) => seq(
+        )),
+        _link_desc_att_mod_segment: ($) => prec.right(seq(
             choice(
                 ...ATTACHED_MODIFIER_TYPES.map(n => alias($["linkable_" + n], $[n])),
             ),
-            choice(
-                $._link_desc_ws_punc_segment,
-                $._link_desc_att_mod_segment,
-                $._link_desc_newline_segment,
-                $._link_desc_close,
-                seq($.link_modifier, $._link_desc_word_segment),
-            )
-        ),
-        _link_desc_safe_punc_segment: ($) => choice(
-            seq(
+            optional(
                 choice(
-                    $._heading_conflict,
-                    $._ul_conflict,
-                    $._ol_conflict,
-                ),
-                choice(
-                    $._link_desc_word_segment,
                     $._link_desc_ws_punc_segment,
                     $._link_desc_att_mod_segment,
-                    $._link_desc_newline_segment,
-                    $._link_desc_close,
+                    seq($.link_modifier, $._link_desc_word_segment),
                 )
-            ),
-            seq(
-                choice(
-                    $._punctuation,
-                    $.escape_sequence,
-                ),
-                choice(
-                    $._link_desc_word_segment,
-                    $._link_desc_ws_punc_segment,
-                    $._link_desc_att_mod_segment,
-                    $._link_desc_newline_segment,
-                    $._link_desc_close,
-                ),
             )
-        ),
-        _link_desc_newline_segment: ($) => seq(
-            newline,
-            choice(
-                $._link_desc_word_segment,
-                $._link_desc_safe_punc_segment,
-                $._link_desc_att_mod_segment,
-            ),
-        ),
+        )),
 
         // TODO: slide
     },

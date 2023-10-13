@@ -64,3 +64,28 @@ bold*
       (open)
       (close))))
 
+================================================================================
+Higher precedence than linkables
+================================================================================
+[link
+@code
+text]
+@end
+
+[link
+* heading
+text]
+--------------------------------------------------------------------------------
+
+(document
+  (paragraph)
+  (verbatim_ranged_tag
+    (tag_name
+      (identifier))
+    (verbatim_content)
+    (end))
+  (paragraph)
+  (heading
+    (heading_stars)
+    (title)
+    (paragraph)))
