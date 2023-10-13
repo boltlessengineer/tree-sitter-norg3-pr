@@ -1,15 +1,56 @@
 ================================================================================
+Valid Examples
+================================================================================
+[text ]
+
+[ text ]
+
+[ text]
+--------------------------------------------------------------------------------
+
+(document
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description)))
+
+================================================================================
+Invalid Examples
+================================================================================
+[text
+]
+
+[
+text
+]
+
+[
+text]
+
+[ 
+preceding whitespace]
+--------------------------------------------------------------------------------
+
+(document
+  (paragraph)
+  (paragraph)
+  (paragraph)
+  (paragraph))
+
+================================================================================
 Higher precedence than non-verbatim attached modifiers
 ================================================================================
-[link but not *bold]*]
+[not *bold]*]
 
-[link but not *bold.]*]
+[not *bold.]*]
 
-[link but not *bold] and not link here*]
+[not *bold] and not link here*]
 
-[link but not *including]bold*]
+[not *including]bold*]
 
-[link and *bold ]*]
+[not *bold ]*]
 
 *valid bold]*
 --------------------------------------------------------------------------------
@@ -24,11 +65,104 @@ Higher precedence than non-verbatim attached modifiers
   (paragraph
     (link_description))
   (paragraph
-    (link_description
-      (bold
-        (open)
-        (close))))
+    (link_description))
   (paragraph
     (bold
       (open)
       (close))))
+
+================================================================================
+Higher precedence than free-form non-verbatim attached modifiers
+================================================================================
+[not *|bold]|*]
+
+[not *|bold.]|*]
+
+[not *|bold] and not link here|*]
+
+[not *|including]bold|*]
+
+[not *|bold ]|*]
+
+*|valid bold]|*
+--------------------------------------------------------------------------------
+
+(document
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (bold
+      (free_open)
+      (free_close))))
+
+================================================================================
+Higher precedence than verbatim attached modifiers
+================================================================================
+[not `verbatim]`]
+
+[not `verbatim.]`]
+
+[not `verbatim] and not link here`]
+
+[not `including]verbatim`]
+
+[not `verbatim ]`]
+
+`valid verbatim]`
+--------------------------------------------------------------------------------
+
+(document
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (verbatim
+      (open)
+      (close))))
+
+================================================================================
+Higher precedence than free-form verbatim attached modifiers
+================================================================================
+[not `|verbatim]|`]
+
+[not `|verbatim.]|`]
+
+[not `|verbatim] and not link here|`]
+
+[not `|including]verbatim|`]
+
+[not `|verbatim ]|`]
+
+`|valid verbatim]|`
+--------------------------------------------------------------------------------
+
+(document
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (link_description))
+  (paragraph
+    (verbatim
+      (free_open)
+      (free_close))))

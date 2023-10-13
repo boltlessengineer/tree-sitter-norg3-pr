@@ -14,6 +14,108 @@
     ]
   },
   {
+    "type": "linkable_punctuation",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "!",
+        "named": false
+      },
+      {
+        "type": "!!",
+        "named": false
+      },
+      {
+        "type": "$",
+        "named": false
+      },
+      {
+        "type": "$$",
+        "named": false
+      },
+      {
+        "type": "%",
+        "named": false
+      },
+      {
+        "type": "%%",
+        "named": false
+      },
+      {
+        "type": "&",
+        "named": false
+      },
+      {
+        "type": "&&",
+        "named": false
+      },
+      {
+        "type": "*",
+        "named": false
+      },
+      {
+        "type": ",",
+        "named": false
+      },
+      {
+        "type": ",,",
+        "named": false
+      },
+      {
+        "type": "-",
+        "named": false
+      },
+      {
+        "type": "/",
+        "named": false
+      },
+      {
+        "type": "//",
+        "named": false
+      },
+      {
+        "type": ":",
+        "named": false
+      },
+      {
+        "type": "@",
+        "named": false
+      },
+      {
+        "type": "^",
+        "named": false
+      },
+      {
+        "type": "^^",
+        "named": false
+      },
+      {
+        "type": "_",
+        "named": false
+      },
+      {
+        "type": "__",
+        "named": false
+      },
+      {
+        "type": "`",
+        "named": false
+      },
+      {
+        "type": "``",
+        "named": false
+      },
+      {
+        "type": "|",
+        "named": false
+      },
+      {
+        "type": "~",
+        "named": false
+      }
+    ]
+  },
+  {
     "type": "linkables",
     "named": true,
     "subtypes": [
@@ -145,14 +247,6 @@
       },
       {
         "type": "@",
-        "named": false
-      },
-      {
-        "type": "[",
-        "named": false
-      },
-      {
-        "type": "]",
         "named": false
       },
       {
@@ -332,6 +426,10 @@
           "named": true
         },
         {
+          "type": "linkable_punctuation",
+          "named": true
+        },
+        {
           "type": "linkables",
           "named": true
         },
@@ -341,10 +439,6 @@
         },
         {
           "type": "open",
-          "named": true
-        },
-        {
-          "type": "punctuation",
           "named": true
         },
         {
@@ -694,15 +788,15 @@
           "named": true
         },
         {
+          "type": "linkable_punctuation",
+          "named": true
+        },
+        {
           "type": "linkables",
           "named": true
         },
         {
           "type": "open",
-          "named": true
-        },
-        {
-          "type": "punctuation",
           "named": true
         }
       ]
@@ -733,15 +827,15 @@
           "named": true
         },
         {
+          "type": "linkable_punctuation",
+          "named": true
+        },
+        {
           "type": "linkables",
           "named": true
         },
         {
           "type": "open",
-          "named": true
-        },
-        {
-          "type": "punctuation",
           "named": true
         }
       ]
@@ -788,6 +882,10 @@
           "named": true
         },
         {
+          "type": "linkable_punctuation",
+          "named": true
+        },
+        {
           "type": "linkables",
           "named": true
         },
@@ -797,10 +895,6 @@
         },
         {
           "type": "open",
-          "named": true
-        },
-        {
-          "type": "punctuation",
           "named": true
         },
         {
@@ -863,11 +957,11 @@
           "named": true
         },
         {
-          "type": "null_modifier",
+          "type": "linkable_punctuation",
           "named": true
         },
         {
-          "type": "punctuation",
+          "type": "null_modifier",
           "named": true
         },
         {
@@ -954,15 +1048,15 @@
           "named": true
         },
         {
+          "type": "linkable_punctuation",
+          "named": true
+        },
+        {
           "type": "linkables",
           "named": true
         },
         {
           "type": "open",
-          "named": true
-        },
-        {
-          "type": "punctuation",
           "named": true
         }
       ]
@@ -1219,6 +1313,10 @@
           "named": true
         },
         {
+          "type": "linkable_punctuation",
+          "named": true
+        },
+        {
           "type": "linkables",
           "named": true
         },
@@ -1228,10 +1326,6 @@
         },
         {
           "type": "open",
-          "named": true
-        },
-        {
-          "type": "punctuation",
           "named": true
         },
         {
@@ -1302,6 +1396,10 @@
           "named": true
         },
         {
+          "type": "linkable_punctuation",
+          "named": true
+        },
+        {
           "type": "linkables",
           "named": true
         },
@@ -1311,10 +1409,6 @@
         },
         {
           "type": "open",
-          "named": true
-        },
-        {
-          "type": "punctuation",
           "named": true
         },
         {
@@ -1409,6 +1503,10 @@
           "named": true
         },
         {
+          "type": "linkable_punctuation",
+          "named": true
+        },
+        {
           "type": "linkables",
           "named": true
         },
@@ -1418,10 +1516,6 @@
         },
         {
           "type": "open",
-          "named": true
-        },
-        {
-          "type": "punctuation",
           "named": true
         },
         {
@@ -1492,6 +1586,10 @@
           "named": true
         },
         {
+          "type": "linkable_punctuation",
+          "named": true
+        },
+        {
           "type": "linkables",
           "named": true
         },
@@ -1501,10 +1599,6 @@
         },
         {
           "type": "open",
-          "named": true
-        },
-        {
-          "type": "punctuation",
           "named": true
         },
         {
@@ -1824,6 +1918,10 @@
           "named": true
         },
         {
+          "type": "linkable_punctuation",
+          "named": true
+        },
+        {
           "type": "linkables",
           "named": true
         },
@@ -1833,10 +1931,6 @@
         },
         {
           "type": "open",
-          "named": true
-        },
-        {
-          "type": "punctuation",
           "named": true
         },
         {
@@ -1929,15 +2023,15 @@
           "named": true
         },
         {
+          "type": "linkable_punctuation",
+          "named": true
+        },
+        {
           "type": "linkables",
           "named": true
         },
         {
           "type": "open",
-          "named": true
-        },
-        {
-          "type": "punctuation",
           "named": true
         }
       ]
@@ -2125,15 +2219,7 @@
     "named": false
   },
   {
-    "type": "[",
-    "named": false
-  },
-  {
     "type": "\\",
-    "named": false
-  },
-  {
-    "type": "]",
     "named": false
   },
   {

@@ -60,7 +60,7 @@ module.exports = grammar({
         [$._punctuation, $._inline_macro_open],
         [$._punctuation, $.link_modifier],
         [$._punctuation, $._free_open],
-        [$._punctuation, $._link_desc_open],
+        [$._punctuation, $.link_description],
 
         // make conflict for paragraph itself to allow breaking by precedence level on runtime
         [$.paragraph],
@@ -74,7 +74,6 @@ module.exports = grammar({
         [$.footnote_list_multi, $._punctuation],
         [$.definition_list_multi, $._punctuation],
         [$.table_cell_single, $._punctuation],
-        [$._link_desc_close, $._link_desc_close_conflict],
     ],
 
     inlines: ($) => [],
@@ -87,6 +86,7 @@ module.exports = grammar({
         $.todo_item,
         $.delimiting_modifier,
         $.punctuation,
+        $.linkable_punctuation,
         $.linkables,
     ],
 
@@ -116,7 +116,13 @@ module.exports = grammar({
             $._heading_conflict,
             $._ul_conflict,
             $._ol_conflict,
-            $._link_desc_close_conflict,
+            $._link_desc_close,
+        ),
+        linkable_punctuation: ($) => choice(
+            $._punctuation,
+            $._heading_conflict,
+            $._ul_conflict,
+            $._ol_conflict,
         ),
         _punctuation: ($) => choice(
             // to make conflict with attached modifier openers
@@ -142,9 +148,9 @@ module.exports = grammar({
             ":",
             "|",
             "@",
-            "[",
-            // NOTE: "]" is also disallowed in the pattern below
-            token(/[^\n\r\p{Z}\p{L}\p{N}\]]/u),
+            $._link_desc_open,
+            // NOTE: link description modifiers is also disallowed in the pattern below
+            token(/[^\n\r\p{Z}\p{L}\p{N}\[\]]/u),
         ),
         // these are for breaking attached modifier when structural modifiers come after eol
         _heading_conflict: (_) => choice(
@@ -156,7 +162,6 @@ module.exports = grammar({
         _ol_conflict: (_) => choice(
             "~", prec(1, token(seq("~", repeat1("~"))))
         ),
-        _link_desc_close_conflict: (_) => "]",
 
         _word: ($) => prec.right(-1, repeat1($._character)),
         _whitespace: (_) => token(prec(1, /\p{Zs}+/u)),
@@ -758,57 +763,43 @@ module.exports = grammar({
             $._link_desc_open,
             choice(
                 $._link_desc_word_segment,
-                $._link_desc_punc_segment,
+                $._link_desc_ws_punc_segment,
                 $._link_desc_att_mod_segment,
             )
         ),
-        _link_desc_open: (_) => "[",
+        // NOTE: this complex token is for filtering preceding whitespace
+        // inside link description
+        _link_desc_open: (_) => token(seq("[", optional(/\p{Zs}+/u))),
         _link_desc_close: (_) => "]",
         _link_desc_word_segment: ($) => seq(
             $._word,
             choice(
-                $._link_desc_ws_segment,
-                $._link_desc_punc_segment,
+                $._link_desc_ws_punc_segment,
                 $._link_desc_newline_segment,
                 $._link_desc_close,
                 seq($.link_modifier, $._link_desc_att_mod_segment),
             )
         ),
-        _link_desc_ws_segment: ($) => seq(
-            $._whitespace,
+        _link_desc_ws_punc_segment: ($) => seq(
             choice(
-                $._link_desc_word_segment,
-                $._link_desc_ws_segment,
-                $._link_desc_punc_segment,
-                $._link_desc_att_mod_segment,
-                $._link_desc_newline_segment,
-            )
-        ),
-        // NOTE: this doesn't works... this either just disables bold inside link
-        // _link_desc_punc_segment: ($) => prec.dynamic(10, seq(
-        _link_desc_punc_segment: ($) => seq(
-            choice(
-                $.punctuation,
+                $._whitespace,
+                $.linkable_punctuation,
                 $.escape_sequence,
             ),
             choice(
                 $._link_desc_word_segment,
-                $._link_desc_ws_segment,
-                $._link_desc_punc_segment,
+                $._link_desc_ws_punc_segment,
                 $._link_desc_att_mod_segment,
                 $._link_desc_newline_segment,
                 $._link_desc_close
             )
         ),
         _link_desc_att_mod_segment: ($) => seq(
-            // sol: lower the attached modifier's precedence inside link_description
-            // ... no this just disables attached modifier inside linkable
             choice(
                 ...ATTACHED_MODIFIER_TYPES.map(n => alias($["linkable_" + n], $[n])),
             ),
             choice(
-                $._link_desc_ws_segment,
-                $._link_desc_punc_segment,
+                $._link_desc_ws_punc_segment,
                 $._link_desc_att_mod_segment,
                 $._link_desc_newline_segment,
                 $._link_desc_close,
@@ -824,7 +815,7 @@ module.exports = grammar({
                 ),
                 choice(
                     $._link_desc_word_segment,
-                    $._link_desc_punc_segment,
+                    $._link_desc_ws_punc_segment,
                     $._link_desc_att_mod_segment,
                     $._link_desc_newline_segment,
                     $._link_desc_close,
@@ -837,8 +828,7 @@ module.exports = grammar({
                 ),
                 choice(
                     $._link_desc_word_segment,
-                    $._link_desc_ws_segment,
-                    $._link_desc_punc_segment,
+                    $._link_desc_ws_punc_segment,
                     $._link_desc_att_mod_segment,
                     $._link_desc_newline_segment,
                     $._link_desc_close,
@@ -858,13 +848,6 @@ module.exports = grammar({
     },
 });
 
-// TODO: use this function to make rule for link_description,
-// link_description is basically attached modifier
-// (with higher precedence level than verbatim attached modifier)
-
-// NOTE: nope, that solution doesn't work,
-// because link_description is kinda _non-verbatim attached modifier_
-// we can't use solution same as verbatim modifier
 function gen_attached_modifier(type, mod, verbatim, not_inline, linkable) {
     const rules = {};
     const other_modifiers = ATTACHED_MODIFIER_TYPES.filter((t) => t != type);
@@ -876,7 +859,6 @@ function gen_attached_modifier(type, mod, verbatim, not_inline, linkable) {
     const ws_segment = `_${prefix + type}_ws_segment`;
     const punc_segment = `_${prefix + type}_punc_segment`;
     const safe_punc_segment = `_${prefix + type}_safe_punc_segment`;
-    const link_desc_close_conflict = `_${prefix + type}_safe_link_close_punc_segment`
     const att_mod_segment = `_${prefix + type}_attached_modifier_segment`;
     const newline_segment = `_${type}_newline_segment`;
 
@@ -917,40 +899,21 @@ function gen_attached_modifier(type, mod, verbatim, not_inline, linkable) {
                 $[word_segment],
                 $[ws_segment],
                 $[punc_segment],
-                linkable ? $[link_desc_close_conflict] : null,
                 verbatim ? null : $[att_mod_segment],
                 not_inline ? $[newline_segment] : null,
             ].filter(n => n !== null)
         )
     )
-    if (linkable) {
-        rules[link_desc_close_conflict] = ($) => seq(
-            $._link_desc_close_conflict,
-            choice(
-                ...[
-                    $[word_segment],
-                    $[ws_segment],
-                    $[punc_segment],
-                    verbatim ? null : $[att_mod_segment],
-                    not_inline ? $[newline_segment] : null,
-                    $[close],
-                ].filter(n => n !== null)
-            )
-        )
-    }
-    rules[punc_segment] = ($) => seq(
-        choice(
-            ...[
-            $._punctuation,
-            $._heading_conflict,
-            $._ul_conflict,
-            $._ol_conflict,
-            linkable ? null : $._link_desc_close_conflict,
+    const punctuation = ($) => choice(
+        ...[
+            $.linkable_punctuation,
+            linkable ? null : $._link_desc_close,
             $.escape_sequence,
-            // TODO: use inline varient too
-            $.linkables,
-            ].filter(n => n !== null)
-        ),
+            not_inline ? $.linkables : null,
+        ].filter(n => n !== null)
+    )
+    rules[punc_segment] = ($) => seq(
+        punctuation($),
         choice(
             ...[
                 $[word_segment],
@@ -1020,7 +983,6 @@ function gen_attached_modifier(type, mod, verbatim, not_inline, linkable) {
             choice(
                 ...[
                     $[word_segment],
-                    // FIXME: should `- \n` be allowed here? (see norg-specs/issues/24)
                     $[safe_punc_segment],
                     verbatim ? null : $[att_mod_segment],
                 ].filter(n => n !== null)
@@ -1042,7 +1004,7 @@ function gen_attached_modifier(type, mod, verbatim, not_inline, linkable) {
     rules[free_ws_punc_segment] = ($) => seq(
         choice(
             $._whitespace,
-            $.punctuation,
+            punctuation($),
         ),
         choice(
             ...[
@@ -1082,11 +1044,7 @@ function gen_attached_modifier(type, mod, verbatim, not_inline, linkable) {
                     ...[
                         $[free_word_segment],
                         seq(
-                            // $.punctuation,
-                            $._punctuation,
-                            $._heading_conflict,
-                            $._ul_conflict,
-                            $._ol_conflict,
+                            punctuation($),
                             choice(
                                 ...[
                                     $[free_word_segment],
@@ -1105,7 +1063,12 @@ function gen_attached_modifier(type, mod, verbatim, not_inline, linkable) {
             ),
             seq(
                 choice(
-                    $._punctuation,
+                    ...[
+                        $._punctuation,
+                        linkable ? null : $._link_desc_close,
+                        $.escape_sequence,
+                        not_inline ? $.linkables : null,
+                    ].filter(n => n !== null)
                 ),
                 choice(
                     ...[
