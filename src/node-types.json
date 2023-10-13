@@ -537,6 +537,10 @@
           "named": true
         },
         {
+          "type": "intersecting_modifier",
+          "named": true
+        },
+        {
           "type": "non_structural",
           "named": true
         },
@@ -561,6 +565,10 @@
         },
         {
           "type": "detached_modifier_extension",
+          "named": true
+        },
+        {
+          "type": "intersecting_modifier",
           "named": true
         },
         {
@@ -667,6 +675,10 @@
           "named": true
         },
         {
+          "type": "intersecting_modifier",
+          "named": true
+        },
+        {
           "type": "non_structural",
           "named": true
         },
@@ -691,6 +703,10 @@
         },
         {
           "type": "footnote_single_prefix",
+          "named": true
+        },
+        {
+          "type": "intersecting_modifier",
           "named": true
         },
         {
@@ -727,6 +743,10 @@
         },
         {
           "type": "heading_stars",
+          "named": true
+        },
+        {
+          "type": "intersecting_modifier",
           "named": true
         },
         {
@@ -867,6 +887,11 @@
     }
   },
   {
+    "type": "intersecting_modifier",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "italic",
     "named": true,
     "fields": {},
@@ -963,6 +988,10 @@
         },
         {
           "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "inline_linkables",
           "named": true
         },
         {
@@ -1681,6 +1710,10 @@
           "named": true
         },
         {
+          "type": "intersecting_modifier",
+          "named": true
+        },
+        {
           "type": "non_structural",
           "named": true
         },
@@ -1709,6 +1742,10 @@
       "types": [
         {
           "type": "detached_modifier_extension",
+          "named": true
+        },
+        {
+          "type": "intersecting_modifier",
           "named": true
         },
         {

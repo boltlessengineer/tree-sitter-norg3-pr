@@ -237,7 +237,7 @@ module.exports = grammar({
             $._ws_punc_segment,
             $._att_mod_seg,
         ),
-        _inline_word_segment: ($) => prec.right(seq(
+        _inline_word_segment: ($) => prec.left(seq(
             $._word,
             optional(
                 choice(
@@ -246,7 +246,7 @@ module.exports = grammar({
                 ),
             )
         )),
-        _inline_ws_punc_segment: ($) => prec.right(seq(
+        _inline_ws_punc_segment: ($) => prec.left(seq(
             choice(
                 $._whitespace,
                 $.punctuation,
@@ -255,7 +255,7 @@ module.exports = grammar({
             ),
             optional($._inline_paragraph_segment)
         )),
-        _inline_att_mod_seg: ($) => prec.right(seq(
+        _inline_att_mod_seg: ($) => prec.left(seq(
             choice(
                 ...ATTACHED_MODIFIER_TYPES.map(n => alias($["inline_" + n], $[n]))
             ),
@@ -275,6 +275,10 @@ module.exports = grammar({
 
         title: ($) => $._inline_paragraph_segment,
 
+        // FIXME: edge case:
+        // * title about `| : |`
+        intersecting_modifier: (_) => prec.dynamic(100, token(prec(1, /\p{Zs}+:\p{Zs}+/u))),
+
         heading: ($) =>
             prec.dynamic(PREC_LEVEL_STRUCTURAL_DETACHED,
             prec.right(
@@ -283,7 +287,7 @@ module.exports = grammar({
                     $._whitespace,
                     optional(seq($.detached_modifier_extension, $._whitespace)),
                     $.title,
-                    newline_or_eof,
+                    choice($.intersecting_modifier, newline_or_eof),
                     repeat(choice($.heading, $.non_structural)),
                     optional(choice($._dedent, $.weak_delimiting_modifier)),
                 ),
@@ -346,7 +350,8 @@ module.exports = grammar({
                 $._whitespace,
                 optional(seq($.detached_modifier_extension, $._whitespace)),
                 $.title,
-                repeat1(newline),
+                choice($.intersecting_modifier, newline),
+                repeat(newline),
                 $.paragraph,
             ),
 
@@ -357,7 +362,7 @@ module.exports = grammar({
                     $._whitespace,
                     optional(seq($.detached_modifier_extension, $._whitespace)),
                     $.title,
-                    newline_or_eof,
+                    choice($.intersecting_modifier, newline),
                     repeat($.non_structural),
                     alias("$$", $.definition_multi_end),
                 ),
@@ -372,7 +377,8 @@ module.exports = grammar({
                 $._whitespace,
                 optional(seq($.detached_modifier_extension, $._whitespace)),
                 $.title,
-                repeat1(newline),
+                choice($.intersecting_modifier, newline),
+                repeat(newline),
                 $.paragraph,
             ),
 
@@ -383,7 +389,7 @@ module.exports = grammar({
                     $._whitespace,
                     optional(seq($.detached_modifier_extension, $._whitespace)),
                     $.title,
-                    newline_or_eof,
+                    choice($.intersecting_modifier, newline_or_eof),
                     repeat($.non_structural),
                     alias("^^", $.footnote_multi_end),
                 ),
@@ -397,7 +403,8 @@ module.exports = grammar({
                 $._whitespace,
                 optional(seq($.detached_modifier_extension, $._whitespace)),
                 $.title,
-                repeat1(newline),
+                choice($.intersecting_modifier, newline),
+                repeat(newline),
                 $.paragraph,
             ),
 
@@ -408,7 +415,7 @@ module.exports = grammar({
                     $._whitespace,
                     optional(seq($.detached_modifier_extension, $._whitespace)),
                     $.title,
-                    newline_or_eof,
+                    choice($.intersecting_modifier, newline_or_eof),
                     repeat($.non_structural),
                     alias("::", $.table_cell_multi_end),
                 ),
@@ -842,6 +849,7 @@ module.exports = grammar({
                 $._whitespace,
                 $.linkable_punctuation,
                 $.escape_sequence,
+                $.inline_linkables,
             ),
             optional(
                 choice(
