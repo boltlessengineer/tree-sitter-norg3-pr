@@ -64,9 +64,16 @@ module.exports = grammar({
         [$._punctuation, $._free_open],
         [$._punctuation, $.link_description],
         [$._punctuation, $.inline_link_description],
+        [$._punctuation, $._link_loc_open],
 
         // make conflict for paragraph itself to allow breaking by precedence level on runtime
         [$.paragraph],
+        [$.anchor],
+        [$.link],
+        [$.link_location],
+        [$.inline_anchor],
+        [$.inline_link],
+        [$.inline_link_location]
     ],
 
     precedences: ($) => [
@@ -77,6 +84,7 @@ module.exports = grammar({
         [$.footnote_list_multi, $._punctuation],
         [$.definition_list_multi, $._punctuation],
         [$.table_cell_single, $._punctuation],
+        [$._file_loc_close, $._punctuation],
     ],
 
     inlines: ($) => [],
@@ -153,6 +161,8 @@ module.exports = grammar({
             "|",
             "@",
             $._link_desc_open,
+            "{",
+            "}",
             // NOTE: link description modifiers is also disallowed in the pattern below
             token(/[^\n\r\p{Z}\p{L}\p{N}\[\]]/u),
         ),
@@ -767,21 +777,103 @@ module.exports = grammar({
         horizontal_line: ($) =>
             prec.right(seq("_", repeat1("_"), newline_or_eof)),
 
-        // TODO: linkables
-        linkables: ($) => prec.dynamic(PREC_LEVEL_LINK, choice(
-            $.link_description,
-        )),
-        inline_linkables: ($) => prec.dynamic(PREC_LEVEL_LINK, choice(
-            $.inline_link_description,
-        )),
+        linkables: ($) => choice($.anchor, $.link),
+        inline_linkables: ($) => choice(
+            alias($.inline_anchor, $.anchor),
+            alias($.inline_link, $.link),
+        ),
 
-        link_description: ($) => seq(
+        link: ($) =>
+            seq(
+                $.link_location,
+                optional(prec.dynamic(1, $.link_description))
+            ),
+        anchor: ($) =>
+            seq(
+                $.link_description,
+                optional(prec.dynamic(1, $.link_location))
+            ),
+        inline_link: ($) =>
+            seq(
+                alias($.inline_link_location, $.link_location),
+                optional(prec.dynamic(1, alias($.inline_link_description, $.link_description))),
+            ),
+        inline_anchor: ($) =>
+            seq(
+                alias($.inline_link_description, $.link_description),
+                optional(prec.dynamic(1, alias($.inline_link_location, $.link_location))),
+            ),
+
+        _link_loc_open: (_) => "{",
+        _link_loc_close: (_) => prec(1, "}"),
+        _file_loc_close: (_) => ":",
+        // TODO: parse more informations from link location
+        link_location: ($) => seq(
+            $._link_loc_open,
+            choice(
+                // seq(
+                //     ":",
+                //     alias(seq(
+                //         choice($._word, $.punctuation),
+                //         repeat(choice($._word, $.punctuation, $._whitespace)),
+                //         repeat(seq(
+                //             newline,
+                //             repeat1(choice($._word, $.punctuation, $._whitespace))
+                //         )),
+                //     ), $.file_loc),
+                //     $._file_loc_close,
+                // ),
+                seq(
+                    // prec(1, $._link_location_prefix),
+                    choice($._word, $.punctuation),
+                    repeat(choice($._word, $.punctuation, $._whitespace)),
+                    repeat(seq(
+                        newline,
+                        repeat1(choice($._word, $.punctuation, $._whitespace))
+                    )),
+                ),
+                // alias(seq(
+                //     $._word,
+                //     repeat(choice($._word, $.punctuation, $._whitespace)),
+                //     repeat(seq(
+                //         newline,
+                //         repeat1(choice($._word, $.punctuation, $._whitespace))
+                //     )),
+                // ), $.url),
+            ),
+            $._link_loc_close,
+        ),
+        inline_link_location: ($) => seq(
+            $._link_loc_open,
+            choice(
+                seq(
+                    // prec(1, $._link_location_prefix),
+                    choice($._word, $.punctuation),
+                    repeat(choice($._word, $.punctuation, $._whitespace)),
+                ),
+                // alias(seq(
+                //     $._word,
+                //     repeat(choice($._word, $.punctuation, $._whitespace)),
+                // ), $.url),
+            )
+        ),
+        _link_location_prefix: ($) => seq(
+            choice(
+                alias(repeat1("*"), $.heading_prefix),
+                alias(repeat1("-"), $.ul_prefix),
+                alias(repeat1("~"), $.ol_prefix),
+                alias("/", $.file_prefix),
+                // TODO: add more
+            ),
+            choice(seq($._whitespace, optional(newline)), newline),
+        ),
+        link_description: ($) => prec.dynamic(PREC_LEVEL_LINK, seq(
             $._link_desc_open,
             $._link_desc_paragraph_segment,
             repeat(seq(newline, $._link_desc_paragraph_segment)),
             $._link_desc_close,
-        ),
-        inline_link_description: ($) => alias(seq(
+        )),
+        inline_link_description: ($) => seq(
             $._link_desc_open,
             choice(
                 $._inline_link_desc_word_segment,
@@ -789,7 +881,7 @@ module.exports = grammar({
                 $._inline_link_desc_att_mod_segment,
             ),
             $._link_desc_close,
-        ), $.link_description),
+        ),
         // NOTE: this complex token is for filtering preceding whitespace
         // inside link description
         _link_desc_open: (_) => token(seq("[", optional(/\p{Zs}+/u))),

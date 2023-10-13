@@ -1,6 +1,17 @@
 ================================================================================
 Valid Examples
 ================================================================================
+{link}
+
+{*
+text}
+
+{* 
+text}
+
+{* some
+text   }
+
 [text ]
 
 [ text ]
@@ -10,11 +21,26 @@ Valid Examples
 
 (document
   (paragraph
-    (link_description))
+    (link
+      (link_location)))
   (paragraph
-    (link_description))
+    (link
+      (link_location)))
   (paragraph
-    (link_description)))
+    (link
+      (link_location)))
+  (paragraph
+    (link
+      (link_location)))
+  (paragraph
+    (anchor
+      (link_description)))
+  (paragraph
+    (anchor
+      (link_description)))
+  (paragraph
+    (anchor
+      (link_description))))
 
 ================================================================================
 Invalid Examples
@@ -57,15 +83,20 @@ Higher precedence than non-verbatim attached modifiers
 
 (document
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
     (bold
       (open)
@@ -89,15 +120,20 @@ Higher precedence than free-form non-verbatim attached modifiers
 
 (document
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
     (bold
       (free_open)
@@ -121,15 +157,20 @@ Higher precedence than verbatim attached modifiers
 
 (document
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
     (verbatim
       (open)
@@ -153,15 +194,20 @@ Higher precedence than free-form verbatim attached modifiers
 
 (document
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
-    (link_description))
+    (anchor
+      (link_description)))
   (paragraph
     (verbatim
       (free_open)
