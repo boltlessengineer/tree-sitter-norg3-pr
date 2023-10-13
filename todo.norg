@@ -18,8 +18,8 @@
 -- (x) add all non verbatim attached modifiers
 -- (x) add all verbatim attached modifiers
 - ( ) add links/anchors
+-- (x) POC for link description
 -- ( ) add tests for links/anchors
--- IDEA: link_description == attached modifier (with higher precedence than punctuation)
 - (x) revert all block types
 -- (x) nestable modifier
 -- (x) rangeable detached modifier

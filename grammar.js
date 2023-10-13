@@ -63,6 +63,7 @@ module.exports = grammar({
         [$._punctuation, $.link_modifier],
         [$._punctuation, $._free_open],
         [$._punctuation, $.link_description],
+        [$._punctuation, $.inline_link_description],
 
         // make conflict for paragraph itself to allow breaking by precedence level on runtime
         [$.paragraph],
@@ -90,6 +91,7 @@ module.exports = grammar({
         $.punctuation,
         $.linkable_punctuation,
         $.linkables,
+        $.inline_linkables,
     ],
 
     rules: {
@@ -249,6 +251,7 @@ module.exports = grammar({
                 $._whitespace,
                 $.punctuation,
                 $.escape_sequence,
+                $.inline_linkables,
             ),
             optional($._inline_paragraph_segment)
         )),
@@ -761,6 +764,9 @@ module.exports = grammar({
         linkables: ($) => prec.dynamic(PREC_LEVEL_LINK, choice(
             $.link_description,
         )),
+        inline_linkables: ($) => prec.dynamic(PREC_LEVEL_LINK, choice(
+            $.inline_link_description,
+        )),
 
         link_description: ($) => seq(
             $._link_desc_open,
@@ -768,6 +774,15 @@ module.exports = grammar({
             repeat(seq(newline, $._link_desc_paragraph_segment)),
             $._link_desc_close,
         ),
+        inline_link_description: ($) => alias(seq(
+            $._link_desc_open,
+            choice(
+                $._inline_link_desc_word_segment,
+                $._inline_link_desc_ws_punc_segment,
+                $._inline_link_desc_att_mod_segment,
+            ),
+            $._link_desc_close,
+        ), $.link_description),
         // NOTE: this complex token is for filtering preceding whitespace
         // inside link description
         _link_desc_open: (_) => token(seq("[", optional(/\p{Zs}+/u))),
@@ -809,6 +824,42 @@ module.exports = grammar({
                     $._link_desc_ws_punc_segment,
                     $._link_desc_att_mod_segment,
                     seq($.link_modifier, $._link_desc_word_segment),
+                )
+            )
+        )),
+
+        _inline_link_desc_word_segment: ($) => prec.right(seq(
+            $._word,
+            optional(
+                choice(
+                    $._inline_link_desc_ws_punc_segment,
+                    seq($.link_modifier, $._inline_link_desc_att_mod_segment),
+                )
+            )
+        )),
+        _inline_link_desc_ws_punc_segment: ($) => prec.right(seq(
+            choice(
+                $._whitespace,
+                $.linkable_punctuation,
+                $.escape_sequence,
+            ),
+            optional(
+                choice(
+                    $._inline_link_desc_word_segment,
+                    $._inline_link_desc_ws_punc_segment,
+                    $._inline_link_desc_att_mod_segment,
+                )
+            )
+        )),
+        _inline_link_desc_att_mod_segment: ($) => prec.right(seq(
+            choice(
+                ...ATTACHED_MODIFIER_TYPES.map(n => alias($["inline_linkable_" + n], $[n])),
+            ),
+            optional(
+                choice(
+                    $._inline_link_desc_ws_punc_segment,
+                    $._inline_link_desc_att_mod_segment,
+                    seq($.link_modifier, $._inline_link_desc_word_segment),
                 )
             )
         )),
@@ -897,7 +948,7 @@ function gen_attached_modifier(type, mod, verbatim, not_inline, linkable) {
     if (!verbatim) {
         rules[att_mod_segment] = ($) => seq(
             choice(
-                ...other_modifiers.map(m => not_inline ? $[m] : alias($[prefix + m], $[m]))
+                ...other_modifiers.map(m => prefix === "" ? $[m] : alias($[prefix + m], $[m]))
             ),
             choice(
                 ...[
@@ -988,7 +1039,7 @@ function gen_attached_modifier(type, mod, verbatim, not_inline, linkable) {
     if (!verbatim) {
         rules[free_att_mod_segment] = ($) => seq(
             choice(
-                ...other_modifiers.map(m => $[m])
+                ...other_modifiers.map(m => prefix === "" ? $[m] : alias($[prefix + m], $[m]))
             ),
             choice(
                 ...[

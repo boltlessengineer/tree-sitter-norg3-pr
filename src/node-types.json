@@ -14,6 +14,16 @@
     ]
   },
   {
+    "type": "inline_linkables",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "inline_link_description",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "linkable_punctuation",
     "named": true,
     "subtypes": [
@@ -758,6 +768,21 @@
         },
         {
           "type": "tag_name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "inline_link_description",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "link_description",
           "named": true
         }
       ]
@@ -1735,6 +1760,10 @@
         },
         {
           "type": "escape_sequence",
+          "named": true
+        },
+        {
+          "type": "inline_linkables",
           "named": true
         },
         {
