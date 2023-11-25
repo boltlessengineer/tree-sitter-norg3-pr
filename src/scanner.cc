@@ -24,6 +24,22 @@ using namespace std;
 // Make TokenType derive from `char` for compact serialization.
 enum TokenType : char {
     WHITESPACE,
+    END_OF_FILE,
+
+    BOLD_CLOSE,
+    ITALIC_CLOSE,
+    UNDERLINE_CLOSE,
+    STRIKETHROUGH_CLOSE,
+    SPOILER_CLOSE,
+    SUPERSCRIPT_CLOSE,
+    SUBSCRIPT_CLOSE,
+    VERBATIM_CLOSE,
+    COMMENT_CLOSE,
+    MATH_CLOSE,
+    MACRO_CLOSE,
+
+    OPEN_CONFLICT,
+    CLOSE_CONFLICT,
 
     HEADING,
     UNORDERED_LIST,
@@ -39,12 +55,19 @@ struct Scanner {
     TSLexer* lexer;
     // Stores indentation data related to headings, lists and other nestable item types.
     std::unordered_map< char, std::vector<uint16_t> > indents;
-
-    /**
-     * Returns `true` if the character provided is a separator character (but not a newline).
-     */
-    bool is_whitespace(int32_t character) {
-        return iswspace(character) && character != '\n' && character != '\r';
+    std::unordered_map<int32_t, TokenType> attached_modifiers;
+    Scanner() {
+        attached_modifiers['*'] = BOLD_CLOSE;
+        attached_modifiers['/'] = ITALIC_CLOSE;
+        attached_modifiers['_'] = UNDERLINE_CLOSE;
+        attached_modifiers['-'] = STRIKETHROUGH_CLOSE;
+        attached_modifiers['!'] = SPOILER_CLOSE;
+        attached_modifiers['^'] = SUPERSCRIPT_CLOSE;
+        attached_modifiers[','] = SUBSCRIPT_CLOSE;
+        attached_modifiers['`'] = VERBATIM_CLOSE;
+        attached_modifiers['%'] = COMMENT_CLOSE;
+        attached_modifiers['$'] = MATH_CLOSE;
+        attached_modifiers['&'] = MACRO_CLOSE;
     }
 
     /**
@@ -64,10 +87,14 @@ struct Scanner {
     }
 
     bool scan(const bool *valid_symbols) {
-        // We return false here to allow the lexer to fall back
-        // to the grammar, which allows the existence of `\0`.
-        if (lexer->eof(lexer))
+        if (lexer->eof(lexer)) {
+            if (valid_symbols[END_OF_FILE]) {
+                lexer->result_symbol = END_OF_FILE;
+                lexer->mark_end(lexer);
+                return true;
+            }
             return false;
+        }
 
         // If we are at the beginning of a line, parse any whitespace that we encounter.
         // This is then returned as `$._preceding_whitespace`, which is part of the `extras`
@@ -76,8 +103,8 @@ struct Scanner {
         // a `$._whitespace` is encountered, causing the parser to continue parsing as if everything
         // were a `$.paragraph_segment`.
         if (lexer->get_column(lexer) == 0) {
-            if (is_whitespace(lexer->lookahead)) {
-                while (is_whitespace(lexer->lookahead))
+            if (iswblank(lexer->lookahead)) {
+                while (iswblank(lexer->lookahead))
                     advance();
 
                 lexer->result_symbol = WHITESPACE;
@@ -103,7 +130,7 @@ struct Scanner {
             }
 
             // Every detached modifier must be immediately followed by whitespace. If it is not, return false.
-            if (!is_whitespace(lexer->lookahead)) {
+            if (!iswblank(lexer->lookahead)) {
                 // There is an edge case that can be parsed here however - the weak delimiting modifier may
                 // consist of two or more `-` characters, and must be immediately succeeded with a newline.
                 // If those criteria are met, return the `WEAK_DELIMITING_MODIFIER` instead.
@@ -161,6 +188,45 @@ struct Scanner {
             }
         }
 
+        std::unordered_map<int32_t, TokenType>::iterator iter = attached_modifiers.find(lexer->lookahead);
+        if (iter != attached_modifiers.end()) {
+            const int token_char = iter->first;
+            const TokenType token_type = iter->second;
+            advance();
+            lexer->mark_end(lexer);
+            if (lexer->lookahead == token_char) {
+                // repeated modifiers are handled by grammar.js
+                return false;
+            }
+            if(valid_symbols[token_type]
+                // || valid_symbols[token_type + (FREE_BOLD_CLOSE - BOLD_CLOSE)]
+            ) {
+                // *_close is valid
+                if(iswspace(lexer->lookahead) || iswpunct(lexer->lookahead) || lexer->eof(lexer)) {
+                    lexer->result_symbol = token_type;
+                    // if (is_free_close) {
+                    //     lexer->result_symbol += (FREE_BOLD_CLOSE - BOLD_CLOSE);
+                    // }
+                    // check if FREE_*_CLOSE is valid
+                    if (!valid_symbols[lexer->result_symbol])
+                        return false;
+                    return true;
+                } else {
+                    lexer->result_symbol = CLOSE_CONFLICT;
+                    return true;
+                }
+            } else if(valid_symbols[OPEN_CONFLICT]) {
+                // previous token was word, but *_close isn't valid
+                // prevent prasing as *_open token
+                // haven't opened bold/or bold_open was parsed as punctuation
+                lexer->result_symbol = OPEN_CONFLICT;
+                return true;
+            } else {
+                // TODO: when is this case..?
+                return false;
+            }
+        }
+
         return false;
     }
 
@@ -169,20 +235,20 @@ struct Scanner {
 };
 
 extern "C" {
-    void *tree_sitter_norg_external_scanner_create() { return new Scanner(); }
+    void *tree_sitter_norg3_external_scanner_create() { return new Scanner(); }
 
-    void tree_sitter_norg_external_scanner_destroy(void *payload) {
+    void tree_sitter_norg3_external_scanner_destroy(void *payload) {
         delete static_cast<Scanner *>(payload);
     }
 
-    bool tree_sitter_norg_external_scanner_scan(void *payload, TSLexer *lexer,
+    bool tree_sitter_norg3_external_scanner_scan(void *payload, TSLexer *lexer,
             const bool *valid_symbols) {
         Scanner *scanner = static_cast<Scanner*>(payload);
         scanner->lexer = lexer;
         return scanner->scan(valid_symbols);
     }
 
-    unsigned tree_sitter_norg_external_scanner_serialize(void *payload,
+    unsigned tree_sitter_norg3_external_scanner_serialize(void *payload,
             char *buffer) {
         Scanner* scanner = static_cast<Scanner*>(payload);
 
@@ -217,7 +283,7 @@ extern "C" {
         return total_size;
     }
 
-    void tree_sitter_norg_external_scanner_deserialize(void *payload,
+    void tree_sitter_norg3_external_scanner_deserialize(void *payload,
             const char *buffer,
             unsigned length) {
         if (length == 0)

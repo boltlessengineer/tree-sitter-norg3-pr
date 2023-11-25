@@ -1,0 +1,5 @@
+root = true
+
+[*]
+auto_format = false
+indent_size = 4
