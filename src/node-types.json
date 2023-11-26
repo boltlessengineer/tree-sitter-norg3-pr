@@ -46,10 +46,6 @@
           "named": true
         },
         {
-          "type": "open_conflict",
-          "named": true
-        },
-        {
           "type": "punc",
           "named": true
         },
@@ -141,10 +137,6 @@
           "named": true
         },
         {
-          "type": "open_conflict",
-          "named": true
-        },
-        {
           "type": "punc",
           "named": true
         },
@@ -218,10 +210,6 @@
           "named": true
         },
         {
-          "type": "open_conflict",
-          "named": true
-        },
-        {
           "type": "para_break",
           "named": true
         },
@@ -271,17 +259,7 @@
   {
     "type": "punc",
     "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "close_conflict",
-          "named": true
-        }
-      ]
-    }
+    "fields": {}
   },
   {
     "type": "soft_break",
@@ -302,10 +280,6 @@
         },
         {
           "type": "italic",
-          "named": true
-        },
-        {
-          "type": "open_conflict",
           "named": true
         },
         {
@@ -381,10 +355,6 @@
           "named": true
         },
         {
-          "type": "open_conflict",
-          "named": true
-        },
-        {
           "type": "punc",
           "named": true
         },
@@ -457,10 +427,6 @@
           "named": true
         },
         {
-          "type": "open_conflict",
-          "named": true
-        },
-        {
           "type": "punc",
           "named": true
         },
@@ -530,10 +496,6 @@
         },
         {
           "type": "italic",
-          "named": true
-        },
-        {
-          "type": "open_conflict",
           "named": true
         },
         {
@@ -629,10 +591,6 @@
         },
         {
           "type": "italic",
-          "named": true
-        },
-        {
-          "type": "open_conflict",
           "named": true
         },
         {
@@ -748,6 +706,26 @@
     "named": false
   },
   {
+    "type": "$",
+    "named": false
+  },
+  {
+    "type": "%",
+    "named": false
+  },
+  {
+    "type": "&",
+    "named": false
+  },
+  {
+    "type": "(",
+    "named": false
+  },
+  {
+    "type": ")",
+    "named": false
+  },
+  {
     "type": "*",
     "named": false
   },
@@ -760,15 +738,19 @@
     "named": false
   },
   {
-    "type": ".",
-    "named": false
-  },
-  {
     "type": "/",
     "named": false
   },
   {
+    "type": ":",
+    "named": false
+  },
+  {
     "type": "@",
+    "named": false
+  },
+  {
+    "type": "]",
     "named": false
   },
   {
@@ -788,10 +770,6 @@
     "named": true
   },
   {
-    "type": "close_conflict",
-    "named": true
-  },
-  {
     "type": "eof",
     "named": true
   },
@@ -801,10 +779,6 @@
   },
   {
     "type": "italic_close",
-    "named": true
-  },
-  {
-    "type": "open_conflict",
     "named": true
   },
   {
@@ -838,5 +812,13 @@
   {
     "type": "ws",
     "named": true
+  },
+  {
+    "type": "|",
+    "named": false
+  },
+  {
+    "type": "}",
+    "named": false
   }
 ]

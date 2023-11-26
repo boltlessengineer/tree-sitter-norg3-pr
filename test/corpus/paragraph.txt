@@ -1,0 +1,157 @@
+================================================================================
+Basic paragraph including soft break
+================================================================================
+word word
+word
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (ws)
+    (word)
+    (soft_break)
+    (word)
+    (eof)))
+
+================================================================================
+Paragraph including preceding whitespaces
+================================================================================
+  word word
+     word
+    word
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (ws)
+    (word)
+    (soft_break)
+    (word)
+    (soft_break)
+    (word)
+    (eof)))
+
+================================================================================
+Soft break with whitespaces
+================================================================================
+word word   
+word
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (ws)
+    (word)
+    (soft_break)
+    (word)
+    (eof)))
+
+================================================================================
+Paragraph break by multiple newlines
+================================================================================
+word word
+word
+
+word
+
+
+word
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (ws)
+    (word)
+    (soft_break)
+    (word)
+    (para_break))
+  (paragraph
+    (word)
+    (para_break))
+  (paragraph
+    (word)
+    (eof)))
+
+================================================================================
+Paragraph break by multiple newlines with whitespaces
+================================================================================
+word word
+word   
+
+word
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (ws)
+    (word)
+    (soft_break)
+    (word)
+    (para_break))
+  (paragraph
+    (word)
+    (eof)))
+
+================================================================================
+Paragraph break by Detached modifier
+================================================================================
+word word
+* heading
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (ws)
+    (word)
+    (para_break))
+  (test_heading
+    (heading_stars)
+    (ws)
+    (paragraph
+      (word)
+      (eof))))
+
+================================================================================
+Paragraph break by Detached modifier (with standard Attached modifier)
+================================================================================
+*not
+* heading
+bold*
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (punc)
+    (word)
+    (para_break))
+  (test_heading
+    (heading_stars)
+    (ws)
+    (paragraph
+      (word)
+      (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (eof)))
+
+================================================================================
+Paragraph break by Detached modifier (with verbatim Attached modifier)
+================================================================================
+`not
+* heading
+verbatim`
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (punc)
+    (word))
+  (test_heading
+    (heading_stars)
+    (ws)
+    (paragraph
+      (word)
+      (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (eof)))

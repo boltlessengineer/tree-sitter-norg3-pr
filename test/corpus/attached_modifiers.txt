@@ -1,184 +1,294 @@
 ================================================================================
 Standalone markup
 ================================================================================
-*bold*
+*word*
 --------------------------------------------------------------------------------
 (document
   (paragraph
     (bold
-      (open)
-      (close))))
+      (bold_open)
+      (word)
+      (bold_close))
+    (eof)))
 
 ================================================================================
-Invalid attached modifiers
+PREC: left associated
 ================================================================================
-* Bold text *
-
-*Bold text *
-
-other text*Bold text*
-
-*Bold text*other text
-
-*
-Bold text*
-
-*Bold
-text
-*
-
-*Bold
-
-text*
+*/word*/
 --------------------------------------------------------------------------------
-
-(document
-  (heading
-    (heading_stars)
-    (title)
-    (paragraph)
-    (paragraph)
-    (paragraph)
-    (paragraph)
-    (paragraph)
-    (paragraph)
-    (paragraph)))
-
-================================================================================
-Conflicts vs Closed Markup - Left-flanking, internal
-================================================================================
-*/hello*
---------------------------------------------------------------------------------
-
 (document
   (paragraph
     (bold
-      (open)
-      (close))))
+      (bold_open)
+      (punc)
+      (word)
+      (bold_close))
+    (punc)
+    (eof)))
 
 ================================================================================
-Conflicts vs Closed Markup - Left-flanking, external
+LTR rule 1
 ================================================================================
-/*hello*
+*/`word/*`
+
+`*/word`/*
 --------------------------------------------------------------------------------
-
 (document
   (paragraph
     (bold
-      (open)
-      (close))))
-
-================================================================================
-Conflicts vs Closed Markup - Right-flanking, internal
-================================================================================
-*hello/*
---------------------------------------------------------------------------------
-
-(document
-  (paragraph
-    (bold
-      (open)
-      (close))))
-
-================================================================================
-Conflicts vs Closed Markup - Right-flanking, external
-================================================================================
-*hello*/ word
---------------------------------------------------------------------------------
-
-(document
-  (paragraph
-    (bold
-      (open)
-      (close))))
-
-================================================================================
-Conflicts vs Closed Markup - Left-flanking, internal
-================================================================================
-*hello*
---------------------------------------------------------------------------------
-
-(document
-  (paragraph
-    (bold
-      (open)
-      (close))))
-
-================================================================================
-Consecutive - Duplex, dissimilar
-================================================================================
-*hello*/world/
---------------------------------------------------------------------------------
-
-(document
-  (paragraph
-    (bold
-      (open)
-      (close))
-    (italic
-      (open)
-      (close))))
-
-================================================================================
-Consecutive - Duplex, similar
-================================================================================
-*hello**world*
---------------------------------------------------------------------------------
-
-(document
-  (paragraph
-    (bold
-      (open)
-      (close))))
-
-================================================================================
-Nested - Multiplex
-================================================================================
-*/hello/*/world/
---------------------------------------------------------------------------------
-
-(document
-  (paragraph
-    (bold
-      (open)
+      (bold_open)
       (italic
-        (open)
-        (close))
-      (close))
-    (italic
-      (open)
-      (close))))
+        (italic_open)
+        (punc)
+        (word)
+        (italic_close))
+      (bold_close))
+    (punc)
+    (para_break))
+  (paragraph
+    (verbatim
+      (verbatim_open)
+      (punc)
+      (punc)
+      (word)
+      (verbatim_close))
+    (punc)
+    (punc)
+    (eof)))
 
 ================================================================================
-Break attached modifiers before detached modifier
+LTR rule 2
 ================================================================================
-- _:
-- _x_
+/`word/ /word/ /word/`
 --------------------------------------------------------------------------------
-
 (document
-  (unordered_list
-    (unordered_list_item
-      (unordered_list_prefix)
-      (paragraph))
-    (unordered_list_item
-      (unordered_list_prefix)
-      (paragraph
-        (underline
-          (open)
-          (close))))))
+  (paragraph
+    (italic
+      (italic_open)
+      (punc)
+      (word)
+      (italic_close))
+    (ws)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (ws)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (punc)
+    (eof)))
 
 ================================================================================
-Repeated attached modifiers should be treated as raw text
+Unclosed verbatim with nested standard markups
 ================================================================================
-^^, text, ^^
-%%text%%
-%%%text%%%
-*///example//*
+*/`word/*
 --------------------------------------------------------------------------------
-
 (document
   (paragraph
     (bold
-      (open)
-      (close))))
+      (bold_open)
+      (italic
+        (italic_open)
+        (punc)
+        (word)
+        (italic_close))
+      (bold_close))
+    (eof)))
+
+================================================================================
+Unclosed verbatim with repeated standard markups
+================================================================================
+/`word/ /word/ /word/
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (italic
+      (italic_open)
+      (punc)
+      (word)
+      (italic_close))
+    (ws)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (ws)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (eof)))
+
+================================================================================
+Prefer first close token
+================================================================================
+*word *word* word*
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (ws)
+      (punc)
+      (word)
+      (bold_close))
+    (ws)
+    (word)
+    (punc)
+    (eof)))
+
+================================================================================
+Close to cut other markup
+================================================================================
+*/word word*/*
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (bold
+      (bold_open)
+      (punc)
+      (word)
+      (ws)
+      (word)
+      (bold_close))
+    (punc)
+    (punc)
+    (eof)))
+
+================================================================================
+etc
+================================================================================
+//word/
+
+word/word/
+
+word /word/
+
+/word/word/
+
+/word /word/
+
+/word//word/
+
+/word/ word/
+
+*/word/ word*
+
+*word /word/*
+
+*/word/word*
+
+*word/word/*
+
+/*word *word*/
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (punc)
+    (word)
+    (punc)
+    (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (word)
+    (punc)
+    (para_break))
+  (paragraph
+    (word)
+    (ws)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (para_break))
+  (paragraph
+    (italic
+      (italic_open)
+      (word)
+      (punc)
+      (word)
+      (italic_close))
+    (para_break))
+  (paragraph
+    (italic
+      (italic_open)
+      (word)
+      (ws)
+      (punc)
+      (word)
+      (italic_close))
+    (para_break))
+  (paragraph
+    (italic
+      (italic_open)
+      (word)
+      (punc)
+      (word)
+      (italic_close))
+    (para_break))
+  (paragraph
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (ws)
+    (word)
+    (punc)
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (italic
+        (italic_open)
+        (word)
+        (italic_close))
+      (ws)
+      (word)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (ws)
+      (italic
+        (italic_open)
+        (word)
+        (italic_close))
+      (bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (punc)
+      (word)
+      (punc)
+      (word)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (punc)
+      (word)
+      (punc)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (italic
+      (italic_open)
+      (bold
+        (bold_open)
+        (word)
+        (ws)
+        (punc)
+        (word)
+        (bold_close))
+      (italic_close))
+    (eof)))
