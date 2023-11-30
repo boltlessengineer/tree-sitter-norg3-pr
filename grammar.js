@@ -34,6 +34,17 @@ module.exports = grammar({
         $._preceding_whitespace,
         $.eof,
 
+        $.bold_open,
+        $.italic_open,
+        $.underline_open,
+        $.strikethr_open,
+        $.spoiler_open,
+        $.superscript_open,
+        $.subscript_open,
+        $.__verbatim_open,
+        $.comment_open,
+        $.math_open,
+        $.macro_open,
         $.bold_close,
         $.italic_close,
         $.underline_close,
@@ -48,6 +59,9 @@ module.exports = grammar({
 
         $.open_conflict,
         $._close_conflict,
+        $._newline_close_conflict,
+        $._flag_reset_markup,
+        $._flag_non_open,
 
         $.heading_stars,
         $.unordered_list_prefix,
@@ -57,16 +71,21 @@ module.exports = grammar({
         $.weak_delimiting_modifier,
 
         $._dedent,
+
+        // $._recovery,
     ],
 
     conflicts: ($) => [
-        [$.para_break, $.soft_break],
         ...ATTACHED_MODIFIERS.map((t) => [
             $["_fail_" + t],
-            $["_" + t + "_non_ws"],
+            // $["_" + t + "_non_ws"],
+            $._non_ws,
         ]),
-        [$._fail_verbatim, $._verbatim_non_ws],
-        // [$.punc, $.verbatim_open],
+        // [$._fail_verbatim, $.verbatim],
+        // [$._fail_verbatim, $._verbatim_non_ws],
+        // [$._non_ws, $._fail_verbatim],
+        // [$._non_ws, $._verbatim_non_ws],
+        [$.punc, $.verbatim_open],
     ],
 
     precedences: () => [],
@@ -81,6 +100,7 @@ module.exports = grammar({
     rules: {
         document: ($) =>
             repeat(
+                // TODO: make recursive grammar to make ERROR when paragraph is followed by paragraph
                 choice(
                     $.test_heading,
                     $.non_structural,
@@ -89,13 +109,17 @@ module.exports = grammar({
             ),
 
         test_heading: ($) =>
-            prec.dynamic(1, seq(
+            prec.dynamic(2, seq(
                 $.heading_stars,
                 $.ws,
                 $.paragraph,
             )),
         non_structural: ($) =>
             choice(
+                // NOTE: reset markup stack on paragraph break
+                // put this here instead of end of paragraph to reset on document start
+                // parser sometimes have cache left when performing multiple tests
+                $._flag_reset_markup,
                 $.paragraph,
                 newline,
                 // $.nestable_modifier,
@@ -104,11 +128,16 @@ module.exports = grammar({
                 // $.delimiting_modifier,
             ),
 
-        paragraph: ($) => seq($._non_ws, choice(prec(10, $.para_break), $.eof)),
+        paragraph: ($) => prec.right(seq(
+            $._non_ws,
+            choice(
+                alias($.soft_break, $.para_break),
+                $.eof
+            )
+        )),
         tag: ($) => seq(token(prec(1, "@")), $.word),
 
         soft_break: (_) => token(seq(optional(whitespace), newline)),
-        para_break: (_) => token(seq(optional(whitespace), newline)),
         ws: (_) => whitespace,
         word: (_) => word,
         punc: ($) =>
@@ -145,19 +174,16 @@ module.exports = grammar({
                 token(/[^\{\[\n\r\p{Z}\p{L}\p{N}]/),
             ),
 
-        verbatim_open: (_) => prec(1, "`"),
+        // verbatim_open: ($) => $._verbatim_open,
+        verbatim_open: (_) => "`",
         verbatim: ($) =>
-            seq($.verbatim_open, $._verbatim_non_ws, $.verbatim_close),
-        _fail_verbatim: ($) =>
-            seq(alias($.verbatim_open, $.punc), $._verbatim_non_ws),
-        _verbatim_non_ws: ($) =>
-            choice(
-                $.word,
-                $.punc,
-                prec.left(seq($._verbatim_non_ws, $._verbatim_non_ws)),
-                prec.left(seq($._verbatim_non_ws, $.ws, $._verbatim_non_ws)),
-                prec.right(
-                    seq($._verbatim_non_ws, $.soft_break, $._verbatim_non_ws),
+            // NOTE: using prec.dynamic for cases where we can't use symbol
+            // precedence e.g. "word `word`"
+            prec.dynamic(1,
+                seq(
+                    $.verbatim_open,
+                    $._verbatim_non_ws,
+                    $.verbatim_close
                 ),
             ),
         ...gen_attached_modifier("bold", "*"),
@@ -167,6 +193,32 @@ module.exports = grammar({
         ...gen_attached_modifier("spoiler", "!"),
         ...gen_attached_modifier("superscript", "^"),
         ...gen_attached_modifier("subscript", ","),
+        _fail_verbatim: ($) =>
+            // $.verbatim_open,
+            seq(alias($.verbatim_open, $.punc), $._non_ws),
+            // seq(alias($.verbatim_open, $.punc), $._verbatim_non_ws),
+        _verbatim_non_ws: ($) =>
+            choice(
+                $.word,
+                $.punc,
+                // // disallow non-verbatim markups inside verbatim markup
+                // ...ATTACHED_MODIFIERS.map((t) =>
+                //     alias($[t + "_open"], $.punc),
+                // ),
+                ...ATTACHED_MODIFIERS.map((t) => 
+                    seq(
+                        alias($[t + "_open"], $.punc),
+                        optional($._flag_non_open)
+                    ),
+                ),
+                // ...ATTACHED_MODIFIERS.map((t) => $[t]),
+                // ...ATTACHED_MODIFIERS.map((t) => $["_fail_" + t]),
+                prec.left(seq($._verbatim_non_ws, $._verbatim_non_ws)),
+                prec.left(seq($._verbatim_non_ws, $.ws, $._verbatim_non_ws)),
+                prec.left(
+                    seq($._verbatim_non_ws, $.soft_break, $._verbatim_non_ws),
+                ),
+            ),
         ...gen_attached_modifier_etc("bold"),
         ...gen_attached_modifier_etc("italic"),
         ...gen_attached_modifier_etc("underline"),
@@ -177,7 +229,6 @@ module.exports = grammar({
 
         _non_ws: ($) =>
             choice(
-                // $.para_break,
                 seq($.word, optional(alias($.open_conflict, $.punc))),
                 $.punc,
                 $._fail_bold,
@@ -185,10 +236,11 @@ module.exports = grammar({
                 $._fail_underline,
                 $._fail_strikethr,
                 ...ATTACHED_MODIFIERS.map((t) => $[t]),
+                // $._fail_verbatim,
                 $.verbatim,
                 prec.left(seq($._non_ws, $._non_ws)),
                 prec.left(seq($._non_ws, $.ws, $._non_ws)),
-                prec.right(seq($._non_ws, $.soft_break, $._non_ws)),
+                prec.left(seq($._non_ws, $.soft_break, $._non_ws)),
             ),
     },
 });
@@ -202,22 +254,24 @@ function gen_attached_modifier(type, mod) {
      * @type {RuleBuilders<string, string>}
      */
     let rules = {};
-    rules[type + "_open"] = (_) => prec(1, mod);
+    // rules[type + "_open"] = (_) => prec(1, mod);
     rules[type] = ($) =>
-        prec(
-            1,
+        prec(1,
             seq(
                 // alias($[type + "_open"], "_open"),
                 $[type + "_open"],
-                // $._non_ws,
-                prec.right($["_" + type + "_non_ws"]),
+                $._non_ws,
+                // prec.right($["_" + type + "_non_ws"]),
+                // $["_" + type + "_non_ws"],
                 $[type + "_close"],
                 // optional(field("extension", $.attached_modifier_extension)),
-            ),
+            )
         );
     return rules;
 }
 /**
+ * seperate function to give lower symbol precedence than actual attached
+ * modifier itself
  * @param {string} type
  */
 function gen_attached_modifier_etc(type) {
@@ -227,33 +281,53 @@ function gen_attached_modifier_etc(type) {
      */
     let rules = {};
     rules["_fail_" + type] = ($) =>
-        seq(alias($[type + "_open"], $.punc), $["_" + type + "_non_ws"]);
+        seq(
+            alias($[type + "_open"], $.punc),
+            // $[type + "_open"],
+            // $["_" + type + "_non_ws"]
+            optional($._non_ws),
+        );
     rules["_" + type + "_non_ws"] = ($) =>
         choice(
             seq($.word, optional(alias($.open_conflict, $.punc))),
             $.punc,
             ...other_attached_modfiers.map((t) => $["_fail_" + t]),
-            $._fail_verbatim,
+            // $._fail_verbatim,
             $.verbatim,
-            seq(
-                choice(
-                    ...other_attached_modfiers.map((t) => $[t]),
-                    // ...other_attached_modfiers.map((t) => $["free_" + t]),
-                    ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $[t]),
-                    // ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $["free_" + t]),
-                ),
-            ),
+            // ...other_attached_modfiers.map((t) => $[t + "_close"]),
+            ...other_attached_modfiers.map((t) => $[t]),
+            // ...other_attached_modfiers.map((t) => $["free_" + t]),
+            ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $[t]),
+            // ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $["free_" + t]),
             prec.left(
                 seq($["_" + type + "_non_ws"], $["_" + type + "_non_ws"]),
             ),
             prec.left(
-                seq($["_" + type + "_non_ws"], $.ws, $["_" + type + "_non_ws"]),
+                seq(
+                    $["_" + type + "_non_ws"],
+                    $.ws,
+                    // optional(alias($._newline_close_conflict, $.punc)),
+                    // $["_" + type + "_non_ws"]
+                    choice(
+                        alias($._newline_close_conflict, $.punc),
+                        seq(
+                            optional(alias($._newline_close_conflict, $.punc)),
+                            $["_" + type + "_non_ws"],
+                        )
+                    ),
+                ),
             ),
-            prec.right(
+            prec.left(
                 seq(
                     $["_" + type + "_non_ws"],
                     $.soft_break,
-                    $["_" + type + "_non_ws"],
+                    choice(
+                        alias($._newline_close_conflict, $.punc),
+                        seq(
+                            optional(alias($._newline_close_conflict, $.punc)),
+                            $["_" + type + "_non_ws"],
+                        )
+                    ),
                 ),
             ),
         );

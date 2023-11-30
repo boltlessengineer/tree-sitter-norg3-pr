@@ -5,6 +5,9 @@
 #include <unordered_map>
 #include <vector>
 #include <list>
+#include <bitset>
+#include <unordered_set>
+#include <stack>
 
 #include "tree_sitter/parser.h"
 
@@ -21,10 +24,37 @@
 // scanner.
 using namespace std;
 
+#define DEBUG
+
+#ifdef DEBUG
+    #define unreachable() fprintf(stderr, "unreachable src/scanner.c:%d\n", __LINE__)
+    #define assert(a, ...) \
+    if (!(a)) {\
+        fprintf(stderr, __VA_ARGS__);\
+        exit(EXIT_FAILURE);\
+    }
+#else
+    #define unreachable() while (false);
+    #define assert(a, ...) while (false);
+#endif
+
 // Make TokenType derive from `char` for compact serialization.
 enum TokenType : char {
     WHITESPACE,
     END_OF_FILE,
+
+    BOLD_OPEN,
+    ITALIC_OPEN,
+    UNDERLINE_OPEN,
+    STRIKETHROUGH_OPEN,
+    SPOILER_OPEN,
+    SUPERSCRIPT_OPEN,
+    SUBSCRIPT_OPEN,
+
+    VERBATIM_OPEN,
+    COMMENT_OPEN,
+    MATH_OPEN,
+    MACRO_OPEN,
 
     BOLD_CLOSE,
     ITALIC_CLOSE,
@@ -33,6 +63,7 @@ enum TokenType : char {
     SPOILER_CLOSE,
     SUPERSCRIPT_CLOSE,
     SUBSCRIPT_CLOSE,
+
     VERBATIM_CLOSE,
     COMMENT_CLOSE,
     MATH_CLOSE,
@@ -40,6 +71,9 @@ enum TokenType : char {
 
     OPEN_CONFLICT,
     CLOSE_CONFLICT,
+    NL_CLOSE_CONFLICT,
+    FLAG_RESET_MARKUP,
+    FLAG_NON_OPEN,
 
     HEADING,
     UNORDERED_LIST,
@@ -51,11 +85,95 @@ enum TokenType : char {
     DEDENT,
 };
 
+bool iswlb(wint_t c) {
+    return iswspace(c) && iswblank(c);
+}
+
+class AttStack {
+    std::unordered_set<TokenType> lookup;
+    std::stack<TokenType> stack;
+
+public:
+#ifdef DEBUG
+    void print() {
+        std::stack<TokenType> s = stack;
+        std::cout << "stack: ";
+        while (!s.empty()) {
+            std::cout << s.top();
+            s.pop();
+
+            if (!s.empty())
+                std::cout << ",";
+        }
+        std::cout << std::endl;
+    }
+#endif
+
+    void push(TokenType num) {
+        stack.push(num);
+        lookup.insert(num);
+    }
+
+    TokenType pop() {
+        if (stack.empty()) 
+            return WHITESPACE;
+
+        TokenType value = stack.top();
+        stack.pop();
+        lookup.erase(value);
+        return value;
+    }
+
+    bool contains(TokenType num) {
+        return lookup.find(num) != lookup.end(); 
+    }
+
+    void pop_until(int num) {
+        while (!stack.empty() && stack.top() != num) {
+            pop();
+        }
+
+        if (!stack.empty())
+            pop();
+    }
+    size_t size() {
+        return stack.size();
+    }
+    void reset() {
+        // pop all elements from the stack and remove them from the lookup
+        while (!stack.empty()) {
+            TokenType value = pop();
+            lookup.erase(value);
+        }
+    }
+    size_t serialize(char* buffer) {
+        const size_t stack_size = size();
+        size_t total_size = 0;
+        buffer[total_size++] = size();
+        size_t i = 0;
+        for (; i < stack_size; i++)
+            buffer[total_size + i] = pop();
+        total_size += i;
+        assert(stack.empty(), "stack after serialization is not empty\n");
+        return total_size;
+    }
+    size_t deserialize(const char* buffer) {
+        size_t stack_size = *buffer;
+        buffer += 1;
+        for (int i = stack_size - 1; i >= 0; i--)
+            push(TokenType(buffer[i]));
+        size_t total_size = 1 + stack_size;
+        return total_size;
+    }
+};
+
 struct Scanner {
     TSLexer* lexer;
     // Stores indentation data related to headings, lists and other nestable item types.
     std::unordered_map< char, std::vector<uint16_t> > indents;
     std::unordered_map<int32_t, TokenType> attached_modifiers;
+    std::bitset<BOLD_CLOSE - BOLD_OPEN> active_mods;
+    AttStack mod_stack;
     Scanner() {
         attached_modifiers['*'] = BOLD_CLOSE;
         attached_modifiers['/'] = ITALIC_CLOSE;
@@ -64,10 +182,10 @@ struct Scanner {
         attached_modifiers['!'] = SPOILER_CLOSE;
         attached_modifiers['^'] = SUPERSCRIPT_CLOSE;
         attached_modifiers[','] = SUBSCRIPT_CLOSE;
-        attached_modifiers['`'] = VERBATIM_CLOSE;
-        attached_modifiers['%'] = COMMENT_CLOSE;
-        attached_modifiers['$'] = MATH_CLOSE;
-        attached_modifiers['&'] = MACRO_CLOSE;
+        // attached_modifiers['`'] = VERBATIM_CLOSE;
+        // attached_modifiers['%'] = COMMENT_CLOSE;
+        // attached_modifiers['$'] = MATH_CLOSE;
+        // attached_modifiers['&'] = MACRO_CLOSE;
     }
 
     /**
@@ -90,10 +208,17 @@ struct Scanner {
         if (lexer->eof(lexer)) {
             if (valid_symbols[END_OF_FILE]) {
                 lexer->result_symbol = END_OF_FILE;
-                lexer->mark_end(lexer);
                 return true;
             }
             return false;
+        }
+
+        if (valid_symbols[FLAG_RESET_MARKUP])
+            mod_stack.reset();
+        if (valid_symbols[FLAG_NON_OPEN]) {
+            mod_stack.pop();
+            lexer->result_symbol = FLAG_NON_OPEN;
+            return true;
         }
 
         // If we are at the beginning of a line, parse any whitespace that we encounter.
@@ -106,46 +231,51 @@ struct Scanner {
             if (iswblank(lexer->lookahead)) {
                 while (iswblank(lexer->lookahead))
                     advance();
-
                 lexer->result_symbol = WHITESPACE;
                 return true;
             }
         }
 
+        // We create a "checkpoint" for ourselves here. This allows us to parse as much as we want,
+        // and if we encounter something unexpected (i.e. no whitespace after the parsed characters)
+        // then we can `return false` and fall back to the grammar instead.
+        lexer->mark_end(lexer);
+
+        // first lookahead
+        int32_t character = lexer->lookahead;
+        advance();
+
         // If the parser expects a heading, list type or quote then attempt to parse said item.
-        if ((valid_symbols[HEADING] && lexer->lookahead == '*') || (valid_symbols[UNORDERED_LIST] && lexer->lookahead == '-') || (valid_symbols[ORDERED_LIST] && lexer->lookahead == '~') || (valid_symbols[QUOTE] && lexer->lookahead == '>')) {
-            int32_t character = lexer->lookahead;
-            std::vector<uint16_t>& indent_vector = indents[lexer->lookahead];
-            size_t count = 0;
-
-            // We create a "checkpoint" for ourselves here. This allows us to parse as much as we want,
-            // and if we encounter something unexpected (i.e. no whitespace after the parsed characters)
-            // then we can `return false` and fall back to the grammar instead.
-            lexer->mark_end(lexer);
-
+        if ((valid_symbols[HEADING] && character == '*') || (valid_symbols[UNORDERED_LIST] && character == '-') || (valid_symbols[ORDERED_LIST] && character == '~') || (valid_symbols[QUOTE] && character == '>')) {
+            if (iswblank(lexer->lookahead) || lexer->lookahead == character) {
+            std::vector<uint16_t>& indent_vector = indents[character];
+            size_t count = 1;
             // We may encounter an arbitrary amount of characters, so parse those here.
             while (lexer->lookahead == character) {
                 count++;
                 advance();
             }
-
-            // Every detached modifier must be immediately followed by whitespace. If it is not, return false.
             if (!iswblank(lexer->lookahead)) {
-                // There is an edge case that can be parsed here however - the weak delimiting modifier may
-                // consist of two or more `-` characters, and must be immediately succeeded with a newline.
-                // If those criteria are met, return the `WEAK_DELIMITING_MODIFIER` instead.
-                if (character == '-' && count >= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-                    // Advance past the newline as well.
-                    advance();
-
-                    // When `mark_end()` is called again we essentially move the previous checkpoint to the new "head".
-                    lexer->mark_end(lexer);
-                    lexer->result_symbol = WEAK_DELIMITING_MODIFIER;
-                    return true;
-                }
-
                 return false;
             }
+
+            // // Every detached modifier must be immediately followed by whitespace. If it is not, return false.
+            // if (!iswblank(lexer->lookahead)) {
+            //     // There is an edge case that can be parsed here however - the weak delimiting modifier may
+            //     // consist of two or more `-` characters, and must be immediately succeeded with a newline.
+            //     // If those criteria are met, return the `WEAK_DELIMITING_MODIFIER` instead.
+            //     if (character == '-' && count >= 2 && iswlb(lexer->lookahead)) {
+            //         // Advance past the newline as well.
+            //         advance();
+            //
+            //         // When `mark_end()` is called again we essentially move the previous checkpoint to the new "head".
+            //         lexer->mark_end(lexer);
+            //         lexer->result_symbol = WEAK_DELIMITING_MODIFIER;
+            //         return true;
+            //     }
+            //
+            //     return false;
+            // }
 
             // The grammar tells us when it expects certain symbols. If we are expecting a `$._dedent` node
             // and there is some valid data in our indent vector then we can issue a DEDENT which essentially
@@ -186,45 +316,67 @@ struct Scanner {
                 }
                 return true;
             }
+            }
         }
 
-        std::unordered_map<int32_t, TokenType>::iterator iter = attached_modifiers.find(lexer->lookahead);
-        if (iter != attached_modifiers.end()) {
-            const int token_char = iter->first;
-            const TokenType token_type = iter->second;
-            advance();
+        // TODO: support other verbatim attached modifiers
+        if (character == '`') {
             lexer->mark_end(lexer);
-            if (lexer->lookahead == token_char) {
-                // repeated modifiers are handled by grammar.js
+            if (lexer->lookahead == character) {
                 return false;
             }
-            if(valid_symbols[token_type]
-                // || valid_symbols[token_type + (FREE_BOLD_CLOSE - BOLD_CLOSE)]
-            ) {
-                // *_close is valid
-                if(iswspace(lexer->lookahead) || iswpunct(lexer->lookahead) || lexer->eof(lexer)) {
-                    lexer->result_symbol = token_type;
-                    // if (is_free_close) {
-                    //     lexer->result_symbol += (FREE_BOLD_CLOSE - BOLD_CLOSE);
-                    // }
-                    // check if FREE_*_CLOSE is valid
-                    if (!valid_symbols[lexer->result_symbol])
-                        return false;
+            if (valid_symbols[VERBATIM_CLOSE]) {
+                if (iswspace(lexer->lookahead) || iswpunct(lexer->lookahead) || lexer->eof(lexer)) {
+                    lexer->result_symbol = VERBATIM_CLOSE;
                     return true;
                 } else {
                     lexer->result_symbol = CLOSE_CONFLICT;
                     return true;
                 }
-            } else if(valid_symbols[OPEN_CONFLICT]) {
+            } else if (valid_symbols[OPEN_CONFLICT]) {
                 // previous token was word, but *_close isn't valid
-                // prevent prasing as *_open token
-                // haven't opened bold/or bold_open was parsed as punctuation
                 lexer->result_symbol = OPEN_CONFLICT;
                 return true;
-            } else {
-                // TODO: when is this case..?
+            }
+        }
+
+        std::unordered_map<int32_t, TokenType>::iterator iter = attached_modifiers.find(character);
+        if (iter != attached_modifiers.end()) {
+            const int token_char = iter->first;
+            const TokenType token_type = iter->second;
+            // advance();
+            lexer->mark_end(lexer);
+            if (lexer->lookahead == token_char) {
+                // repeated modifiers are handled by grammar.js
                 return false;
             }
+            if (mod_stack.contains(token_type)) {
+                // markup is active
+                if (valid_symbols[NL_CLOSE_CONFLICT]) {
+                    lexer->result_symbol = NL_CLOSE_CONFLICT;
+                    return true;
+                } else if (iswspace(lexer->lookahead) || iswpunct(lexer->lookahead) || lexer->eof(lexer)) {
+                    lexer->result_symbol = token_type;
+                    mod_stack.pop_until(token_type);
+                    return true;
+                } else {
+                    lexer->result_symbol = CLOSE_CONFLICT;
+                    return true;
+                }
+            } else if (valid_symbols[OPEN_CONFLICT]) {
+                // previous token was word, but *_close isn't valid
+                return false;
+            } else if (valid_symbols[token_type - BOLD_CLOSE + BOLD_OPEN] && !mod_stack.contains(token_type)) {
+                // markup can be started
+                if (!iswspace(lexer->lookahead) && !lexer->eof(lexer)) {
+                    lexer->result_symbol = token_type - BOLD_CLOSE + BOLD_OPEN;
+                    mod_stack.push(token_type);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return false;
         }
 
         return false;
@@ -269,6 +421,8 @@ extern "C" {
         // This data can be stored contiguously in memory without needing terminator characters
         // or the like thanks to the `vector-size` element.
 
+        total_size += scanner->mod_stack.serialize(buffer);
+
         // NOTE: We cannot use range-based for loops as they are a post C++11 addition. Fun.
         for (std::unordered_map< char, std::vector<uint16_t> >::iterator kv = scanner->indents.begin(); kv != scanner->indents.end(); ++kv) {
             uint16_t size = kv->second.size();
@@ -297,6 +451,8 @@ extern "C" {
         // hard not to leak any memory :p
 
         size_t head = 0;
+        scanner->mod_stack.reset();
+        head += scanner->mod_stack.deserialize(buffer);
 
         while (head < length) {
             char key = buffer[head];

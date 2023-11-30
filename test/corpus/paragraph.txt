@@ -128,11 +128,10 @@ bold*
     (ws)
     (paragraph
       (word)
-      (para_break))
-  (paragraph
-    (word)
-    (punc)
-    (eof)))
+      (soft_break)
+      (word)
+      (punc)
+      (eof))))
 
 ================================================================================
 Paragraph break by Detached modifier (with verbatim Attached modifier)
@@ -144,14 +143,14 @@ verbatim`
 (document
   (paragraph
     (punc)
-    (word))
+    (word)
+    (para_break))
   (test_heading
     (heading_stars)
     (ws)
     (paragraph
       (word)
-      (para_break))
-  (paragraph
-    (word)
-    (punc)
-    (eof)))
+      (soft_break)
+      (word)
+      (punc)
+      (eof))))
