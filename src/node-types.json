@@ -4,19 +4,11 @@
     "named": true,
     "subtypes": [
       {
-        "type": "\n",
-        "named": false
-      },
-      {
-        "type": "\r",
-        "named": false
-      },
-      {
-        "type": "\r\n",
-        "named": false
-      },
-      {
         "type": "paragraph",
+        "named": true
+      },
+      {
+        "type": "tag",
         "named": true
       }
     ]
@@ -29,10 +21,6 @@
       "multiple": true,
       "required": true,
       "types": [
-        {
-          "type": "bold",
-          "named": true
-        },
         {
           "type": "bold_close",
           "named": true
@@ -102,11 +90,120 @@
       "required": false,
       "types": [
         {
+          "type": "heading",
+          "named": true
+        },
+        {
+          "type": "non_structural",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "heading",
+    "named": true,
+    "fields": {
+      "title": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "inline",
+            "named": true
+          },
+          {
+            "type": "slide",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "heading",
+          "named": true
+        },
+        {
+          "type": "heading_stars",
+          "named": true
+        },
+        {
           "type": "non_structural",
           "named": true
         },
         {
-          "type": "test_heading",
+          "type": "ws",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "inline",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "bold",
+          "named": true
+        },
+        {
+          "type": "eof",
+          "named": true
+        },
+        {
+          "type": "italic",
+          "named": true
+        },
+        {
+          "type": "para_break",
+          "named": true
+        },
+        {
+          "type": "punc",
+          "named": true
+        },
+        {
+          "type": "soft_break",
+          "named": true
+        },
+        {
+          "type": "spoiler",
+          "named": true
+        },
+        {
+          "type": "strikethr",
+          "named": true
+        },
+        {
+          "type": "subscript",
+          "named": true
+        },
+        {
+          "type": "superscript",
+          "named": true
+        },
+        {
+          "type": "underline",
+          "named": true
+        },
+        {
+          "type": "verbatim",
+          "named": true
+        },
+        {
+          "type": "word",
+          "named": true
+        },
+        {
+          "type": "ws",
           "named": true
         }
       ]
@@ -122,10 +219,6 @@
       "types": [
         {
           "type": "bold",
-          "named": true
-        },
-        {
-          "type": "italic",
           "named": true
         },
         {
@@ -262,7 +355,26 @@
     "fields": {}
   },
   {
-    "type": "soft_break",
+    "type": "slide",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "non_structural",
+          "named": true
+        },
+        {
+          "type": "slide_prefix",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "slide_prefix",
     "named": true,
     "fields": {}
   },
@@ -288,10 +400,6 @@
         },
         {
           "type": "soft_break",
-          "named": true
-        },
-        {
-          "type": "spoiler",
           "named": true
         },
         {
@@ -367,10 +475,6 @@
           "named": true
         },
         {
-          "type": "strikethr",
-          "named": true
-        },
-        {
           "type": "strikethr_close",
           "named": true
         },
@@ -440,10 +544,6 @@
         },
         {
           "type": "strikethr",
-          "named": true
-        },
-        {
-          "type": "subscript",
           "named": true
         },
         {
@@ -519,10 +619,6 @@
           "named": true
         },
         {
-          "type": "superscript",
-          "named": true
-        },
-        {
           "type": "superscript_close",
           "named": true
         },
@@ -555,7 +651,7 @@
     "fields": {}
   },
   {
-    "type": "test_heading",
+    "type": "tag",
     "named": true,
     "fields": {},
     "children": {
@@ -563,15 +659,11 @@
       "required": true,
       "types": [
         {
-          "type": "heading_stars",
+          "type": "eof",
           "named": true
         },
         {
-          "type": "paragraph",
-          "named": true
-        },
-        {
-          "type": "ws",
+          "type": "word",
           "named": true
         }
       ]
@@ -615,10 +707,6 @@
         },
         {
           "type": "superscript",
-          "named": true
-        },
-        {
-          "type": "underline",
           "named": true
         },
         {
@@ -690,16 +778,9 @@
     "fields": {}
   },
   {
-    "type": "\n",
-    "named": false
-  },
-  {
-    "type": "\r",
-    "named": false
-  },
-  {
-    "type": "\r\n",
-    "named": false
+    "type": "ws",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "!",
@@ -730,6 +811,10 @@
     "named": false
   },
   {
+    "type": "+",
+    "named": false
+  },
+  {
     "type": ",",
     "named": false
   },
@@ -743,10 +828,6 @@
   },
   {
     "type": ":",
-    "named": false
-  },
-  {
-    "type": "@",
     "named": false
   },
   {
@@ -782,6 +863,10 @@
     "named": true
   },
   {
+    "type": "soft_break",
+    "named": true
+  },
+  {
     "type": "spoiler_close",
     "named": true
   },
@@ -807,10 +892,6 @@
   },
   {
     "type": "word",
-    "named": true
-  },
-  {
-    "type": "ws",
     "named": true
   },
   {

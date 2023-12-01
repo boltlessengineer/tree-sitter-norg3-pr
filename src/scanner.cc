@@ -25,6 +25,8 @@ using namespace std;
 enum TokenType : char {
     WHITESPACE,
     END_OF_FILE,
+    PARA_BREAK,
+    NEWLINE,
 
     BOLD_CLOSE,
     ITALIC_CLOSE,
@@ -49,13 +51,22 @@ enum TokenType : char {
     WEAK_DELIMITING_MODIFIER,
 
     DEDENT,
+    DID_DEDENT,
 };
+
+bool iswnl(char c) {
+    return iswspace(c) && !iswblank(c);
+}
+bool iswword(char c) {
+    return !iswblank(c) && !iswpunct(c);
+}
 
 struct Scanner {
     TSLexer* lexer;
     // Stores indentation data related to headings, lists and other nestable item types.
     std::unordered_map< char, std::vector<uint16_t> > indents;
     std::unordered_map<int32_t, TokenType> attached_modifiers;
+    bool single_line_mode;
     Scanner() {
         attached_modifiers['*'] = BOLD_CLOSE;
         attached_modifiers['/'] = ITALIC_CLOSE;
@@ -68,6 +79,7 @@ struct Scanner {
         attached_modifiers['%'] = COMMENT_CLOSE;
         attached_modifiers['$'] = MATH_CLOSE;
         attached_modifiers['&'] = MACRO_CLOSE;
+        single_line_mode = false;
     }
 
     /**
@@ -103,13 +115,109 @@ struct Scanner {
         // a `$._whitespace` is encountered, causing the parser to continue parsing as if everything
         // were a `$.paragraph_segment`.
         if (lexer->get_column(lexer) == 0) {
+            bool have_whitespace = false;
             if (iswblank(lexer->lookahead)) {
+                have_whitespace = true;
                 while (iswblank(lexer->lookahead))
-                    advance();
+                    skip();
+                lexer->mark_end(lexer);
+            }
+            // TODO: move heading logic to here
+            // if (lexer->lookahead == '*') {
+            //     int32_t character = lexer->lookahead;
+            //     std::vector<uint16_t>& indent_vector = indents[lexer->lookahead];
+            //     size_t count = 0;
+            //
+            //     // set end here to use on DEDENT
+            //     lexer->mark_end(lexer);
+            //
+            //     while (lexer->lookahead == character) {
+            //         count++;
+            //         advance();
+            //     }
+            //
+            //     if (!iswblank(lexer->lookahead)) {
+            //         // TODO: WEAK_DELIMITING_MODIFIER
+            //         // TODO: remove if statement below.
+            //         // wrap detached modifier parsing logic to external method
+            //         if (have_whitespace) {
+            //             lexer->result_symbol = WHITESPACE;
+            //             return true;
+            //         }
+            //         return false;
+            //     }
+            //     if (valid_symbols[DEDENT] && !indent_vector.empty() && count <= indent_vector.back()) {
+            //         indent_vector.pop_back();
+            //         lexer->result_symbol = DEDENT;
+            //         return true;
+            //     } else {
+            //         // We track the indentation level of the object we just parsed by putting it in
+            //         // the indent vector, update our "head" to be past the thing we just parsed by calling
+            //         // `mark_end`, then return the node. Simple.
+            //         indent_vector.push_back(count);
+            //         lexer->mark_end(lexer);
+            //         switch (character) {
+            //             case '*': lexer->result_symbol = HEADING; break;
+            //             case '-': lexer->result_symbol = UNORDERED_LIST; break;
+            //             case '~': lexer->result_symbol = ORDERED_LIST; break;
+            //             case '>': lexer->result_symbol = QUOTE; break;
+            //         }
+            //         return true;
+            //     }
+            // }
 
+            if (have_whitespace) {
                 lexer->result_symbol = WHITESPACE;
                 return true;
             }
+        }
+        if (iswnl(lexer->lookahead)) {
+            // TODO: consider "\r\n"
+            advance();
+            lexer->mark_end(lexer);
+            if (valid_symbols[NEWLINE]) {
+                lexer->result_symbol = NEWLINE;
+                return true;
+            }
+            if (single_line_mode) {
+                lexer->result_symbol = PARA_BREAK;
+                single_line_mode = false;
+                return true;
+            }
+            while (iswblank(lexer->lookahead) && !lexer->eof(lexer)) {
+                skip();
+            }
+            if (iswspace(lexer->lookahead) || lexer->eof(lexer)) {
+                lexer->result_symbol = PARA_BREAK;
+                return true;
+            }
+            // roughly parse next tokens to check if newline is followed by paragraph-breaking-prefixs
+            // detached modifiers & weak delimiting modifier
+            if (lexer->lookahead == '*') {
+                int32_t character = lexer->lookahead;
+                skip();
+                size_t count = 0;
+                while (lexer->lookahead == character) {
+                    count++;
+                    skip();
+                }
+                if (iswblank(lexer->lookahead)) {
+                    lexer->result_symbol = PARA_BREAK;
+                    return true;
+                } else if (character == '-' && count >= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                    lexer->result_symbol = PARA_BREAK;
+                    return true;
+                }
+            }
+            // tags
+            if (lexer->lookahead == '+') {
+                skip();
+                if (iswword(lexer->lookahead) && !lexer->eof(lexer)) {
+                    lexer->result_symbol = PARA_BREAK;
+                    return true;
+                }
+            }
+            return false;
         }
 
         // If the parser expects a heading, list type or quote then attempt to parse said item.
@@ -179,10 +287,25 @@ struct Scanner {
                 indent_vector.push_back(count);
                 lexer->mark_end(lexer);
                 switch (character) {
-                    case '*': lexer->result_symbol = HEADING; break;
+                    case '*':
+                        lexer->result_symbol = HEADING;
+                        // HACK: what if slides?
+                        single_line_mode = true;
+                        break;
                     case '-': lexer->result_symbol = UNORDERED_LIST; break;
                     case '~': lexer->result_symbol = ORDERED_LIST; break;
                     case '>': lexer->result_symbol = QUOTE; break;
+                }
+                if (single_line_mode) {
+                    while (iswblank(lexer->lookahead))
+                        skip();
+                    if (lexer->lookahead == ':') {
+                        skip();
+                        if (lexer->lookahead == ':') skip();
+                        if (iswnl(lexer->lookahead)) {
+                            single_line_mode = false;
+                        }
+                    }
                 }
                 return true;
             }
@@ -269,6 +392,8 @@ extern "C" {
         // This data can be stored contiguously in memory without needing terminator characters
         // or the like thanks to the `vector-size` element.
 
+        buffer[total_size++] = scanner->single_line_mode;
+
         // NOTE: We cannot use range-based for loops as they are a post C++11 addition. Fun.
         for (std::unordered_map< char, std::vector<uint16_t> >::iterator kv = scanner->indents.begin(); kv != scanner->indents.end(); ++kv) {
             uint16_t size = kv->second.size();
@@ -297,6 +422,8 @@ extern "C" {
         // hard not to leak any memory :p
 
         size_t head = 0;
+
+        scanner->single_line_mode = buffer[head++];
 
         while (head < length) {
             char key = buffer[head];

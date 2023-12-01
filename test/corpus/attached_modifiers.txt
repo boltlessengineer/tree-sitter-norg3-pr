@@ -162,6 +162,13 @@ Close to cut other markup
 ================================================================================
 etc
 ================================================================================
+/ word/
+
+/word /
+
+/word
+/
+
 //word/
 
 word/word/
@@ -185,8 +192,36 @@ word /word/
 *word/word/*
 
 /*word *word*/
+
+word`word`
+
+word `word`
+
+`word
+
+`/word/
+
+word`
 --------------------------------------------------------------------------------
 (document
+  (paragraph
+    (punc)
+    (ws)
+    (word)
+    (punc)
+    (para_break))
+  (paragraph
+    (punc)
+    (word)
+    (ws)
+    (punc)
+    (para_break))
+  (paragraph
+    (punc)
+    (word)
+    (soft_break)
+    (punc)
+    (para_break))
   (paragraph
     (punc)
     (word)
@@ -291,4 +326,35 @@ word /word/
         (word)
         (bold_close))
       (italic_close))
+    (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (word)
+    (punc)
+    (para_break))
+  (paragraph
+    (word)
+    (ws)
+    (verbatim
+      (verbatim_open)
+      (word)
+      (verbatim_close))
+    (para_break))
+  (paragraph
+    (punc)
+    (word)
+    (para_break))
+  (paragraph
+    (punc)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (para_break))
+  (paragraph
+    (word)
+    (punc)
     (eof)))
+
+; vim:ts=2:sw=2:

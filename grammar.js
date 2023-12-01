@@ -33,6 +33,8 @@ module.exports = grammar({
     externals: ($) => [
         $._preceding_whitespace,
         $.eof,
+        $._para_break,
+        $._newline,
 
         $.bold_close,
         $.italic_close,
@@ -57,15 +59,11 @@ module.exports = grammar({
         $.weak_delimiting_modifier,
 
         $._dedent,
+        $._did_dedent,
     ],
 
     conflicts: ($) => [
-        [$.para_break, $.soft_break],
-        ...ATTACHED_MODIFIERS.map((t) => [
-            $["_fail_" + t],
-            $["_" + t + "_non_ws"],
-        ]),
-        [$._fail_verbatim, $._verbatim_non_ws],
+        // [$.soft_para_break, $.soft_break],
         // [$.punc, $.verbatim_open],
     ],
 
@@ -82,33 +80,67 @@ module.exports = grammar({
         document: ($) =>
             repeat(
                 choice(
-                    $.test_heading,
+                    $.heading,
                     $.non_structural,
                     // $.strong_delimiting_modifier,
+                    $._newline,
                 ),
             ),
 
-        test_heading: ($) =>
-            prec.dynamic(1, seq(
+        heading: ($) =>
+            prec.right(seq(
                 $.heading_stars,
                 $.ws,
-                $.paragraph,
+                field(
+                    "title",
+                    choice(
+                        alias($.paragraph, $.inline),
+                        $.slide
+                    )
+                ),
+                repeat(choice(
+                    $.heading,
+                    $.non_structural,
+                    $._newline,
+                )),
+                optional(choice(
+                    seq(
+                        $._dedent,
+                        // optional($._did_dedent)
+                    ),
+                ))
             )),
+        slide_prefix: ($) => seq(token(prec(1, ":")), $._newline),
+        slide: ($) => seq(
+            $.slide_prefix,
+            prec.right(repeat1(
+                choice(
+                    $.non_structural
+                )
+            ))
+        ),
         non_structural: ($) =>
             choice(
                 $.paragraph,
-                newline,
                 // $.nestable_modifier,
                 // $.rangeable_detached_modifier,
-                // $.tag,
+                $.tag,
                 // $.delimiting_modifier,
             ),
 
-        paragraph: ($) => seq($._non_ws, choice(prec(10, $.para_break), $.eof)),
-        tag: ($) => seq(token(prec(1, "@")), $.word),
+        paragraph: ($) => seq(
+            $._non_ws,
+            choice(
+                // $.soft_para_break,
+                $.para_break,
+                $.eof
+            )
+        ),
+        tag: ($) => seq(token(prec(1, "+")), $.word, choice($._newline, $.eof)),
 
         soft_break: (_) => token(seq(optional(whitespace), newline)),
-        para_break: (_) => token(seq(optional(whitespace), newline)),
+        // soft_para_break: (_) => token(seq(optional(whitespace), newline)),
+        para_break: ($) => seq(optional(whitespace), $._para_break),
         ws: (_) => whitespace,
         word: (_) => word,
         punc: ($) =>
@@ -148,8 +180,6 @@ module.exports = grammar({
         verbatim_open: (_) => prec(1, "`"),
         verbatim: ($) =>
             seq($.verbatim_open, $._verbatim_non_ws, $.verbatim_close),
-        _fail_verbatim: ($) =>
-            seq(alias($.verbatim_open, $.punc), $._verbatim_non_ws),
         _verbatim_non_ws: ($) =>
             choice(
                 $.word,
@@ -180,10 +210,6 @@ module.exports = grammar({
                 // $.para_break,
                 seq($.word, optional(alias($.open_conflict, $.punc))),
                 $.punc,
-                $._fail_bold,
-                $._fail_italic,
-                $._fail_underline,
-                $._fail_strikethr,
                 ...ATTACHED_MODIFIERS.map((t) => $[t]),
                 $.verbatim,
                 prec.left(seq($._non_ws, $._non_ws)),
@@ -226,14 +252,10 @@ function gen_attached_modifier_etc(type) {
      * @type {RuleBuilders<string, string>}
      */
     let rules = {};
-    rules["_fail_" + type] = ($) =>
-        seq(alias($[type + "_open"], $.punc), $["_" + type + "_non_ws"]);
     rules["_" + type + "_non_ws"] = ($) =>
         choice(
             seq($.word, optional(alias($.open_conflict, $.punc))),
             $.punc,
-            ...other_attached_modfiers.map((t) => $["_fail_" + t]),
-            $._fail_verbatim,
             $.verbatim,
             seq(
                 choice(
