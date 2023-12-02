@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <list>
+#include <bitset>
 
 #include "tree_sitter/parser.h"
 
@@ -48,10 +49,13 @@ enum TokenType : char {
     ORDERED_LIST,
     QUOTE,
 
+    CARRYOVER_PREFIX,
+
     WEAK_DELIMITING_MODIFIER,
 
     DEDENT,
-    DID_DEDENT,
+
+    TOKEN_RECOVERY,
 };
 
 bool iswnl(char c) {
@@ -115,73 +119,35 @@ struct Scanner {
         // a `$._whitespace` is encountered, causing the parser to continue parsing as if everything
         // were a `$.paragraph_segment`.
         if (lexer->get_column(lexer) == 0) {
-            bool have_whitespace = false;
+            bool has_preceding_whitespace = false;
             if (iswblank(lexer->lookahead)) {
-                have_whitespace = true;
                 while (iswblank(lexer->lookahead))
                     skip();
                 lexer->mark_end(lexer);
-            }
-            // TODO: move heading logic to here
-            // if (lexer->lookahead == '*') {
-            //     int32_t character = lexer->lookahead;
-            //     std::vector<uint16_t>& indent_vector = indents[lexer->lookahead];
-            //     size_t count = 0;
-            //
-            //     // set end here to use on DEDENT
-            //     lexer->mark_end(lexer);
-            //
-            //     while (lexer->lookahead == character) {
-            //         count++;
-            //         advance();
-            //     }
-            //
-            //     if (!iswblank(lexer->lookahead)) {
-            //         // TODO: WEAK_DELIMITING_MODIFIER
-            //         // TODO: remove if statement below.
-            //         // wrap detached modifier parsing logic to external method
-            //         if (have_whitespace) {
-            //             lexer->result_symbol = WHITESPACE;
-            //             return true;
-            //         }
-            //         return false;
-            //     }
-            //     if (valid_symbols[DEDENT] && !indent_vector.empty() && count <= indent_vector.back()) {
-            //         indent_vector.pop_back();
-            //         lexer->result_symbol = DEDENT;
-            //         return true;
-            //     } else {
-            //         // We track the indentation level of the object we just parsed by putting it in
-            //         // the indent vector, update our "head" to be past the thing we just parsed by calling
-            //         // `mark_end`, then return the node. Simple.
-            //         indent_vector.push_back(count);
-            //         lexer->mark_end(lexer);
-            //         switch (character) {
-            //             case '*': lexer->result_symbol = HEADING; break;
-            //             case '-': lexer->result_symbol = UNORDERED_LIST; break;
-            //             case '~': lexer->result_symbol = ORDERED_LIST; break;
-            //             case '>': lexer->result_symbol = QUOTE; break;
-            //         }
-            //         return true;
-            //     }
-            // }
-
-            if (have_whitespace) {
+                return false;
                 lexer->result_symbol = WHITESPACE;
                 return true;
             }
         }
+        if (iswspace(lexer->lookahead)) {
+        while (iswblank(lexer->lookahead)) {
+            skip();
+        }
         if (iswnl(lexer->lookahead)) {
-            // TODO: consider "\r\n"
-            advance();
+            // TODO: test this works well on \r\n
+            if (lexer->lookahead == '\r') {
+                advance();
+                if (lexer->lookahead == '\n') advance();
+            } else
+                advance();
             lexer->mark_end(lexer);
-            if (valid_symbols[NEWLINE]) {
-                lexer->result_symbol = NEWLINE;
-                return true;
-            }
             if (single_line_mode) {
                 lexer->result_symbol = PARA_BREAK;
                 single_line_mode = false;
+                return true;
+            }
+            if (valid_symbols[NEWLINE]) {
+                lexer->result_symbol = NEWLINE;
                 return true;
             }
             while (iswblank(lexer->lookahead) && !lexer->eof(lexer)) {
@@ -216,6 +182,17 @@ struct Scanner {
                     lexer->result_symbol = PARA_BREAK;
                     return true;
                 }
+            }
+            return false;
+        }
+            return false;
+        }
+        if (valid_symbols[CARRYOVER_PREFIX] && lexer->lookahead == '+') {
+            advance();
+            if (iswword(lexer->lookahead)) {
+                lexer->result_symbol = CARRYOVER_PREFIX;
+                lexer->mark_end(lexer);
+                return true;
             }
             return false;
         }
@@ -296,12 +273,16 @@ struct Scanner {
                     case '~': lexer->result_symbol = ORDERED_LIST; break;
                     case '>': lexer->result_symbol = QUOTE; break;
                 }
+                // cancel single line mode on slides/indent segment
                 if (single_line_mode) {
                     while (iswblank(lexer->lookahead))
                         skip();
                     if (lexer->lookahead == ':') {
                         skip();
-                        if (lexer->lookahead == ':') skip();
+                        if (lexer->lookahead == ':') {
+                            skip();
+                            // indent_segment = true;
+                        };
                         if (iswnl(lexer->lookahead)) {
                             single_line_mode = false;
                         }

@@ -93,6 +93,27 @@ word
     (eof)))
 
 ================================================================================
+Paragraph break by multiple newlines (inside standard Attached modifier)
+================================================================================
+word *word
+
+word*
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (ws)
+    (bold
+      (bold_open)
+      (word)
+      (MISSING bold_close))
+    (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (eof)))
+
+================================================================================
 Paragraph break by Detached modifier
 ================================================================================
 word word
@@ -104,10 +125,10 @@ word word
     (ws)
     (word)
     (para_break))
-  (test_heading
+  (heading
     (heading_stars)
     (ws)
-    (paragraph
+    (inline
       (word)
       (eof))))
 
@@ -120,15 +141,18 @@ bold*
 --------------------------------------------------------------------------------
 (document
   (paragraph
-    (punc)
-    (word)
+    (bold
+      (bold_open)
+      (word)
+      (MISSING bold_close))
     (para_break))
-  (test_heading
+  (heading
     (heading_stars)
     (ws)
-    (paragraph
+    (inline
       (word)
-      (soft_break)
+      (para_break))
+    (paragraph
       (word)
       (punc)
       (eof))))
@@ -142,15 +166,20 @@ verbatim`
 --------------------------------------------------------------------------------
 (document
   (paragraph
-    (punc)
-    (word)
+    (verbatim
+      (verbatim_open)
+      (word)
+      (MISSING verbatim_close))
     (para_break))
-  (test_heading
+  (heading
     (heading_stars)
     (ws)
-    (paragraph
+    (inline
       (word)
-      (soft_break)
+      (para_break))
+    (paragraph
       (word)
       (punc)
       (eof))))
+
+; vim:ts=2:sw=2:

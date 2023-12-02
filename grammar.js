@@ -33,7 +33,7 @@ module.exports = grammar({
     externals: ($) => [
         $._preceding_whitespace,
         $.eof,
-        $._para_break,
+        $.para_break,
         $._newline,
 
         $.bold_close,
@@ -56,10 +56,15 @@ module.exports = grammar({
         $.ordered_list_prefix,
         $.quote_prefix,
 
+        $.strong_carryover_prefix,
+
         $.weak_delimiting_modifier,
 
         $._dedent,
-        $._did_dedent,
+
+        // don't use this token from grammar.
+        // this is for checking if parser is in recovery mode
+        $._recovery,
     ],
 
     conflicts: ($) => [
@@ -95,7 +100,8 @@ module.exports = grammar({
                     "title",
                     choice(
                         alias($.paragraph, $.inline),
-                        $.slide
+                        $.slide,
+                        $.indent_segment
                     )
                 ),
                 repeat(choice(
@@ -106,11 +112,18 @@ module.exports = grammar({
                 optional(choice(
                     seq(
                         $._dedent,
-                        // optional($._did_dedent)
                     ),
                 ))
             )),
+        tag: ($) => seq(
+            $.strong_carryover_prefix,
+            $.identifier,
+            choice($._newline, $.eof)
+        ),
+        identifier: (_) => /[A-Za-z]+/,
+
         slide_prefix: ($) => seq(token(prec(1, ":")), $._newline),
+        indent_prefix: ($) => seq(token(prec(1, "::")), $._newline),
         slide: ($) => seq(
             $.slide_prefix,
             prec.right(repeat1(
@@ -118,6 +131,18 @@ module.exports = grammar({
                     $.non_structural
                 )
             ))
+        ),
+        indent_segment: ($) => seq(
+            $.indent_prefix,
+            prec.right(
+                repeat1(
+                    choice(
+                        $.non_structural,
+                        // $.structural,
+                        $._newline,
+                    )
+                )
+            )
         ),
         non_structural: ($) =>
             choice(
@@ -136,11 +161,10 @@ module.exports = grammar({
                 $.eof
             )
         ),
-        tag: ($) => seq(token(prec(1, "+")), $.word, choice($._newline, $.eof)),
 
-        soft_break: (_) => token(seq(optional(whitespace), newline)),
+        _soft_break: ($) => seq(optional(whitespace), alias(newline, $.soft_break)),
         // soft_para_break: (_) => token(seq(optional(whitespace), newline)),
-        para_break: ($) => seq(optional(whitespace), $._para_break),
+        trailing_ws: (_) => whitespace,
         ws: (_) => whitespace,
         word: (_) => word,
         punc: ($) =>
@@ -187,7 +211,7 @@ module.exports = grammar({
                 prec.left(seq($._verbatim_non_ws, $._verbatim_non_ws)),
                 prec.left(seq($._verbatim_non_ws, $.ws, $._verbatim_non_ws)),
                 prec.right(
-                    seq($._verbatim_non_ws, $.soft_break, $._verbatim_non_ws),
+                    seq($._verbatim_non_ws, $._soft_break, $._verbatim_non_ws),
                 ),
             ),
         ...gen_attached_modifier("bold", "*"),
@@ -214,7 +238,7 @@ module.exports = grammar({
                 $.verbatim,
                 prec.left(seq($._non_ws, $._non_ws)),
                 prec.left(seq($._non_ws, $.ws, $._non_ws)),
-                prec.right(seq($._non_ws, $.soft_break, $._non_ws)),
+                prec.right(seq($._non_ws, $._soft_break, $._non_ws)),
             ),
     },
 });
@@ -274,7 +298,7 @@ function gen_attached_modifier_etc(type) {
             prec.right(
                 seq(
                     $["_" + type + "_non_ws"],
-                    $.soft_break,
+                    $._soft_break,
                     $["_" + type + "_non_ws"],
                 ),
             ),

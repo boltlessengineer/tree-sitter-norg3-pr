@@ -1,0 +1,79 @@
+|example
+* *unclosed
+bold*
+|end
+
+expect:
+
+@code
+(document [0, 1] - [2, 0]
+  (heading [0, 1] - [2, 0]
+    (heading_stars [0, 1] - [0, 1])
+    (ws [0, 1] - [0, 2])
+    title: (inline [0, 2] - [1, 0]
+      (bold [0, 2] - [0, 11]
+        (bold_open [0, 2] - [0, 3])
+        (word [0, 3] - [0, 11])
+        (MISSING bold_close [0, 11] - [0, 11]))
+      (para_break [0, 11] - [1, 0]))
+    (paragraph [1, 0] - [2, 0]
+      (word [1, 0] - [1, 4])
+      (punc [1, 4] - [1, 5])
+      (para_break [1, 5] - [2, 0]))))
+@end
+
+get:
+
+@code
+(document [0, 1] - [2, 0]
+  (heading [0, 1] - [2, 0]
+    (heading_stars [0, 1] - [0, 1])
+    (ws [0, 1] - [0, 2])
+    title: (inline [0, 2] - [2, 0]
+      (bold [0, 2] - [1, 5]
+        (bold_open [0, 2] - [0, 3])
+        (word [0, 3] - [0, 11])
+        (ERROR [0, 11] - [1, 0])
+        (word [1, 0] - [1, 4])
+        (bold_close [1, 4] - [1, 5]))
+      (para_break [1, 5] - [2, 0]))))
+test.norg       0 ms    (ERROR [0, 11] - [1, 0])
+@end
+
+@code javascript
+{
+    ...
+    para_break: ($) => seq(optional(whitespace), $._para_break),
+}
+@end
+
+problem was caused by parsing whitespace from grammar.
+even for cases that doesn't have trailing whitespace
+  and external scanner handles the whitespace before EOL
+
+@code cpp
+while (iswblank(lexer->lookahead)) {
+    skip();
+}
+if (iswnl(lexer->lookahead)) {
+    // parse paragraph break or $._newline
+}
+@end
+
+@code
+(document [0, 1] - [2, 0]
+  (heading [0, 1] - [2, 0]
+    (heading_stars [0, 1] - [0, 1])
+    (ws [0, 1] - [0, 2])
+    title: (inline [0, 2] - [1, 0]
+      (bold [0, 2] - [0, 11]
+        (bold_open [0, 2] - [0, 3])
+        (word [0, 3] - [0, 11])
+        (bold_close [0, 11] - [0, 11]))
+      (para_break [0, 11] - [1, 0]))
+    (paragraph [1, 0] - [2, 0]
+      (word [1, 0] - [1, 4])
+      (punc [1, 4] - [1, 5])
+      (para_break [1, 5] - [2, 0]))))
+test.norg       1 ms    (MISSING bold_close [0, 11] - [0, 11])
+@end
