@@ -4,11 +4,37 @@
     "named": true,
     "subtypes": [
       {
+        "type": "horizontal_rule",
+        "named": true
+      },
+      {
         "type": "paragraph",
         "named": true
       },
       {
         "type": "tag",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "tag",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "macro_ranged_tag",
+        "named": true
+      },
+      {
+        "type": "standard_ranged_tag",
+        "named": true
+      },
+      {
+        "type": "strong_carryover_tag",
+        "named": true
+      },
+      {
+        "type": "weak_carryover_tag",
         "named": true
       }
     ]
@@ -96,6 +122,10 @@
         {
           "type": "non_structural",
           "named": true
+        },
+        {
+          "type": "strong_delimiting_modifier",
+          "named": true
         }
       ]
     }
@@ -140,11 +170,20 @@
           "named": true
         },
         {
+          "type": "weak_delimiting_modifier",
+          "named": true
+        },
+        {
           "type": "ws",
           "named": true
         }
       ]
     }
+  },
+  {
+    "type": "horizontal_rule",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "indent_prefix",
@@ -302,6 +341,41 @@
   },
   {
     "type": "italic_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "macro_ranged_tag",
+    "named": true,
+    "fields": {
+      "content": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "macro_tag_content",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "macro_ranged_prefix",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "macro_tag_content",
     "named": true,
     "fields": {}
   },
@@ -470,6 +544,33 @@
     "fields": {}
   },
   {
+    "type": "standard_ranged_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "heading",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "non_structural",
+          "named": true
+        },
+        {
+          "type": "standard_ranged_prefix",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "strikethr",
     "named": true,
     "fields": {},
@@ -534,6 +635,34 @@
   },
   {
     "type": "strikethr_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "strong_carryover_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "eof",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "strong_carryover_prefix",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "strong_delimiting_modifier",
     "named": true,
     "fields": {}
   },
@@ -674,29 +803,6 @@
     "fields": {}
   },
   {
-    "type": "tag",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "eof",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "strong_carryover_prefix",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "underline",
     "named": true,
     "fields": {},
@@ -805,6 +911,34 @@
     "fields": {}
   },
   {
+    "type": "verbatim_tag_content",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "weak_carryover_tag",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "eof",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "weak_carryover_prefix",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "ws",
     "named": true,
     "fields": {}
@@ -858,6 +992,14 @@
     "named": false
   },
   {
+    "type": "=end",
+    "named": false
+  },
+  {
+    "type": "@hnd",
+    "named": false
+  },
+  {
     "type": "]",
     "named": false
   },
@@ -878,6 +1020,10 @@
     "named": true
   },
   {
+    "type": "end",
+    "named": false
+  },
+  {
     "type": "eof",
     "named": true
   },
@@ -894,6 +1040,10 @@
     "named": true
   },
   {
+    "type": "macro_ranged_prefix",
+    "named": true
+  },
+  {
     "type": "para_break",
     "named": true
   },
@@ -903,6 +1053,10 @@
   },
   {
     "type": "spoiler_close",
+    "named": true
+  },
+  {
+    "type": "standard_ranged_prefix",
     "named": true
   },
   {
@@ -927,6 +1081,18 @@
   },
   {
     "type": "verbatim_close",
+    "named": true
+  },
+  {
+    "type": "verbatim_ranged_prefix",
+    "named": true
+  },
+  {
+    "type": "weak_carryover_prefix",
+    "named": true
+  },
+  {
+    "type": "weak_delimiting_modifier",
     "named": true
   },
   {

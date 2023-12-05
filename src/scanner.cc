@@ -49,10 +49,13 @@ enum TokenType : char {
     ORDERED_LIST,
     QUOTE,
 
-    CARRYOVER_PREFIX,
+    WEAK_CARRYOVER_PREFIX,
+    STRONG_CARRYOVER_PREFIX,
+    MACRO_RANGED_PREFIX,
+    STANDARD_RANGED_PREFIX,
+    VERBATIM_RANGED_PREFIX,
 
     WEAK_DELIMITING_MODIFIER,
-
     DEDENT,
 
     TOKEN_RECOVERY,
@@ -68,8 +71,12 @@ bool iswword(char c) {
 struct Scanner {
     TSLexer* lexer;
     // Stores indentation data related to headings, lists and other nestable item types.
+    // TODO: wrap indents with stack to parse heading level separately
+    // inside standard ranged tags
     std::unordered_map< char, std::vector<uint16_t> > indents;
     std::unordered_map<int32_t, TokenType> attached_modifiers;
+    std::unordered_map<int32_t, TokenType> paragraph_break_pefixs;
+    // Flag to disallow softbreak in heading and all markups inside heading
     bool single_line_mode;
     Scanner() {
         attached_modifiers['*'] = BOLD_CLOSE;
@@ -83,6 +90,11 @@ struct Scanner {
         attached_modifiers['%'] = COMMENT_CLOSE;
         attached_modifiers['$'] = MATH_CLOSE;
         attached_modifiers['&'] = MACRO_CLOSE;
+        paragraph_break_pefixs['+'] = WEAK_CARRYOVER_PREFIX;
+        paragraph_break_pefixs['#'] = STRONG_CARRYOVER_PREFIX;
+        paragraph_break_pefixs['='] = MACRO_RANGED_PREFIX;
+        paragraph_break_pefixs['|'] = STANDARD_RANGED_PREFIX;
+        paragraph_break_pefixs['@'] = VERBATIM_RANGED_PREFIX;
         single_line_mode = false;
     }
 
@@ -119,86 +131,95 @@ struct Scanner {
         // a `$._whitespace` is encountered, causing the parser to continue parsing as if everything
         // were a `$.paragraph_segment`.
         if (lexer->get_column(lexer) == 0) {
-            bool has_preceding_whitespace = false;
             if (iswblank(lexer->lookahead)) {
                 while (iswblank(lexer->lookahead))
                     skip();
                 lexer->mark_end(lexer);
-                return false;
                 lexer->result_symbol = WHITESPACE;
                 return true;
             }
         }
         if (iswspace(lexer->lookahead)) {
-        while (iswblank(lexer->lookahead)) {
-            skip();
-        }
-        if (iswnl(lexer->lookahead)) {
-            // TODO: test this works well on \r\n
-            if (lexer->lookahead == '\r') {
-                advance();
-                if (lexer->lookahead == '\n') advance();
-            } else
-                advance();
-            lexer->mark_end(lexer);
-            if (single_line_mode) {
-                lexer->result_symbol = PARA_BREAK;
-                single_line_mode = false;
-                return true;
-            }
-            if (valid_symbols[NEWLINE]) {
-                lexer->result_symbol = NEWLINE;
-                return true;
-            }
-            while (iswblank(lexer->lookahead) && !lexer->eof(lexer)) {
-                skip();
-            }
-            if (iswspace(lexer->lookahead) || lexer->eof(lexer)) {
-                lexer->result_symbol = PARA_BREAK;
-                return true;
-            }
-            // roughly parse next tokens to check if newline is followed by paragraph-breaking-prefixs
-            // detached modifiers & weak delimiting modifier
-            if (lexer->lookahead == '*') {
-                int32_t character = lexer->lookahead;
-                skip();
-                size_t count = 0;
-                while (lexer->lookahead == character) {
-                    count++;
-                    skip();
-                }
-                if (iswblank(lexer->lookahead)) {
-                    lexer->result_symbol = PARA_BREAK;
-                    return true;
-                } else if (character == '-' && count >= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
-                    lexer->result_symbol = PARA_BREAK;
-                    return true;
-                }
-            }
-            // tags
-            if (lexer->lookahead == '+') {
-                skip();
-                if (iswword(lexer->lookahead) && !lexer->eof(lexer)) {
-                    lexer->result_symbol = PARA_BREAK;
-                    return true;
-                }
-            }
-            return false;
-        }
-            return false;
-        }
-        if (valid_symbols[CARRYOVER_PREFIX] && lexer->lookahead == '+') {
-            advance();
-            if (iswword(lexer->lookahead)) {
-                lexer->result_symbol = CARRYOVER_PREFIX;
+            // skip trailing whitespaces
+            while (iswblank(lexer->lookahead)) skip();
+            if (iswnl(lexer->lookahead)) {
+                // TODO: test this works well on \r\n
+                advance_nl();
                 lexer->mark_end(lexer);
-                return true;
+                // when parsing single-line paragraph (aka. title,) return paragraph break immediately
+                if (single_line_mode) {
+                    single_line_mode = false;
+                    lexer->result_symbol = PARA_BREAK;
+                    return true;
+                }
+
+                // when we want just newline token, not as paragraph break
+                if (valid_symbols[NEWLINE]) {
+                    lexer->result_symbol = NEWLINE;
+                    return true;
+                }
+
+                // skip preceding whitespaces to get farther lookaheads
+                while (iswblank(lexer->lookahead) && !lexer->eof(lexer))
+                    skip();
+                if (iswspace(lexer->lookahead) || lexer->eof(lexer)) {
+                    lexer->result_symbol = PARA_BREAK;
+                    return true;
+                }
+                // roughly parse next tokens to check if newline is followed by paragraph-breaking-prefixs
+                // detached modifiers & weak delimiting modifier
+                if (lexer->lookahead == '*' || lexer->lookahead == '-' || lexer->lookahead == '=' || lexer->lookahead == '_') {
+                    int32_t character = lexer->lookahead;
+                    skip();
+                    size_t count = 0;
+                    while (lexer->lookahead == character) {
+                        count++;
+                        skip();
+                    }
+                    if ((character == '-' || character == '=' || character == '_') && count >= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
+                        lexer->result_symbol = PARA_BREAK;
+                        return true;
+                    } else if (iswblank(lexer->lookahead) && character != '=') {
+                        lexer->result_symbol = PARA_BREAK;
+                        return true;
+                    }
+                }
+                // tags
+                std::unordered_map<int32_t, TokenType>::iterator iter = paragraph_break_pefixs.find(lexer->lookahead);
+                if (iter != paragraph_break_pefixs.end()) {
+                    skip();
+                    if (iswword(lexer->lookahead) && !lexer->eof(lexer)) {
+                        lexer->result_symbol = PARA_BREAK;
+                        return true;
+                    }
+                }
             }
             return false;
         }
 
+        {
+            std::unordered_map<int32_t, TokenType>::iterator iter = paragraph_break_pefixs.find(lexer->lookahead);
+            if (iter != paragraph_break_pefixs.end()) {
+                const int token_char = iter->first;
+                const TokenType token_type = iter->second;
+                advance();
+
+                if (valid_symbols[token_type] && iswword(lexer->lookahead)) {
+                    lexer->result_symbol = token_type;
+                    lexer->mark_end(lexer);
+                    return true;
+                }
+                return false;
+            }
+        }
+
+
         // If the parser expects a heading, list type or quote then attempt to parse said item.
-        if ((valid_symbols[HEADING] && lexer->lookahead == '*') || (valid_symbols[UNORDERED_LIST] && lexer->lookahead == '-') || (valid_symbols[ORDERED_LIST] && lexer->lookahead == '~') || (valid_symbols[QUOTE] && lexer->lookahead == '>')) {
+        if ((valid_symbols[HEADING] && lexer->lookahead == '*')
+            || (valid_symbols[UNORDERED_LIST] && lexer->lookahead == '-')
+            || (valid_symbols[WEAK_DELIMITING_MODIFIER] && lexer->lookahead == '-')
+            || (valid_symbols[ORDERED_LIST] && lexer->lookahead == '~')
+            || (valid_symbols[QUOTE] && lexer->lookahead == '>')) {
             int32_t character = lexer->lookahead;
             std::vector<uint16_t>& indent_vector = indents[lexer->lookahead];
             size_t count = 0;
@@ -221,8 +242,9 @@ struct Scanner {
                 // If those criteria are met, return the `WEAK_DELIMITING_MODIFIER` instead.
                 if (character == '-' && count >= 2 && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
                     // Advance past the newline as well.
-                    advance();
+                    advance_nl();
 
+                    indents['*'].pop_back();
                     // When `mark_end()` is called again we essentially move the previous checkpoint to the new "head".
                     lexer->mark_end(lexer);
                     lexer->result_symbol = WEAK_DELIMITING_MODIFIER;
@@ -336,6 +358,13 @@ struct Scanner {
 
     void skip() { lexer->advance(lexer, true); }
     void advance() { lexer->advance(lexer, false); }
+    void advance_nl() {
+        if (lexer->lookahead == '\r') {
+            advance();
+            if (lexer->lookahead == '\n') advance();
+        } else
+            advance();
+    }
 };
 
 extern "C" {

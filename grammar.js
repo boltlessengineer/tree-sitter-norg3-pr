@@ -56,21 +56,22 @@ module.exports = grammar({
         $.ordered_list_prefix,
         $.quote_prefix,
 
+        // things that can break the paragraph
+        $.weak_carryover_prefix,
         $.strong_carryover_prefix,
+        $.macro_ranged_prefix,
+        $.standard_ranged_prefix,
+        $.verbatim_ranged_prefix,
 
         $.weak_delimiting_modifier,
-
         $._dedent,
 
         // don't use this token from grammar.
         // this is for checking if parser is in recovery mode
-        $._recovery,
+        $._recovery_flag,
     ],
 
-    conflicts: ($) => [
-        // [$.soft_para_break, $.soft_break],
-        // [$.punc, $.verbatim_open],
-    ],
+    conflicts: (_) => [],
 
     precedences: () => [],
 
@@ -79,6 +80,7 @@ module.exports = grammar({
     supertypes: ($) => [
         $.non_structural,
         // $.nestable_modifier,
+        $.tag,
     ],
 
     rules: {
@@ -87,11 +89,12 @@ module.exports = grammar({
                 choice(
                     $.heading,
                     $.non_structural,
-                    // $.strong_delimiting_modifier,
+                    $.strong_delimiting_modifier,
                     $._newline,
                 ),
             ),
 
+        // TODO: rename to `section`
         heading: ($) =>
             prec.right(seq(
                 $.heading_stars,
@@ -110,17 +113,89 @@ module.exports = grammar({
                     $._newline,
                 )),
                 optional(choice(
-                    seq(
-                        $._dedent,
-                    ),
+                    $._dedent,
+                    $.weak_delimiting_modifier,
                 ))
             )),
-        tag: ($) => seq(
+        tag: ($) => choice(
+            $.strong_carryover_tag,
+            $.weak_carryover_tag,
+            $.macro_ranged_tag,
+            $.standard_ranged_tag,
+            // $.verbatim_ranged_tag,
+        ),
+        identifier: (_) => /[A-Za-z]+/,
+        strong_carryover_tag: ($) => seq(
             $.strong_carryover_prefix,
             $.identifier,
             choice($._newline, $.eof)
         ),
-        identifier: (_) => /[A-Za-z]+/,
+        weak_carryover_tag: ($) => seq(
+            $.weak_carryover_prefix,
+            $.identifier,
+            choice($._newline, $.eof)
+        ),
+        macro_ranged_tag: ($) => seq(
+            $.macro_ranged_prefix,
+            $.identifier,
+            repeat(
+                seq(
+                    whitespace,
+                    $.identifier,
+                )
+            ),
+            $._newline,
+            optional(
+                field(
+                    'content',
+                    alias($.verbatim_lines, $.macro_tag_content)
+                )
+            ),
+            token(prec(1, "=end")),
+            $._newline,
+        ),
+        verbatim_ranged_tag: ($) => seq(
+            $.verbatim_ranged_prefix,
+            $.identifier,
+            repeat(
+                seq(
+                    whitespace,
+                    $.identifier,
+                )
+            ),
+            $._newline,
+            optional(
+                field(
+                    'content',
+                    alias($.verbatim_lines, $.verbatim_tag_content)
+                )
+            ),
+            token(prec(1, "@hnd")),
+            $._newline,
+        ),
+        standard_ranged_tag: ($) => seq(
+            $.standard_ranged_prefix,
+            $.identifier,
+            repeat(
+                seq(
+                    whitespace,
+                    $.identifier,
+                )
+            ),
+            $._newline,
+            repeat(
+                choice(
+                    $.heading,
+                    $.non_structural,
+                    // $.strong_delimiting_modifier,
+                    $._newline,
+                )
+            ),
+            prec(1, $.standard_ranged_prefix),
+            "end",
+            $._newline,
+        ),
+        verbatim_lines: ($) => repeat1(seq(optional(/.*/), $._newline)),
 
         slide_prefix: ($) => seq(token(prec(1, ":")), $._newline),
         indent_prefix: ($) => seq(token(prec(1, "::")), $._newline),
@@ -150,13 +225,14 @@ module.exports = grammar({
                 // $.nestable_modifier,
                 // $.rangeable_detached_modifier,
                 $.tag,
-                // $.delimiting_modifier,
+                $.horizontal_rule,
             ),
+        strong_delimiting_modifier: ($) => seq(token(prec(2, seq("=", repeat1("=")))), $._newline),
+        horizontal_rule: ($) => seq(token(prec(2, seq("_", repeat1("_")))), $._newline),
 
         paragraph: ($) => seq(
             $._non_ws,
             choice(
-                // $.soft_para_break,
                 $.para_break,
                 $.eof
             )
@@ -171,6 +247,7 @@ module.exports = grammar({
             choice(
                 token(prec(2, seq("*", repeat1("*")))),
                 token(prec(2, seq("/", repeat1("/")))),
+                token(prec(2, seq("_", repeat1("_")))),
                 token(prec(2, seq("-", repeat1("-")))),
                 token(prec(2, seq("!", repeat1("!")))),
                 token(prec(2, seq("^", repeat1("^")))),
@@ -254,16 +331,11 @@ function gen_attached_modifier(type, mod) {
     let rules = {};
     rules[type + "_open"] = (_) => prec(1, mod);
     rules[type] = ($) =>
-        prec(
-            1,
-            seq(
-                // alias($[type + "_open"], "_open"),
-                $[type + "_open"],
-                // $._non_ws,
-                prec.right($["_" + type + "_non_ws"]),
-                $[type + "_close"],
-                // optional(field("extension", $.attached_modifier_extension)),
-            ),
+        seq(
+            $[type + "_open"],
+            $["_" + type + "_non_ws"],
+            $[type + "_close"],
+            // optional(field("extension", $.attached_modifier_extension)),
         );
     return rules;
 }
