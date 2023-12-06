@@ -94,7 +94,6 @@ struct Scanner {
         tag_prefixs['='] = MACRO_RANGED_PREFIX;
         tag_prefixs['|'] = STANDARD_RANGED_PREFIX;
         tag_prefixs['@'] = VERBATIM_RANGED_PREFIX;
-        single_line_mode = false;
     }
 
     /**
@@ -139,11 +138,12 @@ struct Scanner {
             }
         }
 
+        // try parse newline token
+        // return false when fail
         if (iswspace(lexer->lookahead)) {
             // skip trailing whitespaces
             while (iswblank(lexer->lookahead)) skip();
             if (iswnl(lexer->lookahead)) {
-                // TODO: test this works well on \r\n
                 advance_nl();
                 lexer->mark_end(lexer);
 
@@ -207,6 +207,10 @@ struct Scanner {
         // | |\n-> paragraph break|newline
         // | |\n-> paragraph break|newline
         int32_t character = lexer->lookahead;
+        // We create a "checkpoint" for ourselves here.
+        // This allows us to parse as much as we want and return zero-width token on any time.
+        lexer->mark_end(lexer);
+        advance();
 
         // tag prefixs
         // these tokens should not neccessarily parsed from external scanner,
@@ -216,7 +220,6 @@ struct Scanner {
             if (iter != tag_prefixs.end()) {
                 const int token_char = iter->first;
                 const TokenType token_type = iter->second;
-                advance();
 
                 if (valid_symbols[token_type] && iswword(lexer->lookahead)) {
                     lexer->result_symbol = token_type;
@@ -246,12 +249,7 @@ struct Scanner {
             || (valid_symbols[ORDERED_LIST] && character == '~')
             || (valid_symbols[QUOTE] && character == '>')) {
             std::vector<uint16_t>& indent_vector = indents[character];
-            size_t count = 0;
-
-            // We create a "checkpoint" for ourselves here. This allows us to parse as much as we want,
-            // and if we encounter something unexpected (i.e. no whitespace after the parsed characters)
-            // then we can `return false` and fall back to the grammar instead.
-            lexer->mark_end(lexer);
+            size_t count = 1;
 
             // We may encounter an arbitrary amount of characters, so parse those here.
             while (lexer->lookahead == character) {
@@ -313,7 +311,6 @@ struct Scanner {
                 switch (character) {
                     case '*':
                         lexer->result_symbol = HEADING;
-                        // HACK: what if slides?
                         single_line_mode = true;
                         break;
                     case '-': lexer->result_symbol = UNORDERED_LIST; break;
@@ -324,8 +321,8 @@ struct Scanner {
             }
         }
 
+        // link modifier (only right side one)
         if (valid_symbols[LINK_MODIFIER_RIGHT] && character == ':') {
-            advance();
             lexer->mark_end(lexer);
             if (iswword(lexer->lookahead)) {
                 lexer->result_symbol = LINK_MODIFIER_RIGHT;
@@ -339,30 +336,18 @@ struct Scanner {
         if (iter != attached_modifiers.end()) {
             const int token_char = iter->first;
             const TokenType token_type = iter->second;
-            advance();
             lexer->mark_end(lexer);
-            if (lexer->lookahead == token_char) {
-                // repeated modifiers are handled by grammar.js
-                return false;
-            }
-            if(valid_symbols[token_type]
-                // || valid_symbols[token_type + (FREE_BOLD_CLOSE - BOLD_CLOSE)]
-            ) {
+            // repeated modifiers are handled by grammar.js
+            if (lexer->lookahead == token_char) return false;
+
+            if(valid_symbols[token_type]) {
                 // *_close is valid
                 if(iswspace(lexer->lookahead) || iswpunct(lexer->lookahead) || lexer->eof(lexer)) {
                     lexer->result_symbol = token_type;
-                    // if (is_free_close) {
-                    //     lexer->result_symbol += (FREE_BOLD_CLOSE - BOLD_CLOSE);
-                    // }
-                    // check if FREE_*_CLOSE is valid
-                    if (!valid_symbols[lexer->result_symbol])
-                        return false;
                     return true;
                 }
             } else if(valid_symbols[OPEN_CONFLICT]) {
-                // previous token was word, but *_close isn't valid
-                // prevent prasing as *_open token
-                // haven't opened bold/or bold_open was parsed as punctuation
+                // prevent *_open after word
                 lexer->result_symbol = OPEN_CONFLICT;
                 return true;
             }
@@ -376,7 +361,7 @@ struct Scanner {
     void advance_nl() {
         if (lexer->lookahead == '\r') {
             advance();
-            if (lexer->lookahead == '\n') advance();
+            if (lexer->lookahead == '\n' && !lexer->eof(lexer)) advance();
         } else
             advance();
     }

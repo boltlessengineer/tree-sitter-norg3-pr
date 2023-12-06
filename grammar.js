@@ -137,10 +137,10 @@ module.exports = grammar({
                 $.weak_carryover_tag,
                 $.macro_ranged_tag,
                 $.standard_ranged_tag,
-                // $.verbatim_ranged_tag,
+                $.verbatim_ranged_tag,
             ),
         ws: (_) => whitespace,
-        identifier: (_) => /[A-Za-z]+/,
+        identifier: (_) => /[A-Za-z][A-Za-z\-]+/,
         strong_carryover_tag: ($) =>
             seq(
                 $.strong_carryover_prefix,
@@ -238,7 +238,7 @@ module.exports = grammar({
         _soft_break: ($) =>
             seq(optional(whitespace), alias(newline, $.soft_break)),
         word: (_) => word,
-        punc: ($) =>
+        punc: (_) =>
             // prettier-ignore
             choice(
                 "*", token_rep2("*", 2),

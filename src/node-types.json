@@ -34,6 +34,10 @@
         "named": true
       },
       {
+        "type": "verbatim_ranged_tag",
+        "named": true
+      },
+      {
         "type": "weak_carryover_tag",
         "named": true
       }
@@ -1358,6 +1362,36 @@
     "type": "verbatim_open",
     "named": true,
     "fields": {}
+  },
+  {
+    "type": "verbatim_ranged_tag",
+    "named": true,
+    "fields": {
+      "content": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "verbatim_tag_content",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "verbatim_ranged_prefix",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "verbatim_tag_content",

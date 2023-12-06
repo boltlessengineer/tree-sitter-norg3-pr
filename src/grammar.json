@@ -127,6 +127,10 @@
         {
           "type": "SYMBOL",
           "name": "standard_ranged_tag"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "verbatim_ranged_tag"
         }
       ]
     },
@@ -136,7 +140,7 @@
     },
     "identifier": {
       "type": "PATTERN",
-      "value": "[A-Za-z]+"
+      "value": "[A-Za-z][A-Za-z\\-]+"
     },
     "strong_carryover_tag": {
       "type": "SEQ",
