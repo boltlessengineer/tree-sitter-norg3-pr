@@ -42,6 +42,7 @@ enum TokenType : char {
     MACRO_CLOSE,
 
     OPEN_CONFLICT,
+    LINK_MODIFIER_RIGHT,
 
     HEADING,
     UNORDERED_LIST,
@@ -244,7 +245,7 @@ struct Scanner {
             || (valid_symbols[WEAK_DELIMITING_MODIFIER] && character == '-')
             || (valid_symbols[ORDERED_LIST] && character == '~')
             || (valid_symbols[QUOTE] && character == '>')) {
-            std::vector<uint16_t>& indent_vector = indents[lexer->lookahead];
+            std::vector<uint16_t>& indent_vector = indents[character];
             size_t count = 0;
 
             // We create a "checkpoint" for ourselves here. This allows us to parse as much as we want,
@@ -321,6 +322,16 @@ struct Scanner {
                 }
                 return true;
             }
+        }
+
+        if (valid_symbols[LINK_MODIFIER_RIGHT] && character == ':') {
+            advance();
+            lexer->mark_end(lexer);
+            if (iswword(lexer->lookahead)) {
+                lexer->result_symbol = LINK_MODIFIER_RIGHT;
+                return true;
+            }
+            return false;
         }
 
         // attached modifiers

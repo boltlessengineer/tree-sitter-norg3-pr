@@ -59,6 +59,8 @@ module.exports = grammar({
 
         // prevent opening attached modifier right after the word
         $.open_conflict,
+        // parse link_modifier by checking it is followed by word without consuming word token
+        $.link_modifier_right,
 
         $.heading_stars,
         $.unordered_list_prefix,
@@ -85,7 +87,10 @@ module.exports = grammar({
         $._recovery_flag,
     ],
 
-    conflicts: (_) => [],
+    conflicts: ($) => [
+        [$._non_ws],
+        ...ATTACHED_MODIFIERS.map((t) => [$["_" + t + "_non_ws"]]),
+    ],
 
     precedences: () => [],
 
@@ -134,6 +139,7 @@ module.exports = grammar({
                 $.standard_ranged_tag,
                 // $.verbatim_ranged_tag,
             ),
+        ws: (_) => whitespace,
         identifier: (_) => /[A-Za-z]+/,
         strong_carryover_tag: ($) =>
             seq(
@@ -231,10 +237,8 @@ module.exports = grammar({
 
         _soft_break: ($) =>
             seq(optional(whitespace), alias(newline, $.soft_break)),
-        trailing_ws: (_) => whitespace,
-        ws: (_) => whitespace,
         word: (_) => word,
-        punc: (_) =>
+        punc: ($) =>
             // prettier-ignore
             choice(
                 "*", token_rep2("*", 2),
@@ -287,12 +291,23 @@ module.exports = grammar({
         ...gen_attached_modifier_etc("superscript"),
         ...gen_attached_modifier_etc("subscript"),
 
+        // Using more than one dynamic precedence is really dangerous.
+        // Never use prec.dynamic except for here
+        link_modifier: (_) => prec.dynamic(1, ":"),
         _non_ws: ($) =>
             choice(
                 seq($.word, optional(alias($.open_conflict, $.punc))),
                 $.punc,
-                ...ATTACHED_MODIFIERS.map((t) => $[t]),
-                ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $[t]),
+                seq(
+                    optional(seq($.word, $.link_modifier)),
+                    choice(
+                        ...ATTACHED_MODIFIERS.map((t) => $[t]),
+                        ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $[t]),
+                    ),
+                    optional(seq(
+                        alias($.link_modifier_right, $.link_modifier),
+                    )),
+                ),
                 prec.left(seq($._non_ws, $._non_ws)),
                 prec.left(seq($._non_ws, $.ws, $._non_ws)),
                 prec.right(seq($._non_ws, $._soft_break, $._non_ws)),
@@ -375,12 +390,16 @@ function gen_attached_modifier_etc(type) {
                 $.punc,
                 $.verbatim,
                 seq(
+                    optional(seq($.word, $.link_modifier)),
                     choice(
                         ...other_attached_modfiers.map((t) => $[t]),
-                        // ...other_attached_modfiers.map((t) => $["free_" + t]),
                         ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $[t]),
-                        // ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $["free_" + t]),
                     ),
+                    optional(seq(
+                        $.link_modifier,
+                        $.word,
+                        // seq($.word, optional(alias($.open_conflict, $.punc))),
+                    )),
                 ),
                 prec.left(
                     seq($["_" + type + "_non_ws"], $["_" + type + "_non_ws"]),

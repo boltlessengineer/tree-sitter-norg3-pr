@@ -1,0 +1,186 @@
+================================================================================
+link-mod-00: TESTS
+================================================================================
+word:word
+
+:word
+
+word:
+
+*:word*
+
+*word:*
+
+:*word*
+
+*word*:
+
+word:*
+
+*:word
+
+*:word:*
+
+word*:word
+
+word:*word
+
+word*:word:*word
+
+*word*:word
+
+word:*word*
+
+*word*:word:*word*
+
+word:*word*:word
+
+word :*word*
+
+*word*: word
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (punc)
+    (word)
+    (para_break))
+  (paragraph
+    (punc)
+    (word)
+    (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (punc)
+      (word)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (punc)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (punc)
+    (bold
+      (bold_open)
+      (word)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (bold_close))
+    (punc)
+    (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (punc)
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (punc)
+      (word)
+      (MISSING bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (punc)
+      (word)
+      (punc)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (punc)
+    (word)
+    (para_break))
+  (paragraph
+    (word)
+    (link_modifier)
+    (bold
+      (bold_open)
+      (word)
+      (MISSING bold_close))
+    (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (punc)
+    (word)
+    (link_modifier)
+    (bold
+      (bold_open)
+      (word)
+      (MISSING bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (bold_close))
+    (link_modifier)
+    (word)
+    (para_break))
+  (paragraph
+    (word)
+    (link_modifier)
+    (bold
+      (bold_open)
+      (word)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (bold_close))
+    (link_modifier)
+    (word)
+    ; TODO: fix here
+    (link_modifier)
+    (bold
+      (bold_open)
+      (word)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (word)
+    (link_modifier)
+    (bold
+      (bold_open)
+      (word)
+      (bold_close))
+    (link_modifier)
+    (word)
+    (para_break))
+  (paragraph
+    (word)
+    (ws)
+    (punc)
+    (bold
+      (bold_open)
+      (word)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (bold_close))
+    (punc)
+    (ws)
+    (word)
+    (eof)))

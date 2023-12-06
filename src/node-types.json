@@ -72,6 +72,10 @@
           "named": true
         },
         {
+          "type": "link_modifier",
+          "named": true
+        },
+        {
           "type": "macro",
           "named": true
         },
@@ -403,6 +407,10 @@
           "named": true
         },
         {
+          "type": "link_modifier",
+          "named": true
+        },
+        {
           "type": "macro",
           "named": true
         },
@@ -490,6 +498,10 @@
           "named": true
         },
         {
+          "type": "link_modifier",
+          "named": true
+        },
+        {
           "type": "macro",
           "named": true
         },
@@ -542,6 +554,11 @@
   },
   {
     "type": "italic_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "link_modifier",
     "named": true,
     "fields": {}
   },
@@ -701,6 +718,10 @@
           "named": true
         },
         {
+          "type": "link_modifier",
+          "named": true
+        },
+        {
           "type": "macro",
           "named": true
         },
@@ -801,6 +822,10 @@
         },
         {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "link_modifier",
           "named": true
         },
         {
@@ -916,6 +941,10 @@
         },
         {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "link_modifier",
           "named": true
         },
         {
@@ -1035,6 +1064,10 @@
           "named": true
         },
         {
+          "type": "link_modifier",
+          "named": true
+        },
+        {
           "type": "macro",
           "named": true
         },
@@ -1123,6 +1156,10 @@
           "named": true
         },
         {
+          "type": "link_modifier",
+          "named": true
+        },
+        {
           "type": "macro",
           "named": true
         },
@@ -1208,6 +1245,10 @@
         },
         {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "link_modifier",
           "named": true
         },
         {
