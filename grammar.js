@@ -11,9 +11,9 @@ const ATTACHED_MODIFIERS = [
 ];
 const VERBATIM_ATTACHED_MODIFIERS = [
     "verbatim",
-    // "comment",
-    // "math",
-    // "macro",
+    "comment",
+    "math",
+    "macro",
 ];
 
 const word = /[\p{L}\p{N}]+/;
@@ -67,7 +67,7 @@ module.exports = grammar({
 
         // things that can break the paragraph
         // HACK: these are here to give precedence after paragraph break with error
-        // but do we really need to handle thses?
+        // but do we really need to handle these?
         // 1. tree-sitter will recover error safely on real world usage
         // 2. having two separate parser like markdown will solve the problem without using external parser for paragraph break
         $.weak_carryover_prefix,
@@ -259,6 +259,9 @@ module.exports = grammar({
             ),
 
         ...gen_verbatim_attached_modifier("verbatim", "`"),
+        ...gen_verbatim_attached_modifier("comment", "%"),
+        ...gen_verbatim_attached_modifier("math", "$"),
+        ...gen_verbatim_attached_modifier("macro", "&"),
         _verbatim_non_ws: ($) =>
             choice(
                 $.word,
@@ -305,13 +308,27 @@ module.exports = grammar({
 function gen_attached_modifier(type, mod) {
     return {
         [type + "_open"]: (_) => prec(1, mod),
+        ["free_" + type + "_open"]: (_) => prec(1, mod + "|"),
+        // HACK: parse entire `free_*_close` token from external scanner to get better errrors
+        // (MISSING "|*") would be better than (MISSING "*") after parsing last "|" as valid
+        ["free_" + type + "_close"]: ($) =>
+            prec(1, seq("|", alias($[type + "_close"], mod))),
         [type]: ($) =>
-            seq(
-                $[type + "_open"],
-                $["_" + type + "_non_ws"],
-                $[type + "_close"],
-                // optional(field("extension", $.attached_modifier_extension)),
-            ),
+            choice(
+                seq(
+                    $[type + "_open"],
+                    $["_" + type + "_non_ws"],
+                    $[type + "_close"],
+                    // optional(field("extension", $.attached_modifier_extension)),
+                ),
+                seq(
+                    $["free_" + type + "_open"],
+                    optional(choice($.ws, $._soft_break)),
+                    $["_" + type + "_non_ws"],
+                    optional(choice($.ws, $._soft_break)),
+                    $["free_" + type + "_close"],
+                )
+            )
     };
 }
 
@@ -323,12 +340,24 @@ function gen_attached_modifier(type, mod) {
 function gen_verbatim_attached_modifier(type, mod) {
     return {
         [type + "_open"]: (_) => prec(1, mod),
+        ["free_" + type + "_open"]: (_) => prec(1, mod + "|"),
+        ["free_" + type + "_close"]: ($) =>
+            prec(1, seq("|", alias($[type + "_close"], mod))),
         [type]: ($) =>
-            seq(
-                $[type + "_open"],
-                $._verbatim_non_ws,
-                $[type + "_close"],
-                // optional(field("extension", $.attached_modifier_extension)),
+            choice(
+                seq(
+                    $[type + "_open"],
+                    $._verbatim_non_ws,
+                    $[type + "_close"],
+                    // optional(field("extension", $.attached_modifier_extension)),
+                ),
+                seq(
+                    $["free_" + type + "_open"],
+                    optional(choice($.ws, $._soft_break)),
+                    $._verbatim_non_ws,
+                    optional(choice($.ws, $._soft_break)),
+                    $["free_" + type + "_close"],
+                ),
             ),
     };
 }

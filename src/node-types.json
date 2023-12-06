@@ -56,7 +56,27 @@
           "named": true
         },
         {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "free_bold_close",
+          "named": true
+        },
+        {
+          "type": "free_bold_open",
+          "named": true
+        },
+        {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "macro",
+          "named": true
+        },
+        {
+          "type": "math",
           "named": true
         },
         {
@@ -108,6 +128,54 @@
     "fields": {}
   },
   {
+    "type": "comment",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "comment_close",
+          "named": true
+        },
+        {
+          "type": "comment_open",
+          "named": true
+        },
+        {
+          "type": "free_comment_close",
+          "named": true
+        },
+        {
+          "type": "free_comment_open",
+          "named": true
+        },
+        {
+          "type": "punc",
+          "named": true
+        },
+        {
+          "type": "soft_break",
+          "named": true
+        },
+        {
+          "type": "word",
+          "named": true
+        },
+        {
+          "type": "ws",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "comment_open",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "document",
     "named": true,
     "fields": {},
@@ -129,6 +197,116 @@
         }
       ]
     }
+  },
+  {
+    "type": "free_bold_close",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_bold_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_comment_close",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_comment_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_italic_close",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_italic_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_macro_close",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_macro_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_math_close",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_math_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_spoiler_close",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_spoiler_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_strikethr_close",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_strikethr_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_subscript_close",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_subscript_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_superscript_close",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_superscript_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_underline_close",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_underline_open",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_verbatim_close",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "free_verbatim_open",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "heading",
@@ -213,11 +391,23 @@
           "named": true
         },
         {
+          "type": "comment",
+          "named": true
+        },
+        {
           "type": "eof",
           "named": true
         },
         {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "macro",
+          "named": true
+        },
+        {
+          "type": "math",
           "named": true
         },
         {
@@ -280,11 +470,31 @@
           "named": true
         },
         {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "free_italic_close",
+          "named": true
+        },
+        {
+          "type": "free_italic_open",
+          "named": true
+        },
+        {
           "type": "italic_close",
           "named": true
         },
         {
           "type": "italic_open",
+          "named": true
+        },
+        {
+          "type": "macro",
+          "named": true
+        },
+        {
+          "type": "math",
           "named": true
         },
         {
@@ -336,6 +546,54 @@
     "fields": {}
   },
   {
+    "type": "macro",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "free_macro_close",
+          "named": true
+        },
+        {
+          "type": "free_macro_open",
+          "named": true
+        },
+        {
+          "type": "macro_close",
+          "named": true
+        },
+        {
+          "type": "macro_open",
+          "named": true
+        },
+        {
+          "type": "punc",
+          "named": true
+        },
+        {
+          "type": "soft_break",
+          "named": true
+        },
+        {
+          "type": "word",
+          "named": true
+        },
+        {
+          "type": "ws",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "macro_open",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "macro_ranged_tag",
     "named": true,
     "fields": {
@@ -371,6 +629,54 @@
     "fields": {}
   },
   {
+    "type": "math",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "free_math_close",
+          "named": true
+        },
+        {
+          "type": "free_math_open",
+          "named": true
+        },
+        {
+          "type": "math_close",
+          "named": true
+        },
+        {
+          "type": "math_open",
+          "named": true
+        },
+        {
+          "type": "punc",
+          "named": true
+        },
+        {
+          "type": "soft_break",
+          "named": true
+        },
+        {
+          "type": "word",
+          "named": true
+        },
+        {
+          "type": "ws",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "math_open",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "paragraph",
     "named": true,
     "fields": {},
@@ -383,11 +689,23 @@
           "named": true
         },
         {
+          "type": "comment",
+          "named": true
+        },
+        {
           "type": "eof",
           "named": true
         },
         {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "macro",
+          "named": true
+        },
+        {
+          "type": "math",
           "named": true
         },
         {
@@ -470,7 +788,27 @@
           "named": true
         },
         {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "free_spoiler_close",
+          "named": true
+        },
+        {
+          "type": "free_spoiler_open",
+          "named": true
+        },
+        {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "macro",
+          "named": true
+        },
+        {
+          "type": "math",
           "named": true
         },
         {
@@ -565,7 +903,27 @@
           "named": true
         },
         {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "free_strikethr_close",
+          "named": true
+        },
+        {
+          "type": "free_strikethr_open",
+          "named": true
+        },
+        {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "macro",
+          "named": true
+        },
+        {
+          "type": "math",
           "named": true
         },
         {
@@ -661,7 +1019,27 @@
           "named": true
         },
         {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "free_subscript_close",
+          "named": true
+        },
+        {
+          "type": "free_subscript_open",
+          "named": true
+        },
+        {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "macro",
+          "named": true
+        },
+        {
+          "type": "math",
           "named": true
         },
         {
@@ -729,7 +1107,27 @@
           "named": true
         },
         {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "free_superscript_close",
+          "named": true
+        },
+        {
+          "type": "free_superscript_open",
+          "named": true
+        },
+        {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "macro",
+          "named": true
+        },
+        {
+          "type": "math",
           "named": true
         },
         {
@@ -797,7 +1195,27 @@
           "named": true
         },
         {
+          "type": "comment",
+          "named": true
+        },
+        {
+          "type": "free_underline_close",
+          "named": true
+        },
+        {
+          "type": "free_underline_open",
+          "named": true
+        },
+        {
           "type": "italic",
+          "named": true
+        },
+        {
+          "type": "macro",
+          "named": true
+        },
+        {
+          "type": "math",
           "named": true
         },
         {
@@ -860,6 +1278,14 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "free_verbatim_close",
+          "named": true
+        },
+        {
+          "type": "free_verbatim_open",
+          "named": true
+        },
         {
           "type": "punc",
           "named": true
@@ -930,7 +1356,15 @@
     "named": false
   },
   {
+    "type": "!|",
+    "named": false
+  },
+  {
     "type": "$",
+    "named": false
+  },
+  {
+    "type": "$|",
     "named": false
   },
   {
@@ -938,7 +1372,15 @@
     "named": false
   },
   {
+    "type": "%|",
+    "named": false
+  },
+  {
     "type": "&",
+    "named": false
+  },
+  {
+    "type": "&|",
     "named": false
   },
   {
@@ -954,7 +1396,15 @@
     "named": false
   },
   {
+    "type": "*|",
+    "named": false
+  },
+  {
     "type": ",",
+    "named": false
+  },
+  {
+    "type": ",|",
     "named": false
   },
   {
@@ -962,7 +1412,15 @@
     "named": false
   },
   {
+    "type": "-|",
+    "named": false
+  },
+  {
     "type": "/",
+    "named": false
+  },
+  {
+    "type": "/|",
     "named": false
   },
   {
@@ -990,7 +1448,15 @@
     "named": false
   },
   {
+    "type": "^|",
+    "named": false
+  },
+  {
     "type": "_",
+    "named": false
+  },
+  {
+    "type": "_|",
     "named": false
   },
   {
@@ -998,7 +1464,15 @@
     "named": false
   },
   {
+    "type": "`|",
+    "named": false
+  },
+  {
     "type": "bold_close",
+    "named": true
+  },
+  {
+    "type": "comment_close",
     "named": true
   },
   {
@@ -1018,7 +1492,15 @@
     "named": true
   },
   {
+    "type": "macro_close",
+    "named": true
+  },
+  {
     "type": "macro_ranged_prefix",
+    "named": true
+  },
+  {
+    "type": "math_close",
     "named": true
   },
   {

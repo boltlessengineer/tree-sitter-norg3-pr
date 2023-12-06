@@ -1,0 +1,360 @@
+================================================================================
+Standalone markup
+================================================================================
+*word*
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (bold_close))
+    (eof)))
+
+================================================================================
+PREC: left associated
+================================================================================
+*/word*/
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (bold
+      (bold_open)
+      (punc)
+      (word)
+      (bold_close))
+    (punc)
+    (eof)))
+
+================================================================================
+LTR rule 1
+================================================================================
+*/`word/*`
+
+`*/word`/*
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (bold
+      (bold_open)
+      (italic
+        (italic_open)
+        (punc)
+        (word)
+        (italic_close))
+      (bold_close))
+    (punc)
+    (para_break))
+  (paragraph
+    (verbatim
+      (verbatim_open)
+      (punc)
+      (punc)
+      (word)
+      (verbatim_close))
+    (punc)
+    (punc)
+    (eof)))
+
+================================================================================
+LTR rule 2
+================================================================================
+/`word/ /word/ /word/`
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (italic
+      (italic_open)
+      (punc)
+      (word)
+      (italic_close))
+    (ws)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (ws)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (punc)
+    (eof)))
+
+================================================================================
+Unclosed verbatim with nested standard markups
+================================================================================
+*/`word/*
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (bold
+      (bold_open)
+      (italic
+        (italic_open)
+        (punc)
+        (word)
+        (italic_close))
+      (bold_close))
+    (eof)))
+
+================================================================================
+Unclosed verbatim with repeated standard markups
+================================================================================
+/`word/ /word/ /word/
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (italic
+      (italic_open)
+      (punc)
+      (word)
+      (italic_close))
+    (ws)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (ws)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (eof)))
+
+================================================================================
+Prefer first close token
+================================================================================
+*word *word* word*
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (ws)
+      (punc)
+      (word)
+      (bold_close))
+    (ws)
+    (word)
+    (punc)
+    (eof)))
+
+================================================================================
+Close to cut other markup
+================================================================================
+*/word word*/*
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (bold
+      (bold_open)
+      (punc)
+      (word)
+      (ws)
+      (word)
+      (bold_close))
+    (punc)
+    (punc)
+    (eof)))
+
+================================================================================
+etc
+================================================================================
+/ word/
+
+/word /
+
+/word
+/
+
+//word/
+
+word/word/
+
+word /word/
+
+/word/word/
+
+/word /word/
+
+/word//word/
+
+/word/ word/
+
+*/word/ word*
+
+*word /word/*
+
+*/word/word*
+
+*word/word/*
+
+/*word *word*/
+
+word`word`
+
+word `word`
+
+`word
+
+`/word/
+
+word`
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (punc)
+    (ws)
+    (word)
+    (punc)
+    (para_break))
+  (paragraph
+    (punc)
+    (word)
+    (ws)
+    (punc)
+    (para_break))
+  (paragraph
+    (punc)
+    (word)
+    (soft_break)
+    (punc)
+    (para_break))
+  (paragraph
+    (punc)
+    (word)
+    (punc)
+    (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (word)
+    (punc)
+    (para_break))
+  (paragraph
+    (word)
+    (ws)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (para_break))
+  (paragraph
+    (italic
+      (italic_open)
+      (word)
+      (punc)
+      (word)
+      (italic_close))
+    (para_break))
+  (paragraph
+    (italic
+      (italic_open)
+      (word)
+      (ws)
+      (punc)
+      (word)
+      (italic_close))
+    (para_break))
+  (paragraph
+    (italic
+      (italic_open)
+      (word)
+      (punc)
+      (word)
+      (italic_close))
+    (para_break))
+  (paragraph
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (ws)
+    (word)
+    (punc)
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (italic
+        (italic_open)
+        (word)
+        (italic_close))
+      (ws)
+      (word)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (ws)
+      (italic
+        (italic_open)
+        (word)
+        (italic_close))
+      (bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (punc)
+      (word)
+      (punc)
+      (word)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (punc)
+      (word)
+      (punc)
+      (bold_close))
+    (para_break))
+  (paragraph
+    (italic
+      (italic_open)
+      (bold
+        (bold_open)
+        (word)
+        (ws)
+        (punc)
+        (word)
+        (bold_close))
+      (italic_close))
+    (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (word)
+    (punc)
+    (para_break))
+  (paragraph
+    (word)
+    (ws)
+    (verbatim
+      (verbatim_open)
+      (word)
+      (verbatim_close))
+    (para_break))
+  (paragraph
+    (punc)
+    (word)
+    (para_break))
+  (paragraph
+    (punc)
+    (italic
+      (italic_open)
+      (word)
+      (italic_close))
+    (para_break))
+  (paragraph
+    (word)
+    (punc)
+    (eof)))
+
+; vim:ts=2:sw=2:
