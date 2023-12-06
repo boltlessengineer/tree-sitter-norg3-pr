@@ -25,6 +25,14 @@ const newline = choice("\n", "\r", "\r\n");
 //  - Add tests for link modifiers, then everything else.
 //  - Make every node have an alias($.node, $.node_prefix). Only some currently do.
 
+/**
+ * @param {string} mod
+ * @param {number} level
+ */
+function token_rep2(mod, level = 0) {
+    return token(prec(level, seq(mod, repeat1(mod))));
+}
+
 module.exports = grammar({
     name: "norg3",
 
@@ -49,8 +57,8 @@ module.exports = grammar({
         $.math_close,
         $.macro_close,
 
+        // prevent opening attached modifier right after the word
         $.open_conflict,
-        $._close_conflict,
 
         $.heading_stars,
         $.unordered_list_prefix,
@@ -102,128 +110,112 @@ module.exports = grammar({
 
         // TODO: rename to `section`
         heading: ($) =>
-            prec.right(seq(
-                $.heading_stars,
-                $.ws,
-                field(
-                    "title",
-                    choice(
-                        alias($.paragraph, $.inline),
-                        $.slide,
-                        $.indent_segment
-                    )
+            prec.right(
+                seq(
+                    $.heading_stars,
+                    $.ws,
+                    field(
+                        "title",
+                        choice(
+                            alias($.paragraph, $.inline),
+                            $.slide,
+                            $.indent_segment,
+                        ),
+                    ),
+                    repeat(choice($.heading, $.non_structural, $._newline)),
+                    optional(choice($._dedent, $.weak_delimiting_modifier)),
                 ),
-                repeat(choice(
-                    $.heading,
-                    $.non_structural,
-                    $._newline,
-                )),
-                optional(choice(
-                    $._dedent,
-                    $.weak_delimiting_modifier,
-                ))
-            )),
-        tag: ($) => choice(
-            $.strong_carryover_tag,
-            $.weak_carryover_tag,
-            $.macro_ranged_tag,
-            $.standard_ranged_tag,
-            // $.verbatim_ranged_tag,
-        ),
+            ),
+        tag: ($) =>
+            choice(
+                $.strong_carryover_tag,
+                $.weak_carryover_tag,
+                $.macro_ranged_tag,
+                $.standard_ranged_tag,
+                // $.verbatim_ranged_tag,
+            ),
         identifier: (_) => /[A-Za-z]+/,
-        strong_carryover_tag: ($) => seq(
-            $.strong_carryover_prefix,
-            $.identifier,
-            choice($._newline, $.eof)
-        ),
-        weak_carryover_tag: ($) => seq(
-            $.weak_carryover_prefix,
-            $.identifier,
-            choice($._newline, $.eof)
-        ),
-        macro_ranged_tag: ($) => seq(
-            $.macro_ranged_prefix,
-            $.identifier,
-            repeat(
-                seq(
-                    whitespace,
-                    $.identifier,
-                )
+        strong_carryover_tag: ($) =>
+            seq(
+                $.strong_carryover_prefix,
+                $.identifier,
+                choice($._newline, $.eof),
             ),
-            $._newline,
-            optional(
-                field(
-                    'content',
-                    alias($.verbatim_lines, $.macro_tag_content)
-                )
+        weak_carryover_tag: ($) =>
+            seq(
+                $.weak_carryover_prefix,
+                $.identifier,
+                choice($._newline, $.eof),
             ),
-            token(prec(1, "=end")),
-            $._newline,
-        ),
-        verbatim_ranged_tag: ($) => seq(
-            $.verbatim_ranged_prefix,
-            $.identifier,
-            repeat(
-                seq(
-                    whitespace,
-                    $.identifier,
-                )
+        macro_ranged_tag: ($) =>
+            seq(
+                $.macro_ranged_prefix,
+                $.identifier,
+                repeat(seq(whitespace, $.identifier)),
+                $._newline,
+                optional(
+                    field(
+                        "content",
+                        alias($.verbatim_lines, $.macro_tag_content),
+                    ),
+                ),
+                token(prec(1, "=end")),
+                $._newline,
             ),
-            $._newline,
-            optional(
-                field(
-                    'content',
-                    alias($.verbatim_lines, $.verbatim_tag_content)
-                )
+        verbatim_ranged_tag: ($) =>
+            seq(
+                $.verbatim_ranged_prefix,
+                $.identifier,
+                repeat(seq(whitespace, $.identifier)),
+                $._newline,
+                optional(
+                    field(
+                        "content",
+                        alias($.verbatim_lines, $.verbatim_tag_content),
+                    ),
+                ),
+                token(prec(1, "@end")),
+                $._newline,
             ),
-            token(prec(1, "@end")),
-            $._newline,
-        ),
-        standard_ranged_tag: ($) => seq(
-            $.standard_ranged_prefix,
-            $.identifier,
-            repeat(
-                seq(
-                    whitespace,
-                    $.identifier,
-                )
+        standard_ranged_tag: ($) =>
+            seq(
+                $.standard_ranged_prefix,
+                $.identifier,
+                repeat(seq(whitespace, $.identifier)),
+                $._newline,
+                repeat(
+                    choice(
+                        $.heading,
+                        $.non_structural,
+                        // $.strong_delimiting_modifier,
+                        $._newline,
+                    ),
+                ),
+                "|end",
+                $._newline,
             ),
-            $._newline,
-            repeat(
-                choice(
-                    $.heading,
-                    $.non_structural,
-                    // $.strong_delimiting_modifier,
-                    $._newline,
-                )
-            ),
-            "|end",
-            $._newline,
-        ),
         verbatim_lines: ($) => repeat1(seq(optional(/.*/), $._newline)),
 
-        slide: ($) => seq(
-            prec(1, ":"),
-            $._newline,
-            prec.right(repeat1(
-                choice(
-                    $.non_structural
-                )
-            ))
-        ),
-        indent_segment: ($) => seq(
-            prec(1, "::"),
-            $._newline,
-            prec.right(
-                repeat1(
-                    choice(
-                        $.non_structural,
-                        // $.structural,
-                        $._newline,
-                    )
-                )
-            )
-        ),
+        slide: ($) =>
+            seq(
+                prec(1, ":"),
+                $._newline,
+                prec.right(repeat1(choice($.non_structural))),
+            ),
+        indent_segment: ($) =>
+            seq(
+                prec(1, "::"),
+                $._newline,
+                prec.right(
+                    repeat1(
+                        choice(
+                            $.non_structural,
+                            // $.structural,
+                            $._newline,
+                        ),
+                    ),
+                ),
+            ),
         non_structural: ($) =>
             choice(
                 $.paragraph,
@@ -232,48 +224,31 @@ module.exports = grammar({
                 $.tag,
                 $.horizontal_rule,
             ),
-        strong_delimiting_modifier: ($) => seq(token(prec(2, seq("=", repeat1("=")))), $._newline),
-        horizontal_rule: ($) => seq(token(prec(2, seq("_", repeat1("_")))), $._newline),
+        strong_delimiting_modifier: ($) => seq(token_rep2("="), $._newline),
+        horizontal_rule: ($) => prec(1, seq(token_rep2("_", 2), $._newline)),
 
-        paragraph: ($) => seq(
-            $._non_ws,
-            choice(
-                $.para_break,
-                $.eof
-            )
-        ),
+        paragraph: ($) => seq($._non_ws, choice($.para_break, $.eof)),
 
-        _soft_break: ($) => seq(optional(whitespace), alias(newline, $.soft_break)),
-        // soft_para_break: (_) => token(seq(optional(whitespace), newline)),
+        _soft_break: ($) =>
+            seq(optional(whitespace), alias(newline, $.soft_break)),
         trailing_ws: (_) => whitespace,
         ws: (_) => whitespace,
         word: (_) => word,
-        punc: ($) =>
+        punc: (_) =>
+            // prettier-ignore
             choice(
-                token(prec(2, seq("*", repeat1("*")))),
-                token(prec(2, seq("/", repeat1("/")))),
-                token(prec(2, seq("_", repeat1("_")))),
-                token(prec(2, seq("-", repeat1("-")))),
-                token(prec(2, seq("!", repeat1("!")))),
-                token(prec(2, seq("^", repeat1("^")))),
-                token(prec(2, seq(",", repeat1(",")))),
-                token(prec(2, seq("`", repeat1("`")))),
-                token(prec(2, seq("%", repeat1("%")))),
-                token(prec(2, seq("$", repeat1("$")))),
-                token(prec(2, seq("&", repeat1("&")))),
-                "*",
-                "/",
-                "_",
-                "-",
-                "!",
-                "^",
-                ",",
-                "`",
-                "%",
-                "$",
-                "&",
+                "*", token_rep2("*", 2),
+                "/", token_rep2("/", 2),
+                "_", token_rep2("_", 2),
+                "-", token_rep2("-", 2),
+                "!", token_rep2("!", 2),
+                "^", token_rep2("^", 2),
+                ",", token_rep2(",", 2),
+                "`", token_rep2("`", 2),
+                "%", token_rep2("%", 2),
+                "$", token_rep2("$", 2),
+                "&", token_rep2("&", 2),
                 ":",
-                $._close_conflict,
                 // NOTE: only `(` can be parsed as punctuation and not `{`, `[`
                 "(",
                 ")",
@@ -283,9 +258,7 @@ module.exports = grammar({
                 token(/[^\{\[\n\r\p{Z}\p{L}\p{N}]/),
             ),
 
-        verbatim_open: (_) => prec(1, "`"),
-        verbatim: ($) =>
-            seq($.verbatim_open, $._verbatim_non_ws, $.verbatim_close),
+        ...gen_verbatim_attached_modifier("verbatim", "`"),
         _verbatim_non_ws: ($) =>
             choice(
                 $.word,
@@ -313,11 +286,10 @@ module.exports = grammar({
 
         _non_ws: ($) =>
             choice(
-                // $.para_break,
                 seq($.word, optional(alias($.open_conflict, $.punc))),
                 $.punc,
                 ...ATTACHED_MODIFIERS.map((t) => $[t]),
-                $.verbatim,
+                ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $[t]),
                 prec.left(seq($._non_ws, $._non_ws)),
                 prec.left(seq($._non_ws, $.ws, $._non_ws)),
                 prec.right(seq($._non_ws, $._soft_break, $._non_ws)),
@@ -328,57 +300,76 @@ module.exports = grammar({
 /**
  * @param {string} type
  * @param {string} mod
+ * @returns {RuleBuilders<string, string>}
  */
 function gen_attached_modifier(type, mod) {
-    /**
-     * @type {RuleBuilders<string, string>}
-     */
-    let rules = {};
-    rules[type + "_open"] = (_) => prec(1, mod);
-    rules[type] = ($) =>
-        seq(
-            $[type + "_open"],
-            $["_" + type + "_non_ws"],
-            $[type + "_close"],
-            // optional(field("extension", $.attached_modifier_extension)),
-        );
-    return rules;
+    return {
+        [type + "_open"]: (_) => prec(1, mod),
+        [type]: ($) =>
+            seq(
+                $[type + "_open"],
+                $["_" + type + "_non_ws"],
+                $[type + "_close"],
+                // optional(field("extension", $.attached_modifier_extension)),
+            ),
+    };
 }
+
 /**
  * @param {string} type
+ * @param {string} mod
+ * @returns {RuleBuilders<string, string>}
+ */
+function gen_verbatim_attached_modifier(type, mod) {
+    return {
+        [type + "_open"]: (_) => prec(1, mod),
+        [type]: ($) =>
+            seq(
+                $[type + "_open"],
+                $._verbatim_non_ws,
+                $[type + "_close"],
+                // optional(field("extension", $.attached_modifier_extension)),
+            ),
+    };
+}
+
+/**
+ * @param {string} type
+ * @returns {RuleBuilders<string, string>}
  */
 function gen_attached_modifier_etc(type) {
     const other_attached_modfiers = ATTACHED_MODIFIERS.filter((t) => t != type);
-    /**
-     * @type {RuleBuilders<string, string>}
-     */
-    let rules = {};
-    rules["_" + type + "_non_ws"] = ($) =>
-        choice(
-            seq($.word, optional(alias($.open_conflict, $.punc))),
-            $.punc,
-            $.verbatim,
-            seq(
-                choice(
-                    ...other_attached_modfiers.map((t) => $[t]),
-                    // ...other_attached_modfiers.map((t) => $["free_" + t]),
-                    ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $[t]),
-                    // ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $["free_" + t]),
-                ),
-            ),
-            prec.left(
-                seq($["_" + type + "_non_ws"], $["_" + type + "_non_ws"]),
-            ),
-            prec.left(
-                seq($["_" + type + "_non_ws"], $.ws, $["_" + type + "_non_ws"]),
-            ),
-            prec.right(
+    return {
+        ["_" + type + "_non_ws"]: ($) =>
+            choice(
+                seq($.word, optional(alias($.open_conflict, $.punc))),
+                $.punc,
+                $.verbatim,
                 seq(
-                    $["_" + type + "_non_ws"],
-                    $._soft_break,
-                    $["_" + type + "_non_ws"],
+                    choice(
+                        ...other_attached_modfiers.map((t) => $[t]),
+                        // ...other_attached_modfiers.map((t) => $["free_" + t]),
+                        ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $[t]),
+                        // ...VERBATIM_ATTACHED_MODIFIERS.map((t) => $["free_" + t]),
+                    ),
+                ),
+                prec.left(
+                    seq($["_" + type + "_non_ws"], $["_" + type + "_non_ws"]),
+                ),
+                prec.left(
+                    seq(
+                        $["_" + type + "_non_ws"],
+                        $.ws,
+                        $["_" + type + "_non_ws"],
+                    ),
+                ),
+                prec.right(
+                    seq(
+                        $["_" + type + "_non_ws"],
+                        $._soft_break,
+                        $["_" + type + "_non_ws"],
+                    ),
                 ),
             ),
-        );
-    return rules;
+    };
 }

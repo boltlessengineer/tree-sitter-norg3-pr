@@ -42,7 +42,6 @@ enum TokenType : char {
     MACRO_CLOSE,
 
     OPEN_CONFLICT,
-    CLOSE_CONFLICT,
 
     HEADING,
     UNORDERED_LIST,
@@ -72,11 +71,9 @@ bool iswword(char c) {
 struct Scanner {
     TSLexer* lexer;
     // Stores indentation data related to headings, lists and other nestable item types.
-    // TODO: wrap indents with stack to parse heading level separately
-    // inside standard ranged tags
     std::unordered_map< char, std::vector<uint16_t> > indents;
     std::unordered_map<int32_t, TokenType> attached_modifiers;
-    std::unordered_map<int32_t, TokenType> paragraph_break_pefixs;
+    std::unordered_map<int32_t, TokenType> tag_prefixs;
     // Flag to disallow softbreak in heading and all markups inside heading
     bool single_line_mode;
     Scanner() {
@@ -91,11 +88,11 @@ struct Scanner {
         attached_modifiers['%'] = COMMENT_CLOSE;
         attached_modifiers['$'] = MATH_CLOSE;
         attached_modifiers['&'] = MACRO_CLOSE;
-        paragraph_break_pefixs['+'] = WEAK_CARRYOVER_PREFIX;
-        paragraph_break_pefixs['#'] = STRONG_CARRYOVER_PREFIX;
-        paragraph_break_pefixs['='] = MACRO_RANGED_PREFIX;
-        paragraph_break_pefixs['|'] = STANDARD_RANGED_PREFIX;
-        paragraph_break_pefixs['@'] = VERBATIM_RANGED_PREFIX;
+        tag_prefixs['+'] = WEAK_CARRYOVER_PREFIX;
+        tag_prefixs['#'] = STRONG_CARRYOVER_PREFIX;
+        tag_prefixs['='] = MACRO_RANGED_PREFIX;
+        tag_prefixs['|'] = STANDARD_RANGED_PREFIX;
+        tag_prefixs['@'] = VERBATIM_RANGED_PREFIX;
         single_line_mode = false;
     }
 
@@ -140,6 +137,7 @@ struct Scanner {
                 return true;
             }
         }
+
         if (iswspace(lexer->lookahead)) {
             // skip trailing whitespaces
             while (iswblank(lexer->lookahead)) skip();
@@ -174,7 +172,7 @@ struct Scanner {
                 if (lexer->lookahead == '*' || lexer->lookahead == '-' || lexer->lookahead == '=' || lexer->lookahead == '_') {
                     int32_t character = lexer->lookahead;
                     skip();
-                    size_t count = 0;
+                    size_t count = 1;
                     while (lexer->lookahead == character) {
                         count++;
                         skip();
@@ -188,8 +186,8 @@ struct Scanner {
                     }
                 }
                 // tags
-                std::unordered_map<int32_t, TokenType>::iterator iter = paragraph_break_pefixs.find(lexer->lookahead);
-                if (iter != paragraph_break_pefixs.end()) {
+                std::unordered_map<int32_t, TokenType>::iterator iter = tag_prefixs.find(lexer->lookahead);
+                if (iter != tag_prefixs.end()) {
                     skip();
                     if (iswword(lexer->lookahead) && !lexer->eof(lexer)) {
                         lexer->result_symbol = PARA_BREAK;
@@ -199,10 +197,22 @@ struct Scanner {
             }
             return false;
         }
+        // cache first lookahead as `character` to compare two lookaheads
+        // *a   -> bold_open
+        // **   -> heading
+        // *| | -> heading|bold_close
+        // |*   -> free_bold_close
+        // |a   -> standard ranged tag prefix
+        // | |\n-> paragraph break|newline
+        // | |\n-> paragraph break|newline
+        int32_t character = lexer->lookahead;
 
+        // tag prefixs
+        // these tokens should not neccessarily parsed from external scanner,
+        // but they are here to have extra stability on broken paragraph
         {
-            std::unordered_map<int32_t, TokenType>::iterator iter = paragraph_break_pefixs.find(lexer->lookahead);
-            if (iter != paragraph_break_pefixs.end()) {
+            std::unordered_map<int32_t, TokenType>::iterator iter = tag_prefixs.find(character);
+            if (iter != tag_prefixs.end()) {
                 const int token_char = iter->first;
                 const TokenType token_type = iter->second;
                 advance();
@@ -223,18 +233,17 @@ struct Scanner {
                     }
                     return true;
                 }
-                return false;
             }
         }
 
 
+        // detached modifiers
         // If the parser expects a heading, list type or quote then attempt to parse said item.
-        if ((valid_symbols[HEADING] && lexer->lookahead == '*')
-            || (valid_symbols[UNORDERED_LIST] && lexer->lookahead == '-')
-            || (valid_symbols[WEAK_DELIMITING_MODIFIER] && lexer->lookahead == '-')
-            || (valid_symbols[ORDERED_LIST] && lexer->lookahead == '~')
-            || (valid_symbols[QUOTE] && lexer->lookahead == '>')) {
-            int32_t character = lexer->lookahead;
+        if ((valid_symbols[HEADING] && character == '*')
+            || (valid_symbols[UNORDERED_LIST] && character == '-')
+            || (valid_symbols[WEAK_DELIMITING_MODIFIER] && character == '-')
+            || (valid_symbols[ORDERED_LIST] && character == '~')
+            || (valid_symbols[QUOTE] && character == '>')) {
             std::vector<uint16_t>& indent_vector = indents[lexer->lookahead];
             size_t count = 0;
 
@@ -258,6 +267,7 @@ struct Scanner {
                     // Advance past the newline as well.
                     advance_nl();
 
+                    // FIXME: weak delimiting modifier should be able to used with other detached modifiers
                     indents['*'].pop_back();
                     // When `mark_end()` is called again we essentially move the previous checkpoint to the new "head".
                     lexer->mark_end(lexer);
@@ -313,7 +323,8 @@ struct Scanner {
             }
         }
 
-        std::unordered_map<int32_t, TokenType>::iterator iter = attached_modifiers.find(lexer->lookahead);
+        // attached modifiers
+        std::unordered_map<int32_t, TokenType>::iterator iter = attached_modifiers.find(character);
         if (iter != attached_modifiers.end()) {
             const int token_char = iter->first;
             const TokenType token_type = iter->second;
@@ -336,9 +347,6 @@ struct Scanner {
                     if (!valid_symbols[lexer->result_symbol])
                         return false;
                     return true;
-                } else {
-                    lexer->result_symbol = CLOSE_CONFLICT;
-                    return true;
                 }
             } else if(valid_symbols[OPEN_CONFLICT]) {
                 // previous token was word, but *_close isn't valid
@@ -346,9 +354,6 @@ struct Scanner {
                 // haven't opened bold/or bold_open was parsed as punctuation
                 lexer->result_symbol = OPEN_CONFLICT;
                 return true;
-            } else {
-                // TODO: when is this case..?
-                return false;
             }
         }
 
