@@ -197,10 +197,9 @@ module.exports = grammar({
         ),
         verbatim_lines: ($) => repeat1(seq(optional(/.*/), $._newline)),
 
-        slide_prefix: ($) => seq(token(prec(1, ":")), $._newline),
-        indent_prefix: ($) => seq(token(prec(1, "::")), $._newline),
         slide: ($) => seq(
-            $.slide_prefix,
+            prec(1, ":"),
+            $._newline,
             prec.right(repeat1(
                 choice(
                     $.non_structural
@@ -208,7 +207,8 @@ module.exports = grammar({
             ))
         ),
         indent_segment: ($) => seq(
-            $.indent_prefix,
+            prec(1, "::"),
+            $._newline,
             prec.right(
                 repeat1(
                     choice(

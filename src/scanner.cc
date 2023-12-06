@@ -146,16 +146,18 @@ struct Scanner {
                 // TODO: test this works well on \r\n
                 advance_nl();
                 lexer->mark_end(lexer);
-                // when parsing single-line paragraph (aka. title,) return paragraph break immediately
-                if (single_line_mode) {
-                    single_line_mode = false;
-                    lexer->result_symbol = PARA_BREAK;
-                    return true;
-                }
 
                 // when we want just newline token, not as paragraph break
                 if (valid_symbols[NEWLINE]) {
                     lexer->result_symbol = NEWLINE;
+                    // cancel single-line, this occurs when heading has slide/indent_segment prefixs
+                    if (single_line_mode) single_line_mode = false;
+                    return true;
+                }
+                // when parsing single-line paragraph (aka. title,) return paragraph break immediately
+                if (single_line_mode) {
+                    single_line_mode = false;
+                    lexer->result_symbol = PARA_BREAK;
                     return true;
                 }
 
@@ -294,21 +296,6 @@ struct Scanner {
                     case '-': lexer->result_symbol = UNORDERED_LIST; break;
                     case '~': lexer->result_symbol = ORDERED_LIST; break;
                     case '>': lexer->result_symbol = QUOTE; break;
-                }
-                // cancel single line mode on slides/indent segment
-                if (single_line_mode) {
-                    while (iswblank(lexer->lookahead))
-                        skip();
-                    if (lexer->lookahead == ':') {
-                        skip();
-                        if (lexer->lookahead == ':') {
-                            skip();
-                            // indent_segment = true;
-                        };
-                        if (iswnl(lexer->lookahead)) {
-                            single_line_mode = false;
-                        }
-                    }
                 }
                 return true;
             }
