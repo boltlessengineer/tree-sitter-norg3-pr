@@ -1,5 +1,5 @@
 ================================================================================
-paragaph-00: Basic paragraph including soft break
+para-00: Basic paragraph including soft break
 ================================================================================
 word word
 word
@@ -14,7 +14,7 @@ word
     (eof)))
 
 ================================================================================
-paragaph-01: Paragraph including preceding whitespaces
+para-01: Paragraph including preceding whitespaces
 ================================================================================
   word word
      word
@@ -32,7 +32,7 @@ paragaph-01: Paragraph including preceding whitespaces
     (eof)))
 
 ================================================================================
-paragaph-02: Soft break with whitespaces
+para-02: Soft break with whitespaces
 ================================================================================
 word word   
 word
@@ -47,7 +47,7 @@ word
     (eof)))
 
 ================================================================================
-paragaph-03: Paragraph break by multiple newlines
+para-03: Paragraph break by multiple newlines
 ================================================================================
 word word
 word
@@ -73,7 +73,7 @@ word
     (eof)))
 
 ================================================================================
-paragaph-04: Paragraph break by multiple newlines with whitespaces
+para-04: Paragraph break by multiple newlines with whitespaces
 ================================================================================
 word word
 word   
@@ -93,7 +93,7 @@ word
     (eof)))
 
 ================================================================================
-paragaph-05: Paragraph break by multiple newlines in standard Attached modifier
+para-05: Paragraph break by multiple newlines in standard Attached modifier
 ================================================================================
 word *word
 
@@ -114,7 +114,7 @@ word*
     (eof)))
 
 ================================================================================
-paragaph-06: Paragraph break by Detached modifier
+para-06: Paragraph break by Detached modifier
 ================================================================================
 word word
 * heading
@@ -133,7 +133,7 @@ word word
       (eof))))
 
 ================================================================================
-paragaph-07: Paragraph break by Detached modifier in standard Attached modifier
+para-07: Paragraph break by Detached modifier in standard Attached modifier
 ================================================================================
 *not
 * heading
@@ -158,7 +158,7 @@ bold*
       (eof))))
 
 ================================================================================
-paragaph-08: Paragraph break by Detached modifier in verbatim Attached modifier
+para-08: Paragraph break by Detached modifier in verbatim Attached modifier
 ================================================================================
 `not
 * heading
