@@ -54,6 +54,7 @@ enum TokenType : char {
     MACRO_RANGED_PREFIX,
     STANDARD_RANGED_PREFIX,
     VERBATIM_RANGED_PREFIX,
+    STANDARD_RANGED_END,
 
     WEAK_DELIMITING_MODIFIER,
     DEDENT,
@@ -65,7 +66,7 @@ bool iswnl(char c) {
     return iswspace(c) && !iswblank(c);
 }
 bool iswword(char c) {
-    return !iswblank(c) && !iswpunct(c);
+    return !iswspace(c) && !iswpunct(c);
 }
 
 struct Scanner {
@@ -209,6 +210,17 @@ struct Scanner {
                 if (valid_symbols[token_type] && iswword(lexer->lookahead)) {
                     lexer->result_symbol = token_type;
                     lexer->mark_end(lexer);
+                    if (token_char == '|' && valid_symbols[STANDARD_RANGED_END]) {
+                        if (lexer->lookahead != 'e') return true;
+                        advance();
+                        if (lexer->lookahead != 'n') return true;
+                        advance();
+                        if (lexer->lookahead != 'd') return true;
+                        advance();
+                        if (iswword(lexer->lookahead) || iswpunct(lexer->lookahead)) return true;
+                        lexer->mark_end(lexer);
+                        lexer->result_symbol = STANDARD_RANGED_END;
+                    }
                     return true;
                 }
                 return false;

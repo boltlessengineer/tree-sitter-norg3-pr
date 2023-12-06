@@ -314,7 +314,7 @@
             "value": 1,
             "content": {
               "type": "STRING",
-              "value": "@hnd"
+              "value": "@end"
             }
           }
         },
@@ -376,16 +376,8 @@
           }
         },
         {
-          "type": "PREC",
-          "value": 1,
-          "content": {
-            "type": "SYMBOL",
-            "name": "standard_ranged_prefix"
-          }
-        },
-        {
           "type": "STRING",
-          "value": "end"
+          "value": "|end"
         },
         {
           "type": "SYMBOL",
@@ -417,52 +409,20 @@
         ]
       }
     },
-    "slide_prefix": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "TOKEN",
-          "content": {
-            "type": "PREC",
-            "value": 1,
-            "content": {
-              "type": "STRING",
-              "value": ":"
-            }
-          }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_newline"
-        }
-      ]
-    },
-    "indent_prefix": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "TOKEN",
-          "content": {
-            "type": "PREC",
-            "value": 1,
-            "content": {
-              "type": "STRING",
-              "value": "::"
-            }
-          }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "_newline"
-        }
-      ]
-    },
     "slide": {
       "type": "SEQ",
       "members": [
         {
+          "type": "PREC",
+          "value": 1,
+          "content": {
+            "type": "STRING",
+            "value": ":"
+          }
+        },
+        {
           "type": "SYMBOL",
-          "name": "slide_prefix"
+          "name": "_newline"
         },
         {
           "type": "PREC_RIGHT",
@@ -486,8 +446,16 @@
       "type": "SEQ",
       "members": [
         {
+          "type": "PREC",
+          "value": 1,
+          "content": {
+            "type": "STRING",
+            "value": "::"
+          }
+        },
+        {
           "type": "SYMBOL",
-          "name": "indent_prefix"
+          "name": "_newline"
         },
         {
           "type": "PREC_RIGHT",
@@ -2465,6 +2433,10 @@
     {
       "type": "SYMBOL",
       "name": "verbatim_ranged_prefix"
+    },
+    {
+      "type": "STRING",
+      "value": "|end"
     },
     {
       "type": "SYMBOL",

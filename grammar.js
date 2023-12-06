@@ -30,6 +30,7 @@ module.exports = grammar({
 
     // Tell treesitter we want to handle whitespace ourselves
     extras: ($) => [$._preceding_whitespace],
+    // @ts-ignore
     externals: ($) => [
         $._preceding_whitespace,
         $.eof,
@@ -57,11 +58,16 @@ module.exports = grammar({
         $.quote_prefix,
 
         // things that can break the paragraph
+        // HACK: these are here to give precedence after paragraph break with error
+        // but do we really need to handle thses?
+        // 1. tree-sitter will recover error safely on real world usage
+        // 2. having two separate parser like markdown will solve the problem without using external parser for paragraph break
         $.weak_carryover_prefix,
         $.strong_carryover_prefix,
         $.macro_ranged_prefix,
         $.standard_ranged_prefix,
         $.verbatim_ranged_prefix,
+        "|end", // $.standard_ranged_end,
 
         $.weak_delimiting_modifier,
         $._dedent,
@@ -170,7 +176,7 @@ module.exports = grammar({
                     alias($.verbatim_lines, $.verbatim_tag_content)
                 )
             ),
-            token(prec(1, "@hnd")),
+            token(prec(1, "@end")),
             $._newline,
         ),
         standard_ranged_tag: ($) => seq(
@@ -191,8 +197,7 @@ module.exports = grammar({
                     $._newline,
                 )
             ),
-            prec(1, $.standard_ranged_prefix),
-            "end",
+            "|end",
             $._newline,
         ),
         verbatim_lines: ($) => repeat1(seq(optional(/.*/), $._newline)),
