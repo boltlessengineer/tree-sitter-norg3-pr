@@ -157,13 +157,7 @@ struct Scanner {
         if (valid_symbols[PARAGRAPH_BREAK] && (lexer->lookahead == '\n' || lexer->lookahead == '\r')) {
             advance();
 
-            if (lexer->eof(lexer)) {
-                lexer->result_symbol = PARAGRAPH_BREAK;
-                attached_modifiers.clear();
-                return true;
-            }
-            if (lexer->lookahead == '\n' || lexer->lookahead == '\r') {
-                advance();
+            if (lexer->eof(lexer) || lexer->lookahead == '\n' || lexer->lookahead == '\r') {
                 lexer->result_symbol = PARAGRAPH_BREAK;
                 attached_modifiers.clear();
                 return true;
