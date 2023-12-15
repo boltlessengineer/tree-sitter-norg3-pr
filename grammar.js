@@ -91,8 +91,10 @@ module.exports = grammar({
             prec.right(
                 seq(
                     choice(
-                        seq($.whitespace, optional(alias($.non_close, $.punctuation))),
-                        seq($.word, optional(alias($.non_open, $.punctuation))),
+                        seq($.whitespace, alias($.non_close, $.punctuation)),
+                        seq($.word, alias($.non_open, $.punctuation)),
+                        $.whitespace,
+                        $.word,
                         $.punctuation,
                         $.bold,
                         $.italic,
@@ -108,8 +110,10 @@ module.exports = grammar({
                     ),
                     repeat(
                         choice(
-                            seq($.whitespace, optional(alias($.non_close, $.punctuation))),
-                            seq($.word, optional(alias($.non_open, $.punctuation))),
+                            seq($.whitespace, alias($.non_close, $.punctuation)),
+                            seq($.word, alias($.non_open, $.punctuation)),
+                            $.whitespace,
+                            $.word,
                             $.punctuation,
                             $.bold,
                             $.italic,
@@ -132,9 +136,11 @@ module.exports = grammar({
             prec.right(
                 repeat1(
                     choice(
-                        seq($.word, optional(alias($.non_open, $.punctuation))),
+                        seq($.whitespace, alias($.non_close, $.punctuation)),
+                        seq($.word, alias($.non_open, $.punctuation)),
+                        $.whitespace,
+                        $.word,
                         $.punctuation,
-                        seq($.whitespace, optional(alias($.non_close, $.punctuation))),
                         $.verbatim_open,
                         $.math_open,
                         $.inline_macro_open,
