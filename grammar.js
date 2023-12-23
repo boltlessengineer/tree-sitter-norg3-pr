@@ -290,6 +290,40 @@ module.exports = grammar({
         ...gen_attached_modifier_etc("spoiler"),
         ...gen_attached_modifier_etc("superscript"),
         ...gen_attached_modifier_etc("subscript"),
+        link: ($) =>
+            seq(
+                "{",
+                field("destination", choice(
+                    $.uri,
+                    $.norg_file,
+                    // $.scope,
+                )),
+                "}",
+            ),
+        uri: (_) => /[^\}]+/,
+        norg_file: ($) =>
+            seq(
+                token(prec(1, ":")),
+                optional(
+                    choice(
+                        seq("$", choice(
+                            // HACK: it's weird but works
+                            seq(field("root", alias("/", $.current_workspace))),
+                            seq(field("root", $.workspace), "/"),
+                        )),
+                        seq(field("root", alias(token(prec(1, "/")), $.file_root))),
+                    )
+                ),
+                field("path", $.norg_file_path),
+                ":",
+                // optional($.scope),
+            ),
+        // scope: ($) => choice(
+        //     seq(repeat1("*"), $.whitespace, alias(/[^\:\}]+/, $.title))
+        // ),
+
+        norg_file_path: (_) => /[^\$:\}]+/,
+        workspace: (_) => /[^\$\/:\}]+/,
 
         // Using more than one dynamic precedence is really dangerous.
         // Never use prec.dynamic except for here
@@ -298,6 +332,7 @@ module.exports = grammar({
             choice(
                 seq($.word, optional(alias($.open_conflict, $.punc))),
                 $.punc,
+                $.link,
                 seq(
                     optional(seq($.word, $.link_modifier)),
                     choice(
@@ -389,6 +424,7 @@ function gen_attached_modifier_etc(type) {
                 seq($.word, optional(alias($.open_conflict, $.punc))),
                 $.punc,
                 $.verbatim,
+                $.link,
                 seq(
                     optional(seq($.word, $.link_modifier)),
                     choice(

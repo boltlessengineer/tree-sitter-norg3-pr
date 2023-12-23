@@ -2389,6 +2389,10 @@
           "name": "verbatim"
         },
         {
+          "type": "SYMBOL",
+          "name": "link"
+        },
+        {
           "type": "SEQ",
           "members": [
             {
@@ -2577,6 +2581,10 @@
         {
           "type": "SYMBOL",
           "name": "verbatim"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "link"
         },
         {
           "type": "SEQ",
@@ -2769,6 +2777,10 @@
           "name": "verbatim"
         },
         {
+          "type": "SYMBOL",
+          "name": "link"
+        },
+        {
           "type": "SEQ",
           "members": [
             {
@@ -2957,6 +2969,10 @@
         {
           "type": "SYMBOL",
           "name": "verbatim"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "link"
         },
         {
           "type": "SEQ",
@@ -3149,6 +3165,10 @@
           "name": "verbatim"
         },
         {
+          "type": "SYMBOL",
+          "name": "link"
+        },
+        {
           "type": "SEQ",
           "members": [
             {
@@ -3337,6 +3357,10 @@
         {
           "type": "SYMBOL",
           "name": "verbatim"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "link"
         },
         {
           "type": "SEQ",
@@ -3529,6 +3553,10 @@
           "name": "verbatim"
         },
         {
+          "type": "SYMBOL",
+          "name": "link"
+        },
+        {
           "type": "SEQ",
           "members": [
             {
@@ -3681,6 +3709,163 @@
         }
       ]
     },
+    "link": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "FIELD",
+          "name": "destination",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "uri"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "norg_file"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
+    "uri": {
+      "type": "PATTERN",
+      "value": "[^\\}]+"
+    },
+    "norg_file": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "STRING",
+              "value": ":"
+            }
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": "$"
+                    },
+                    {
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "SEQ",
+                          "members": [
+                            {
+                              "type": "FIELD",
+                              "name": "root",
+                              "content": {
+                                "type": "ALIAS",
+                                "content": {
+                                  "type": "STRING",
+                                  "value": "/"
+                                },
+                                "named": true,
+                                "value": "current_workspace"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "SEQ",
+                          "members": [
+                            {
+                              "type": "FIELD",
+                              "name": "root",
+                              "content": {
+                                "type": "SYMBOL",
+                                "name": "workspace"
+                              }
+                            },
+                            {
+                              "type": "STRING",
+                              "value": "/"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "FIELD",
+                      "name": "root",
+                      "content": {
+                        "type": "ALIAS",
+                        "content": {
+                          "type": "TOKEN",
+                          "content": {
+                            "type": "PREC",
+                            "value": 1,
+                            "content": {
+                              "type": "STRING",
+                              "value": "/"
+                            }
+                          }
+                        },
+                        "named": true,
+                        "value": "file_root"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "FIELD",
+          "name": "path",
+          "content": {
+            "type": "SYMBOL",
+            "name": "norg_file_path"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ":"
+        }
+      ]
+    },
+    "norg_file_path": {
+      "type": "PATTERN",
+      "value": "[^\\$:\\}]+"
+    },
+    "workspace": {
+      "type": "PATTERN",
+      "value": "[^\\$\\/:\\}]+"
+    },
     "link_modifier": {
       "type": "PREC_DYNAMIC",
       "value": 1,
@@ -3721,6 +3906,10 @@
         {
           "type": "SYMBOL",
           "name": "punc"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "link"
         },
         {
           "type": "SEQ",
