@@ -1,5 +1,5 @@
 [package]
-name = "tree-sitter-norg3"
+name = "tree-sitter-norg"
 description = "norg grammar for the tree-sitter parsing library"
 version = "0.0.1"
 keywords = ["incremental", "parsing", "norg"]

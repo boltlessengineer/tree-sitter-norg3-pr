@@ -1,5 +1,5 @@
 {
-    "name": "tree-sitter-norg3",
+    "name": "tree-sitter-norg",
     "version": "0.0.1",
     "description": "tree-sitter parser for Norg format",
     "main": "bindings/node",
