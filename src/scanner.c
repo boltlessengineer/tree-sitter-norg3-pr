@@ -202,6 +202,9 @@ enum token_type {
 
     HEADING,
     UNORDERED_LIST,
+    ORDERED_LIST,
+    QUOTE_LIST,
+    NULL_LIST,
 
     WEAK_DELIMITING_MODIFIER,
     DEDENT,
@@ -262,6 +265,12 @@ token_type char_to_detached_mod(int32_t c) {
             return HEADING;
         case '-':
             return UNORDERED_LIST;
+        case '~':
+            return ORDERED_LIST;
+        case '>':
+            return QUOTE_LIST;
+        case '%':
+            return NULL_LIST;
     }
     return WHITESPACE;
 }
@@ -469,6 +478,9 @@ Action scan_detached_modifier(Scanner *self, const bool *valid_symbols, const in
         return FAIL;
     }
 
+    // NULL list can be a child of preceding list with same level
+    if (kind == NULL_LIST) count ++;
+
     if (valid_symbols[DEDENT] && !vec_u32_empty(indent_vec) && count <= vec_u32_back(indent_vec)) {
         vec_u32_pop(indent_vec);
         lex_set_result(DEDENT);
@@ -652,6 +664,7 @@ bool scan(Scanner *self, const bool *valid_symbols) {
                     if (iswspace(lex_next)) {
                         lex_mark_end();
                         vec_u32_pop_until(&self->indent_heading, 0);
+                        vec_u32_pop_until(&self->indent_list, 0);
                         lex_set_result(STD_RANGED_END);
                         return true;
                     }
@@ -659,6 +672,7 @@ bool scan(Scanner *self, const bool *valid_symbols) {
             }
         }
         vec_u32_push(&self->indent_heading, 0);
+        vec_u32_push(&self->indent_list, 0);
         lex_set_result(STD_RANGED_PREFIX);
         return true;
     }

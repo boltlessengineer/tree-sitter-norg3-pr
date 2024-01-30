@@ -50,11 +50,37 @@
     ]
   },
   {
+    "type": "nestable_detached_modifiers",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "null_list",
+        "named": true
+      },
+      {
+        "type": "ordered_list",
+        "named": true
+      },
+      {
+        "type": "quote_list",
+        "named": true
+      },
+      {
+        "type": "unordered_list",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "non_structural",
     "named": true,
     "subtypes": [
       {
         "type": "horizontal_rule",
+        "named": true
+      },
+      {
+        "type": "nestable_detached_modifiers",
         "named": true
       },
       {
@@ -992,6 +1018,48 @@
     }
   },
   {
+    "type": "null_list",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "null_list_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "null_list_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "nestable_detached_modifiers",
+          "named": true
+        },
+        {
+          "type": "null_list_prefix",
+          "named": true
+        },
+        {
+          "type": "paragraph",
+          "named": true
+        },
+        {
+          "type": "tag",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "open_conflict",
     "named": true,
     "fields": {},
@@ -1083,6 +1151,48 @@
     }
   },
   {
+    "type": "ordered_list",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ordered_list_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ordered_list_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "nestable_detached_modifiers",
+          "named": true
+        },
+        {
+          "type": "ordered_list_prefix",
+          "named": true
+        },
+        {
+          "type": "paragraph",
+          "named": true
+        },
+        {
+          "type": "tag",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "paragraph",
     "named": true,
     "fields": {},
@@ -1135,8 +1245,50 @@
   },
   {
     "type": "punctuation",
-    "named": true,
+    "named": false,
     "fields": {}
+  },
+  {
+    "type": "quote_list",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "quote_list_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "quote_list_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "nestable_detached_modifiers",
+          "named": true
+        },
+        {
+          "type": "paragraph",
+          "named": true
+        },
+        {
+          "type": "quote_list_prefix",
+          "named": true
+        },
+        {
+          "type": "tag",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "scope",
@@ -1627,6 +1779,48 @@
     }
   },
   {
+    "type": "unordered_list",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "unordered_list_item",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "unordered_list_item",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "nestable_detached_modifiers",
+          "named": true
+        },
+        {
+          "type": "paragraph",
+          "named": true
+        },
+        {
+          "type": "tag",
+          "named": true
+        },
+        {
+          "type": "unordered_list_prefix",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "uri",
     "named": true,
     "fields": {}
@@ -1911,6 +2105,14 @@
     "named": true
   },
   {
+    "type": "null_list_prefix",
+    "named": true
+  },
+  {
+    "type": "ordered_list_prefix",
+    "named": true
+  },
+  {
     "type": "paragraph_break",
     "named": true
   },
@@ -1920,6 +2122,10 @@
   },
   {
     "type": "path",
+    "named": true
+  },
+  {
+    "type": "quote_list_prefix",
     "named": true
   },
   {
@@ -1972,6 +2178,10 @@
   },
   {
     "type": "underline_open",
+    "named": true
+  },
+  {
+    "type": "unordered_list_prefix",
     "named": true
   },
   {

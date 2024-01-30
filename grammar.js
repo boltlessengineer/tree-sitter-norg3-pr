@@ -93,6 +93,9 @@ module.exports = grammar({
 
         $.heading_prefix,
         $.unordered_list_prefix,
+        $.ordered_list_prefix,
+        $.quote_list_prefix,
+        $.null_list_prefix,
 
         $.weak_delimiting_modifier,
         $._dedent,
@@ -128,6 +131,7 @@ module.exports = grammar({
         $.attached_modifiers,
         $.non_structural,
         $.tag,
+        $.nestable_detached_modifiers,
     ],
 
     rules: {
@@ -427,11 +431,75 @@ module.exports = grammar({
                     optional(choice($._dedent, $.weak_delimiting_modifier))
                 ),
             ),
+        nestable_detached_modifiers: ($) =>
+            choice(
+                $.unordered_list,
+                $.ordered_list,
+                $.quote_list,
+                $.null_list,
+            ),
+        unordered_list: ($) => prec.right(repeat1($.unordered_list_item)),
+        unordered_list_item: ($) =>
+            prec.right(
+                seq(
+                    $.unordered_list_prefix,
+                    whitespace,
+                    choice(
+                        $.paragraph,
+                        $.tag,
+                    ),
+                    repeat($.nestable_detached_modifiers),
+                    optional($._dedent),
+                )
+            ),
+        ordered_list: ($) => prec.right(repeat1($.ordered_list_item)),
+        ordered_list_item: ($) =>
+            prec.right(
+                seq(
+                    $.ordered_list_prefix,
+                    whitespace,
+                    choice(
+                        $.paragraph,
+                        $.tag,
+                    ),
+                    repeat($.nestable_detached_modifiers),
+                    optional($._dedent),
+                )
+            ),
+        quote_list: ($) => prec.right(repeat1($.quote_list_item)),
+        quote_list_item: ($) =>
+            prec.right(
+                seq(
+                    $.quote_list_prefix,
+                    whitespace,
+                    choice(
+                        $.paragraph,
+                        $.tag,
+                    ),
+                    repeat($.nestable_detached_modifiers),
+                    optional($._dedent),
+                )
+            ),
+        null_list: ($) => prec.right(repeat1($.null_list_item)),
+        null_list_item: ($) =>
+            prec.right(
+                seq(
+                    $.null_list_prefix,
+                    whitespace,
+                    choice(
+                        $.paragraph,
+                        $.tag,
+                    ),
+                    repeat($.nestable_detached_modifiers),
+                    optional($._dedent),
+                )
+            ),
         non_structural: ($) =>
             choice(
                 $.paragraph,
                 $.tag,
                 $.horizontal_rule,
+                $.nestable_detached_modifiers,
             ),
         tag: ($) =>
             choice(

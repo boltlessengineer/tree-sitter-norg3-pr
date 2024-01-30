@@ -1,0 +1,108 @@
+================================================================================
+list-00: hard test
+================================================================================
+--- list
+%%% |example
+    - list
+    -- list
+    - list
+    ----- list
+    -- list
+    %% |example
+       ------ list
+       - list
+       |end
+    %% |example
+       ===
+       ---
+       |end
+    %% para-
+       graph
+    -- list
+    |end
+--- list
+--------------------------------------------------------------------------------
+(document
+  (unordered_list
+    (unordered_list_item
+      (unordered_list_prefix)
+      (paragraph
+        (word)
+        (paragraph_break))
+      (null_list
+        (null_list_item
+          (null_list_prefix)
+          (standard_ranged_tag
+            (identifier)
+            (unordered_list
+              (unordered_list_item
+                (unordered_list_prefix)
+                (paragraph
+                  (word)
+                  (paragraph_break))
+                (unordered_list
+                  (unordered_list_item
+                    (unordered_list_prefix)
+                    (paragraph
+                      (word)
+                      (paragraph_break)))))
+              (unordered_list_item
+                (unordered_list_prefix)
+                (paragraph
+                  (word)
+                  (paragraph_break))
+                (unordered_list
+                  (unordered_list_item
+                    (unordered_list_prefix)
+                    (paragraph
+                      (word)
+                      (paragraph_break)))
+                  (unordered_list_item
+                    (unordered_list_prefix)
+                    (paragraph
+                      (word)
+                      (paragraph_break))
+                    (null_list
+                      (null_list_item
+                        (null_list_prefix)
+                        (standard_ranged_tag
+                          (identifier)
+                          (unordered_list
+                            (unordered_list_item
+                              (unordered_list_prefix)
+                              (paragraph
+                                (word)
+                                (paragraph_break)))
+                            (unordered_list_item
+                              (unordered_list_prefix)
+                              (paragraph
+                                (word)
+                                (paragraph_break))))))
+                      (null_list_item
+                        (null_list_prefix)
+                        (standard_ranged_tag
+                          (identifier)
+                          (strong_delimiting_modifier)
+                          (weak_delimiting_modifier)))
+                      (null_list_item
+                        (null_list_prefix)
+                        (paragraph
+                          (word)
+                          (punctuation)
+                          (soft_break)
+                          (word)
+                          (paragraph_break)))))
+                  (unordered_list_item
+                    (unordered_list_prefix)
+                    (paragraph
+                      (word)
+                      (paragraph_break))))))))))
+    (unordered_list_item
+      (unordered_list_prefix)
+      (paragraph
+        (word)
+        (paragraph_break)))))
+
+; TODO: add more tests
+
+; vim:ts=2:sw=2:
