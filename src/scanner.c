@@ -208,6 +208,7 @@ enum token_type {
 
     WEAK_DELIMITING_MODIFIER,
     DEDENT,
+    DEDENT_LIST,
     FLAG_INDENT_SEGMENT_END,
     STD_RANGED_PREFIX,
     STD_RANGED_END,
@@ -478,11 +479,16 @@ Action scan_detached_modifier(Scanner *self, const bool *valid_symbols, const in
         return FAIL;
     }
 
-    // NULL list can be a child of preceding list with same level
+    // NULL list can be a child of preceding list item with same level
     if (kind == NULL_LIST) count ++;
 
-    if (valid_symbols[DEDENT] && !vec_u32_empty(indent_vec) && count <= vec_u32_back(indent_vec)) {
-        vec_u32_pop(indent_vec);
+    if (valid_symbols[DEDENT_LIST] && (kind == HEADING || count <= vec_u32_back_or(&self->indent_list, 0))) {
+        vec_u32_pop(&self->indent_list);
+        lex_set_result(DEDENT_LIST);
+        return ACCEPT;
+    }
+    if (valid_symbols[DEDENT] && kind == HEADING && count <= vec_u32_back_or(&self->indent_heading, 0)) {
+        vec_u32_pop(&self->indent_heading);
         lex_set_result(DEDENT);
         return ACCEPT;
     }

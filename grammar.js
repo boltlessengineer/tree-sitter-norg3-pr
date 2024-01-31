@@ -98,7 +98,8 @@ module.exports = grammar({
         $.null_list_prefix,
 
         $.weak_delimiting_modifier,
-        $._dedent,
+        $._dedent_heading,
+        $._dedent_list,
         $.__indent_seg_end,
         $.std_ranged_tag_prefix,
         $.std_ranged_tag_end,
@@ -121,6 +122,10 @@ module.exports = grammar({
         [$._link_target, $.verbatim],
         [$._link_target, $.math],
         [$._link_target, $.inline_macro],
+
+        [$.tag, $.unordered_list_item],
+        [$.tag, $.ordered_list_item],
+        [$.tag, $.quote_list_item],
     ],
 
     precedences: () => [],
@@ -165,6 +170,7 @@ module.exports = grammar({
             // '|',
             // '@',
             // '=',
+            '.',
             /[^\n\r\p{Z}\p{L}\p{N}]/u,
             $._punctuation
         ),
@@ -243,7 +249,7 @@ module.exports = grammar({
                 ),
             ),
 
-        identifier: (_) => /[A-Za-z][A-Za-z\-]+/,
+        identifier: (_) => /[A-Za-z][A-Za-z\-_\.\+=]+/,
         attached_modifier_extension: ($) =>
             seq(
                 "(",
@@ -428,7 +434,7 @@ module.exports = grammar({
                         ),
                     ),
                     repeat(choice($.heading, $.non_structural, $._newline)),
-                    optional(choice($._dedent, $.weak_delimiting_modifier))
+                    optional(choice($._dedent_heading, $.weak_delimiting_modifier))
                 ),
             ),
         nestable_detached_modifiers: ($) =>
@@ -449,7 +455,7 @@ module.exports = grammar({
                         $.tag,
                     ),
                     repeat($.nestable_detached_modifiers),
-                    optional($._dedent),
+                    optional($._dedent_list),
                 )
             ),
         ordered_list: ($) => prec.right(repeat1($.ordered_list_item)),
@@ -463,7 +469,7 @@ module.exports = grammar({
                         $.tag,
                     ),
                     repeat($.nestable_detached_modifiers),
-                    optional($._dedent),
+                    optional($._dedent_list),
                 )
             ),
         quote_list: ($) => prec.right(repeat1($.quote_list_item)),
@@ -477,7 +483,7 @@ module.exports = grammar({
                         $.tag,
                     ),
                     repeat($.nestable_detached_modifiers),
-                    optional($._dedent),
+                    optional($._dedent_list),
                 )
             ),
         null_list: ($) => prec.right(repeat1($.null_list_item)),
@@ -491,7 +497,7 @@ module.exports = grammar({
                         $.tag,
                     ),
                     repeat($.nestable_detached_modifiers),
-                    optional($._dedent),
+                    optional($._dedent_list),
                 )
             ),
         non_structural: ($) =>
@@ -526,7 +532,7 @@ module.exports = grammar({
             ),
         infirm_tag: ($) =>
             seq(
-                token(prec(1, '.')),
+                '.',
                 $.identifier,
                 repeat(seq(whitespace, field('param', $.identifier))),
                 $._newline,

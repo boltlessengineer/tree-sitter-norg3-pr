@@ -176,6 +176,10 @@
           }
         },
         {
+          "type": "STRING",
+          "value": "."
+        },
+        {
           "type": "PATTERN",
           "value": "[^\\n\\r\\p{Z}\\p{L}\\p{N}]"
         },
@@ -651,7 +655,7 @@
     },
     "identifier": {
       "type": "PATTERN",
-      "value": "[A-Za-z][A-Za-z\\-]+"
+      "value": "[A-Za-z][A-Za-z\\-_\\.\\+=]+"
     },
     "attached_modifier_extension": {
       "type": "SEQ",
@@ -2058,7 +2062,7 @@
                 "members": [
                   {
                     "type": "SYMBOL",
-                    "name": "_dedent"
+                    "name": "_dedent_heading"
                   },
                   {
                     "type": "SYMBOL",
@@ -2152,7 +2156,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "_dedent"
+                "name": "_dedent_list"
               },
               {
                 "type": "BLANK"
@@ -2219,7 +2223,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "_dedent"
+                "name": "_dedent_list"
               },
               {
                 "type": "BLANK"
@@ -2246,6 +2250,18 @@
       "content": {
         "type": "SEQ",
         "members": [
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "weak_carryover_tag"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
           {
             "type": "SYMBOL",
             "name": "quote_list_prefix"
@@ -2286,7 +2302,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "_dedent"
+                "name": "_dedent_list"
               },
               {
                 "type": "BLANK"
@@ -2353,7 +2369,7 @@
             "members": [
               {
                 "type": "SYMBOL",
-                "name": "_dedent"
+                "name": "_dedent_list"
               },
               {
                 "type": "BLANK"
@@ -2519,15 +2535,8 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "TOKEN",
-          "content": {
-            "type": "PREC",
-            "value": 1,
-            "content": {
-              "type": "STRING",
-              "value": "."
-            }
-          }
+          "type": "STRING",
+          "value": "."
         },
         {
           "type": "SYMBOL",
@@ -3069,6 +3078,18 @@
     [
       "_link_target",
       "inline_macro"
+    ],
+    [
+      "tag",
+      "unordered_list_item"
+    ],
+    [
+      "tag",
+      "ordered_list_item"
+    ],
+    [
+      "tag",
+      "quote_list_item"
     ]
   ],
   "precedences": [],
@@ -3243,7 +3264,11 @@
     },
     {
       "type": "SYMBOL",
-      "name": "_dedent"
+      "name": "_dedent_heading"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_dedent_list"
     },
     {
       "type": "SYMBOL",

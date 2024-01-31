@@ -1,0 +1,11 @@
+* should lower-level list item should break the list item?
+
+Is this two separate unordered list?
+or single unordered list with 4 items?
+
+|example
+-- list
+-- list
+- list
+- list
+|end
