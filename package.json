@@ -18,5 +18,15 @@
     "devDependencies": {
         "tree-sitter-cli": "^0.20.8",
         "@types/node": "^20.9.2"
-    }
+    },
+    "tree-sitter": [
+        {
+            "scope": "source.norg",
+            "file-types": ["norg"],
+            "highlights": [
+                "queries/highlights.scm"
+            ],
+            "injection-regex": "^norg$"
+        }
+    ]
 }
