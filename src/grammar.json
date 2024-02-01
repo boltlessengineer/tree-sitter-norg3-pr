@@ -2551,7 +2551,7 @@
                 "name": "definition_prefix"
               },
               "named": false,
-              "value": "^"
+              "value": "$"
             },
             {
               "type": "TOKEN",
@@ -2601,7 +2601,7 @@
                 "name": "definition_double_prefix"
               },
               "named": false,
-              "value": "^^"
+              "value": "$$"
             },
             {
               "type": "TOKEN",
@@ -2666,7 +2666,7 @@
                 "name": "definition_double_prefix"
               },
               "named": false,
-              "value": "^^"
+              "value": "$$"
             },
             {
               "type": "CHOICE",
@@ -2698,7 +2698,7 @@
                 "name": "table_prefix"
               },
               "named": false,
-              "value": "^"
+              "value": ":"
             },
             {
               "type": "TOKEN",
@@ -2748,7 +2748,7 @@
                 "name": "table_double_prefix"
               },
               "named": false,
-              "value": "^^"
+              "value": "::"
             },
             {
               "type": "TOKEN",
@@ -2813,7 +2813,7 @@
                 "name": "table_double_prefix"
               },
               "named": false,
-              "value": "^^"
+              "value": "::"
             },
             {
               "type": "CHOICE",

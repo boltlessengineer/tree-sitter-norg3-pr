@@ -547,14 +547,14 @@ module.exports = grammar({
         definition: ($) =>
             choice(
                 seq(
-                    alias($.definition_prefix, "^"),
+                    alias($.definition_prefix, "$"),
                     whitespace,
                     $.verbatim_line,
                     newline,
                     $.paragraph,
                 ),
                 seq(
-                    alias($.definition_double_prefix, "^^"),
+                    alias($.definition_double_prefix, "$$"),
                     whitespace,
                     $.verbatim_line,
                     newline,
@@ -566,21 +566,21 @@ module.exports = grammar({
                             $.weak_delimiting_modifier,
                         ),
                     ),
-                    alias($.definition_double_prefix, "^^"),
+                    alias($.definition_double_prefix, "$$"),
                     choice($._newline, "\0"),
                 )
             ),
         table: ($) =>
             choice(
                 seq(
-                    alias($.table_prefix, "^"),
+                    alias($.table_prefix, ":"),
                     whitespace,
                     $.verbatim_line,
                     newline,
                     $.paragraph,
                 ),
                 seq(
-                    alias($.table_double_prefix, "^^"),
+                    alias($.table_double_prefix, "::"),
                     whitespace,
                     $.verbatim_line,
                     newline,
@@ -592,7 +592,7 @@ module.exports = grammar({
                             $.weak_delimiting_modifier,
                         ),
                     ),
-                    alias($.table_double_prefix, "^^"),
+                    alias($.table_double_prefix, "::"),
                     choice($._newline, "\0"),
                 )
             ),

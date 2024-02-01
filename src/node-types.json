@@ -1321,7 +1321,7 @@
   },
   {
     "type": "punctuation",
-    "named": true,
+    "named": false,
     "fields": {}
   },
   {
@@ -2082,6 +2082,10 @@
   },
   {
     "type": "$",
+    "named": false
+  },
+  {
+    "type": "$$",
     "named": false
   },
   {
