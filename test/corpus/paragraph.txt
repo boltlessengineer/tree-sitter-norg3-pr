@@ -113,7 +113,7 @@ word*
     (paragraph_break)))
 
 ================================================================================
-para-06: Paragraph break by Detached modifier
+para-06: Paragraph break by Structural Detached modifier
 ================================================================================
 word word
 * heading
@@ -175,5 +175,95 @@ verbatim`
       (word)
       (punctuation)
       (paragraph_break))))
+
+================================================================================
+para-09: Paragraph break by Nestable Detached modifier
+================================================================================
+word word
+- list
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (whitespace)
+    (word)
+    (paragraph_break))
+  (unordered_list
+    (unordered_list_item
+      (unordered_list_prefix)
+      (paragraph
+      (word)
+      (paragraph_break)))))
+
+================================================================================
+para-10: Paragraph break by Range-able Detached modifier (single prefix)
+================================================================================
+word word
+^ word
+word
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (whitespace)
+    (word)
+    (paragraph_break))
+  (footnote
+    (verbatim_line)
+    (paragraph
+      (word)
+      (paragraph_break))))
+
+================================================================================
+para-11: Paragraph break by Range-able Detached modifier (double prefix)
+================================================================================
+word word
+^^ word
+word
+^^
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (whitespace)
+    (word)
+    (paragraph_break))
+  (footnote
+    (verbatim_line)
+    (paragraph
+      (word)
+      (paragraph_break))))
+
+================================================================================
+para-12: Paragraph not break by non detached modifier
+================================================================================
+word word
+^word
+
+word word
+^^^^^^
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (word)
+    (whitespace)
+    (word)
+    (soft_break)
+    (open_conflict
+      (superscript_open)
+      (word))
+    (paragraph_break))
+  (paragraph
+    (word)
+    (whitespace)
+    (word)
+    (soft_break)
+    (punctuation)
+    (punctuation)
+    (punctuation)
+    (punctuation)
+    (punctuation)
+    (punctuation)
+    (paragraph_break)))
 
 ; vim:ts=2:sw=2:

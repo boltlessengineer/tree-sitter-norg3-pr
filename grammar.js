@@ -1,6 +1,7 @@
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
 const newline = choice("\n", "\r", "\r\n");
+const newline_or_eof = choice("\n", "\r", "\r\n", "\0");
 const whitespace = token(prec(1, /\p{Zs}+/u));
 
 const ATTACHED_MODIFIERS = [
@@ -96,6 +97,15 @@ module.exports = grammar({
         $.ordered_list_prefix,
         $.quote_list_prefix,
         $.null_list_prefix,
+        // NOTE: parse these prefixes from external scanner to avoid conflict cases
+        // These might be able to handled without help of external scanner,
+        // but handling from external scanner is much simpler
+        $.footnote_prefix,
+        $.footnote_double_prefix,
+        $.definition_prefix,
+        $.definition_double_prefix,
+        $.table_prefix,
+        $.table_double_prefix,
 
         $.weak_delimiting_modifier,
         $._dedent_heading,
@@ -137,6 +147,7 @@ module.exports = grammar({
         $.non_structural,
         $.tag,
         $.nestable_detached_modifiers,
+        $.rangeable_detached_modifiers,
     ],
 
     rules: {
@@ -500,12 +511,98 @@ module.exports = grammar({
                     optional($._dedent_list),
                 )
             ),
+        rangeable_detached_modifiers: ($) =>
+            choice(
+                $.footnote,
+                $.definition,
+                $.table,
+            ),
+        verbatim_line: (_) => repeat1(/.+/),
+        footnote: ($) =>
+            choice(
+                seq(
+                    alias($.footnote_prefix, "^"),
+                    whitespace,
+                    $.verbatim_line,
+                    newline,
+                    $.paragraph,
+                ),
+                seq(
+                    alias($.footnote_double_prefix, "^^"),
+                    whitespace,
+                    $.verbatim_line,
+                    newline,
+                    repeat(
+                        choice(
+                            $.non_structural,
+                            $._newline,
+                            $.strong_delimiting_modifier,
+                            $.weak_delimiting_modifier,
+                        ),
+                    ),
+                    alias($.footnote_double_prefix, "^^"),
+                    choice($._newline, "\0"),
+                )
+            ),
+        definition: ($) =>
+            choice(
+                seq(
+                    alias($.definition_prefix, "^"),
+                    whitespace,
+                    $.verbatim_line,
+                    newline,
+                    $.paragraph,
+                ),
+                seq(
+                    alias($.definition_double_prefix, "^^"),
+                    whitespace,
+                    $.verbatim_line,
+                    newline,
+                    repeat(
+                        choice(
+                            $.non_structural,
+                            $._newline,
+                            $.strong_delimiting_modifier,
+                            $.weak_delimiting_modifier,
+                        ),
+                    ),
+                    alias($.definition_double_prefix, "^^"),
+                    choice($._newline, "\0"),
+                )
+            ),
+        table: ($) =>
+            choice(
+                seq(
+                    alias($.table_prefix, "^"),
+                    whitespace,
+                    $.verbatim_line,
+                    newline,
+                    $.paragraph,
+                ),
+                seq(
+                    alias($.table_double_prefix, "^^"),
+                    whitespace,
+                    $.verbatim_line,
+                    newline,
+                    repeat(
+                        choice(
+                            $.non_structural,
+                            $._newline,
+                            $.strong_delimiting_modifier,
+                            $.weak_delimiting_modifier,
+                        ),
+                    ),
+                    alias($.table_double_prefix, "^^"),
+                    choice($._newline, "\0"),
+                )
+            ),
         non_structural: ($) =>
             choice(
                 $.paragraph,
                 $.tag,
                 $.horizontal_rule,
                 $.nestable_detached_modifiers,
+                $.rangeable_detached_modifiers,
             ),
         tag: ($) =>
             choice(

@@ -88,7 +88,29 @@
         "named": true
       },
       {
+        "type": "rangeable_detached_modifiers",
+        "named": true
+      },
+      {
         "type": "tag",
+        "named": true
+      }
+    ]
+  },
+  {
+    "type": "rangeable_detached_modifiers",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "definition",
+        "named": true
+      },
+      {
+        "type": "footnote",
+        "named": true
+      },
+      {
+        "type": "table",
         "named": true
       }
     ]
@@ -256,6 +278,33 @@
     }
   },
   {
+    "type": "definition",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "non_structural",
+          "named": true
+        },
+        {
+          "type": "strong_delimiting_modifier",
+          "named": true
+        },
+        {
+          "type": "verbatim_line",
+          "named": true
+        },
+        {
+          "type": "weak_delimiting_modifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "description",
     "named": true,
     "fields": {},
@@ -320,6 +369,33 @@
         },
         {
           "type": "strong_delimiting_modifier",
+          "named": true
+        },
+        {
+          "type": "weak_delimiting_modifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "footnote",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "non_structural",
+          "named": true
+        },
+        {
+          "type": "strong_delimiting_modifier",
+          "named": true
+        },
+        {
+          "type": "verbatim_line",
           "named": true
         },
         {
@@ -1245,7 +1321,7 @@
   },
   {
     "type": "punctuation",
-    "named": false,
+    "named": true,
     "fields": {}
   },
   {
@@ -1665,6 +1741,33 @@
     }
   },
   {
+    "type": "table",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "non_structural",
+          "named": true
+        },
+        {
+          "type": "strong_delimiting_modifier",
+          "named": true
+        },
+        {
+          "type": "verbatim_line",
+          "named": true
+        },
+        {
+          "type": "weak_delimiting_modifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "title",
     "named": true,
     "fields": {},
@@ -1877,6 +1980,11 @@
     }
   },
   {
+    "type": "verbatim_line",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "verbatim_lines",
     "named": true,
     "fields": {}
@@ -1949,6 +2057,22 @@
     "fields": {}
   },
   {
+    "type": "\u0000",
+    "named": false
+  },
+  {
+    "type": "\n",
+    "named": false
+  },
+  {
+    "type": "\r",
+    "named": false
+  },
+  {
+    "type": "\r\n",
+    "named": false
+  },
+  {
     "type": " : ",
     "named": false
   },
@@ -2014,6 +2138,14 @@
   },
   {
     "type": "]",
+    "named": false
+  },
+  {
+    "type": "^",
+    "named": false
+  },
+  {
+    "type": "^^",
     "named": false
   },
   {

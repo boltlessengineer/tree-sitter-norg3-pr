@@ -205,6 +205,12 @@ enum token_type {
     ORDERED_LIST,
     QUOTE_LIST,
     NULL_LIST,
+    FOOTNOTE,
+    FOOTNOTE_DOUBLE,
+    DEFINITION,
+    DEFINITION_DOUBLE,
+    TABLE,
+    TABLE_DOUBLE,
 
     WEAK_DELIMITING_MODIFIER,
     DEDENT,
@@ -276,6 +282,18 @@ token_type char_to_detached_mod(int32_t c) {
     return WHITESPACE;
 }
 
+token_type char_to_rangeable_detached_mod(int32_t c) {
+    switch (c) {
+        case '^':
+            return FOOTNOTE;
+        case '$':
+            return DEFINITION;
+        case ':':
+            return TABLE;
+    }
+    return WHITESPACE;
+}
+
 /**
  * Returns `true` if the character provided is neither whitespace nor punctuation
  */
@@ -295,7 +313,7 @@ bool is_newline(int32_t character) {
  * Returns `true` if the character provided is a separator character (but not a newline).
  */
 bool is_whitespace(int32_t character) {
-    return iswspace(character) && !is_newline(character);
+    return character && iswspace(character) && !is_newline(character);
 }
 
 static bool is_free_form(vec_u32* att_stack, const token_type kind) {
@@ -354,6 +372,7 @@ bool scan_newline(Scanner *self, const bool *valid_symbols) {
                 lex_set_result(FAILED_CLOSE);
                 return true;
             }
+            if (!valid_symbols[PARAGRAPH_BREAK]) return false;
             LOG("paragraph break by eof or double newline\n");
             lex_set_result(PARAGRAPH_BREAK);
             vec_u32_clear(&self->att_stack);
@@ -373,11 +392,30 @@ bool scan_newline(Scanner *self, const bool *valid_symbols) {
                     lex_set_result(FAILED_CLOSE);
                     return true;
                 }
+                if (!valid_symbols[PARAGRAPH_BREAK]) return false;
                 LOG("paragraph break by detached modifier\n");
                 lex_set_result(PARAGRAPH_BREAK);
                 vec_u32_clear(&self->att_stack);
                 return true;
             }
+        }
+        if (char_to_rangeable_detached_mod(character) != 0
+            && (lex_next == character || is_whitespace(lex_next))
+        ) {
+            if (lex_next == character) {
+                lex_advance();
+                if (lex_next && !iswspace(lex_next)) return false;
+            }
+            if (valid_symbols[FAILED_CLOSE] && !vec_u32_empty(&self->att_stack)) {
+                const token_type fail_type = vec_u32_pop(&self->att_stack);
+                lex_set_result(FAILED_CLOSE);
+                return true;
+            }
+            if (!valid_symbols[PARAGRAPH_BREAK]) return false;
+            LOG("paragraph break by range-able detached modifier prefix\n");
+            lex_set_result(PARAGRAPH_BREAK);
+            vec_u32_clear(&self->att_stack);
+            return true;
         }
         if ((character == '#'
             || character == '+'
@@ -392,6 +430,7 @@ bool scan_newline(Scanner *self, const bool *valid_symbols) {
                 lex_set_result(FAILED_CLOSE);
                 return true;
             }
+            if (!valid_symbols[PARAGRAPH_BREAK]) return false;
             LOG("paragraph break by tag prefix\n");
             lex_set_result(PARAGRAPH_BREAK);
             vec_u32_clear(&self->att_stack);
@@ -501,6 +540,22 @@ Action scan_detached_modifier(Scanner *self, const bool *valid_symbols, const in
     return ACCEPT;
 }
 
+Action scan_rangeable_detached_modifier(Scanner *self, const bool *valid_symbols, const int32_t character) {
+    token_type kind = char_to_rangeable_detached_mod(character);
+    if (kind == 0) return SCAN_SKIP;
+    if (lex_next == character) {
+        kind++;
+        lex_advance();
+    }
+
+    if ((!lex_next || iswspace(lex_next)) && valid_symbols[kind]) {
+        lex_mark_end();
+        lex_set_result(kind);
+        return ACCEPT;
+    }
+    return SCAN_SKIP;
+}
+
 bool scan_free_form_close(Scanner *self, const bool *valid_symbols, const int32_t character) {
     const token_type kind_token = char_to_attached_mod(lex_next);
     const token_type close_token = (token_type)(kind_token + 1);
@@ -600,6 +655,7 @@ bool scan_attached_modifier(Scanner *self, const bool *valid_symbols, int32_t ch
         lex_mark_end();
         const int32_t next_char = lex_next;
         const token_type next_token = char_to_attached_mod(next_char);
+        // TODO: remove this if statement (att-16, att-16.2)
         if (next_token != 0 && vec_u32_has(&self->att_stack, next_token)) {
             lex_advance();
             if (!lex_next || !is_word(lex_next) && lex_next != next_char) {
@@ -684,6 +740,7 @@ bool scan(Scanner *self, const bool *valid_symbols) {
     }
 
     TRY_SCAN(scan_detached_modifier(self, valid_symbols, character));
+    TRY_SCAN(scan_rangeable_detached_modifier(self, valid_symbols, character));
 
     // TODO: add tags
 

@@ -2251,18 +2251,6 @@
         "type": "SEQ",
         "members": [
           {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "weak_carryover_tag"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
-          },
-          {
             "type": "SYMBOL",
             "name": "quote_list_prefix"
           },
@@ -2379,6 +2367,471 @@
         ]
       }
     },
+    "rangeable_detached_modifiers": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "footnote"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "definition"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "table"
+        }
+      ]
+    },
+    "verbatim_line": {
+      "type": "REPEAT1",
+      "content": {
+        "type": "PATTERN",
+        "value": ".+"
+      }
+    },
+    "footnote": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "footnote_prefix"
+              },
+              "named": false,
+              "value": "^"
+            },
+            {
+              "type": "TOKEN",
+              "content": {
+                "type": "PREC",
+                "value": 1,
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\p{Zs}+"
+                }
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "verbatim_line"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "\n"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r\n"
+                }
+              ]
+            },
+            {
+              "type": "SYMBOL",
+              "name": "paragraph"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "footnote_double_prefix"
+              },
+              "named": false,
+              "value": "^^"
+            },
+            {
+              "type": "TOKEN",
+              "content": {
+                "type": "PREC",
+                "value": 1,
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\p{Zs}+"
+                }
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "verbatim_line"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "\n"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r\n"
+                }
+              ]
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "non_structural"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_newline"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "strong_delimiting_modifier"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "weak_delimiting_modifier"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "footnote_double_prefix"
+              },
+              "named": false,
+              "value": "^^"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_newline"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\u0000"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "definition": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "definition_prefix"
+              },
+              "named": false,
+              "value": "^"
+            },
+            {
+              "type": "TOKEN",
+              "content": {
+                "type": "PREC",
+                "value": 1,
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\p{Zs}+"
+                }
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "verbatim_line"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "\n"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r\n"
+                }
+              ]
+            },
+            {
+              "type": "SYMBOL",
+              "name": "paragraph"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "definition_double_prefix"
+              },
+              "named": false,
+              "value": "^^"
+            },
+            {
+              "type": "TOKEN",
+              "content": {
+                "type": "PREC",
+                "value": 1,
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\p{Zs}+"
+                }
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "verbatim_line"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "\n"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r\n"
+                }
+              ]
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "non_structural"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_newline"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "strong_delimiting_modifier"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "weak_delimiting_modifier"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "definition_double_prefix"
+              },
+              "named": false,
+              "value": "^^"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_newline"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\u0000"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "table": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "table_prefix"
+              },
+              "named": false,
+              "value": "^"
+            },
+            {
+              "type": "TOKEN",
+              "content": {
+                "type": "PREC",
+                "value": 1,
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\p{Zs}+"
+                }
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "verbatim_line"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "\n"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r\n"
+                }
+              ]
+            },
+            {
+              "type": "SYMBOL",
+              "name": "paragraph"
+            }
+          ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "table_double_prefix"
+              },
+              "named": false,
+              "value": "^^"
+            },
+            {
+              "type": "TOKEN",
+              "content": {
+                "type": "PREC",
+                "value": 1,
+                "content": {
+                  "type": "PATTERN",
+                  "value": "\\p{Zs}+"
+                }
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "verbatim_line"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "\n"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\r\n"
+                }
+              ]
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "non_structural"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_newline"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "strong_delimiting_modifier"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "weak_delimiting_modifier"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "table_double_prefix"
+              },
+              "named": false,
+              "value": "^^"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_newline"
+                },
+                {
+                  "type": "STRING",
+                  "value": "\u0000"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
     "non_structural": {
       "type": "CHOICE",
       "members": [
@@ -2397,6 +2850,10 @@
         {
           "type": "SYMBOL",
           "name": "nestable_detached_modifiers"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "rangeable_detached_modifiers"
         }
       ]
     },
@@ -3260,6 +3717,30 @@
     },
     {
       "type": "SYMBOL",
+      "name": "footnote_prefix"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "footnote_double_prefix"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "definition_prefix"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "definition_double_prefix"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "table_prefix"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "table_double_prefix"
+    },
+    {
+      "type": "SYMBOL",
       "name": "weak_delimiting_modifier"
     },
     {
@@ -3296,7 +3777,8 @@
     "attached_modifiers",
     "non_structural",
     "tag",
-    "nestable_detached_modifiers"
+    "nestable_detached_modifiers",
+    "rangeable_detached_modifiers"
   ]
 }
 
