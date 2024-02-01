@@ -379,7 +379,8 @@ att-16: single unclosed opener inside markup as punctuation
   (paragraph
     (bold
       (bold_open)
-      (punctuation)
+      (open_conflict
+        (italic_open))
       (bold_close))
     (paragraph_break)))
 
@@ -407,6 +408,22 @@ att-16.1: valid markup after unclosed markup and invalid close modifier
         (italic_open)
         (punctuation)
         (italic_close)))
+    (paragraph_break)))
+
+================================================================================
+att-16.2: unclosed opening modifier before the valid close modifier
+================================================================================
+*word /*
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (bold
+      (bold_open)
+      (word)
+      (whitespace)
+      (open_conflict
+        (italic_open))
+      (bold_close))
     (paragraph_break)))
 
 ================================================================================

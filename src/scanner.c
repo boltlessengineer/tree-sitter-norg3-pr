@@ -655,14 +655,6 @@ bool scan_attached_modifier(Scanner *self, const bool *valid_symbols, int32_t ch
         lex_mark_end();
         const int32_t next_char = lex_next;
         const token_type next_token = char_to_attached_mod(next_char);
-        // TODO: remove this if statement (att-16, att-16.2)
-        if (next_token != 0 && vec_u32_has(&self->att_stack, next_token)) {
-            lex_advance();
-            if (!lex_next || !is_word(lex_next) && lex_next != next_char) {
-                lex_set_result(PUNCTUATION);
-                return true;
-            }
-        }
         vec_u32_push(&self->att_stack, kind_token);
         lex_set_result(kind_token);
         return true;
