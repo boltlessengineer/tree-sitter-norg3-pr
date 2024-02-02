@@ -205,12 +205,6 @@ enum token_type {
     ORDERED_LIST,
     QUOTE_LIST,
     NULL_LIST,
-    FOOTNOTE,
-    FOOTNOTE_DOUBLE,
-    DEFINITION,
-    DEFINITION_DOUBLE,
-    TABLE,
-    TABLE_DOUBLE,
 
     WEAK_DELIMITING_MODIFIER,
     DEDENT,
@@ -278,18 +272,6 @@ token_type char_to_detached_mod(int32_t c) {
             return QUOTE_LIST;
         case '%':
             return NULL_LIST;
-    }
-    return WHITESPACE;
-}
-
-token_type char_to_rangeable_detached_mod(int32_t c) {
-    switch (c) {
-        case '^':
-            return FOOTNOTE;
-        case '$':
-            return DEFINITION;
-        case ':':
-            return TABLE;
     }
     return WHITESPACE;
 }
@@ -399,7 +381,7 @@ bool scan_newline(Scanner *self, const bool *valid_symbols) {
                 return true;
             }
         }
-        if (char_to_rangeable_detached_mod(character) != 0
+        if ((character == '^' || character == '$' || character == ':')
             && (lex_next == character || is_whitespace(lex_next))
         ) {
             if (lex_next == character) {
@@ -538,22 +520,6 @@ Action scan_detached_modifier(Scanner *self, const bool *valid_symbols, const in
     self->single_line_mode = (kind == HEADING);
 
     return ACCEPT;
-}
-
-Action scan_rangeable_detached_modifier(Scanner *self, const bool *valid_symbols, const int32_t character) {
-    token_type kind = char_to_rangeable_detached_mod(character);
-    if (kind == 0) return SCAN_SKIP;
-    if (lex_next == character) {
-        kind++;
-        lex_advance();
-    }
-
-    if ((!lex_next || iswspace(lex_next)) && valid_symbols[kind]) {
-        lex_mark_end();
-        lex_set_result(kind);
-        return ACCEPT;
-    }
-    return SCAN_SKIP;
 }
 
 bool scan_free_form_close(Scanner *self, const bool *valid_symbols, const int32_t character) {
@@ -732,7 +698,6 @@ bool scan(Scanner *self, const bool *valid_symbols) {
     }
 
     TRY_SCAN(scan_detached_modifier(self, valid_symbols, character));
-    TRY_SCAN(scan_rangeable_detached_modifier(self, valid_symbols, character));
 
     // TODO: add tags
 

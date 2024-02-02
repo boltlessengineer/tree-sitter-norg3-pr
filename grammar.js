@@ -97,15 +97,6 @@ module.exports = grammar({
         $.ordered_list_prefix,
         $.quote_list_prefix,
         $.null_list_prefix,
-        // NOTE: parse these prefixes from external scanner to avoid conflict cases
-        // These might be able to handled without help of external scanner,
-        // but handling from external scanner is much simpler
-        $.footnote_prefix,
-        $.footnote_double_prefix,
-        $.definition_prefix,
-        $.definition_double_prefix,
-        $.table_prefix,
-        $.table_double_prefix,
 
         $.weak_delimiting_modifier,
         $._dedent_heading,
@@ -521,15 +512,13 @@ module.exports = grammar({
         footnote: ($) =>
             choice(
                 seq(
-                    alias($.footnote_prefix, "^"),
-                    whitespace,
+                    "^ ",
                     $.verbatim_line,
                     newline,
                     $.paragraph,
                 ),
                 seq(
-                    alias($.footnote_double_prefix, "^^"),
-                    whitespace,
+                    token(seq("^^", choice(whitespace, newline_or_eof))),
                     $.verbatim_line,
                     newline,
                     repeat(
@@ -540,22 +529,19 @@ module.exports = grammar({
                             $.weak_delimiting_modifier,
                         ),
                     ),
-                    alias($.footnote_double_prefix, "^^"),
-                    choice($._newline, "\0"),
+                    token(seq("^^", newline_or_eof)),
                 )
             ),
         definition: ($) =>
             choice(
                 seq(
-                    alias($.definition_prefix, "$"),
-                    whitespace,
+                    "$ ",
                     $.verbatim_line,
                     newline,
                     $.paragraph,
                 ),
                 seq(
-                    alias($.definition_double_prefix, "$$"),
-                    whitespace,
+                    token(seq("$$", choice(whitespace, newline_or_eof))),
                     $.verbatim_line,
                     newline,
                     repeat(
@@ -566,22 +552,19 @@ module.exports = grammar({
                             $.weak_delimiting_modifier,
                         ),
                     ),
-                    alias($.definition_double_prefix, "$$"),
-                    choice($._newline, "\0"),
+                    token(seq("$$", newline_or_eof)),
                 )
             ),
         table: ($) =>
             choice(
                 seq(
-                    alias($.table_prefix, ":"),
-                    whitespace,
+                    ": ",
                     $.verbatim_line,
                     newline,
                     $.paragraph,
                 ),
                 seq(
-                    alias($.table_double_prefix, "::"),
-                    whitespace,
+                    token(seq("::", choice(whitespace, newline_or_eof))),
                     $.verbatim_line,
                     newline,
                     repeat(
@@ -592,8 +575,7 @@ module.exports = grammar({
                             $.weak_delimiting_modifier,
                         ),
                     ),
-                    alias($.table_double_prefix, "::"),
-                    choice($._newline, "\0"),
+                    token(seq("::", newline_or_eof)),
                 )
             ),
         non_structural: ($) =>
