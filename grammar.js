@@ -518,12 +518,13 @@ module.exports = grammar({
                 )
             )
         ),
+        _intersecting_modifier: (_) => token(prec(1, " : ")),
         footnote: ($) =>
             choice(
                 seq(
                     "^ ",
                     $.verbatim_param_list,
-                    newline,
+                    choice(newline, $._intersecting_modifier),
                     $.paragraph,
                 ),
                 seq(
@@ -546,7 +547,7 @@ module.exports = grammar({
                 seq(
                     "$ ",
                     $.verbatim_param_list,
-                    newline,
+                    choice(newline, $._intersecting_modifier),
                     $.paragraph,
                 ),
                 seq(
@@ -569,7 +570,7 @@ module.exports = grammar({
                 seq(
                     ": ",
                     $.verbatim_param_list,
-                    newline,
+                    choice(newline, $._intersecting_modifier),
                     $.paragraph,
                 ),
                 seq(
