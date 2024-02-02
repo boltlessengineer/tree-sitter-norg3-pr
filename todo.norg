@@ -1,7 +1,7 @@
 * (x) range-able detached modifiers
 * (x) nestable detached modifiers
 * (x) implement `| : |` thing (intersecting modifier)
-* ( ) detached modifier extensions
+* (x) detached modifier extensions
 * ( ) fix weak/strong carryover tags problem
 * ( ) fix parameter tokens to allow all types of punctuations
 * ( ) don't return `SOFT_BREAK` on ERROR MODE

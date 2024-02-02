@@ -1994,6 +1994,287 @@
         }
       }
     },
+    "detached_modifier_extension": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "TOKEN",
+                "content": {
+                  "type": "PREC",
+                  "value": 1,
+                  "content": {
+                    "type": "STRING",
+                    "value": "|"
+                  }
+                }
+              },
+              {
+                "type": "SYMBOL",
+                "name": "todo_item"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ")"
+        }
+      ]
+    },
+    "todo_item": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_done"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_undone"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_uncertain"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_urgent"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_pending"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_hold"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_cancelled"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_priority"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_recurring"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_timestamp"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_start_date"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "todo_item_due_date"
+        }
+      ]
+    },
+    "todo_item_done": {
+      "type": "STRING",
+      "value": "x"
+    },
+    "todo_item_undone": {
+      "type": "STRING",
+      "value": " "
+    },
+    "todo_item_uncertain": {
+      "type": "STRING",
+      "value": "?"
+    },
+    "todo_item_urgent": {
+      "type": "STRING",
+      "value": "!"
+    },
+    "todo_item_pending": {
+      "type": "STRING",
+      "value": "-"
+    },
+    "todo_item_hold": {
+      "type": "STRING",
+      "value": "="
+    },
+    "todo_item_cancelled": {
+      "type": "STRING",
+      "value": "_"
+    },
+    "todo_item_priority": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "#"
+        },
+        {
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "PATTERN",
+              "value": "\\p{Zs}+"
+            }
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "identifier"
+        }
+      ]
+    },
+    "timestamp": {
+      "type": "REPEAT1",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "_word"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "punctuation"
+          },
+          {
+            "type": "TOKEN",
+            "content": {
+              "type": "PREC",
+              "value": 1,
+              "content": {
+                "type": "PATTERN",
+                "value": "\\p{Zs}+"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "todo_item_recurring": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "+"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "TOKEN",
+                  "content": {
+                    "type": "PREC",
+                    "value": 1,
+                    "content": {
+                      "type": "PATTERN",
+                      "value": "\\p{Zs}+"
+                    }
+                  }
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "timestamp"
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "todo_item_timestamp": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "@"
+        },
+        {
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "PATTERN",
+              "value": "\\p{Zs}+"
+            }
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "timestamp"
+        }
+      ]
+    },
+    "todo_item_start_date": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": ">"
+        },
+        {
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "PATTERN",
+              "value": "\\p{Zs}+"
+            }
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "timestamp"
+        }
+      ]
+    },
+    "todo_item_due_date": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "<"
+        },
+        {
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": 1,
+            "content": {
+              "type": "PATTERN",
+              "value": "\\p{Zs}+"
+            }
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "timestamp"
+        }
+      ]
+    },
     "heading": {
       "type": "PREC_RIGHT",
       "value": 0,
@@ -2014,6 +2295,34 @@
                 "value": "\\p{Zs}+"
               }
             }
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "detached_modifier_extension"
+                  },
+                  {
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "\\p{Zs}+"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
           },
           {
             "type": "FIELD",
@@ -2142,6 +2451,34 @@
             "type": "CHOICE",
             "members": [
               {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "detached_modifier_extension"
+                  },
+                  {
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "\\p{Zs}+"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
                 "type": "SYMBOL",
                 "name": "paragraph"
               },
@@ -2204,6 +2541,34 @@
                 "value": "\\p{Zs}+"
               }
             }
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "detached_modifier_extension"
+                  },
+                  {
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "\\p{Zs}+"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
           },
           {
             "type": "CHOICE",
@@ -2276,6 +2641,34 @@
             "type": "CHOICE",
             "members": [
               {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "detached_modifier_extension"
+                  },
+                  {
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "\\p{Zs}+"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
                 "type": "SYMBOL",
                 "name": "paragraph"
               },
@@ -2338,6 +2731,34 @@
                 "value": "\\p{Zs}+"
               }
             }
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "detached_modifier_extension"
+                  },
+                  {
+                    "type": "TOKEN",
+                    "content": {
+                      "type": "PREC",
+                      "value": 1,
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "\\p{Zs}+"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
           },
           {
             "type": "CHOICE",
@@ -3978,7 +4399,8 @@
     "non_structural",
     "tag",
     "nestable_detached_modifiers",
-    "rangeable_detached_modifiers"
+    "rangeable_detached_modifiers",
+    "todo_item"
   ]
 }
 

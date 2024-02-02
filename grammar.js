@@ -139,6 +139,7 @@ module.exports = grammar({
         $.tag,
         $.nestable_detached_modifiers,
         $.rangeable_detached_modifiers,
+        $.todo_item,
     ],
 
     rules: {
@@ -422,11 +423,84 @@ module.exports = grammar({
 
         strong_delimiting_modifier: (_) => token(seq(repeat2("="), newline)),
         horizontal_rule: (_) => token(prec(1, seq(repeat2("_"), newline))),
+        // TODO: should parsing todo items done by tree-sitter?
+        // or can we just use similar thing like verbatim_line here
+        detached_modifier_extension: ($) =>
+            seq(
+                "(",
+                $.todo_item,
+                repeat(
+                    seq(
+                        token(prec(1, "|")),
+                        $.todo_item,
+                    )
+                ),
+                ")",
+            ),
+        todo_item: ($) =>
+            choice(
+                $.todo_item_done,
+                $.todo_item_undone,
+                $.todo_item_uncertain,
+                $.todo_item_urgent,
+                $.todo_item_pending,
+                $.todo_item_hold,
+                $.todo_item_cancelled,
+                $.todo_item_priority,
+                $.todo_item_recurring,
+                $.todo_item_timestamp,
+                $.todo_item_start_date,
+                $.todo_item_due_date,
+            ),
+        todo_item_done: (_) => "x",
+        todo_item_undone: (_) => " ",
+        todo_item_uncertain: (_) => "?",
+        todo_item_urgent: (_) => "!",
+        // TODO: add optional date
+        todo_item_pending: (_) => "-",
+        todo_item_hold: (_) => "=",
+        todo_item_cancelled: (_) => "_",
+        todo_item_priority: ($) =>
+            seq(
+                "#",
+                whitespace,
+                $.identifier,
+            ),
+        timestamp: ($) => repeat1(choice($._word, $.punctuation, whitespace)),
+        todo_item_recurring: ($) =>
+            seq(
+                "+",
+                optional(seq(whitespace, $.timestamp))
+            ),
+        todo_item_timestamp: ($) =>
+            seq(
+                "@",
+                whitespace,
+                $.timestamp
+            ),
+        todo_item_start_date: ($) =>
+            seq(
+                ">",
+                whitespace,
+                $.timestamp
+            ),
+        todo_item_due_date: ($) =>
+            seq(
+                "<",
+                whitespace,
+                $.timestamp
+            ),
         heading: ($) =>
             prec.right(
                 seq(
                     $.heading_prefix,
                     whitespace,
+                    optional(
+                        seq(
+                            $.detached_modifier_extension,
+                            whitespace,
+                        )
+                    ),
                     field(
                         "title",
                         choice(
@@ -452,6 +526,12 @@ module.exports = grammar({
                 seq(
                     $.unordered_list_prefix,
                     whitespace,
+                    optional(
+                        seq(
+                            $.detached_modifier_extension,
+                            whitespace,
+                        )
+                    ),
                     choice(
                         $.paragraph,
                         $.tag,
@@ -466,6 +546,12 @@ module.exports = grammar({
                 seq(
                     $.ordered_list_prefix,
                     whitespace,
+                    optional(
+                        seq(
+                            $.detached_modifier_extension,
+                            whitespace,
+                        )
+                    ),
                     choice(
                         $.paragraph,
                         $.tag,
@@ -480,6 +566,12 @@ module.exports = grammar({
                 seq(
                     $.quote_list_prefix,
                     whitespace,
+                    optional(
+                        seq(
+                            $.detached_modifier_extension,
+                            whitespace,
+                        )
+                    ),
                     choice(
                         $.paragraph,
                         $.tag,
@@ -494,6 +586,12 @@ module.exports = grammar({
                 seq(
                     $.null_list_prefix,
                     whitespace,
+                    optional(
+                        seq(
+                            $.detached_modifier_extension,
+                            whitespace,
+                        )
+                    ),
                     choice(
                         $.paragraph,
                         $.tag,
