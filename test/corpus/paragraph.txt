@@ -209,7 +209,7 @@ word
     (word)
     (paragraph_break))
   (footnote
-    (verbatim_line)
+    (verbatim_param_list)
     (paragraph
       (word)
       (paragraph_break))))
@@ -229,7 +229,7 @@ word
     (word)
     (paragraph_break))
   (footnote
-    (verbatim_line)
+    (verbatim_param_list)
     (paragraph
       (word)
       (paragraph_break))))

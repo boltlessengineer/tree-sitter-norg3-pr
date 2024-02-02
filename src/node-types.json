@@ -294,7 +294,7 @@
           "named": true
         },
         {
-          "type": "verbatim_line",
+          "type": "verbatim_param_list",
           "named": true
         },
         {
@@ -395,7 +395,7 @@
           "named": true
         },
         {
-          "type": "verbatim_line",
+          "type": "verbatim_param_list",
           "named": true
         },
         {
@@ -1757,7 +1757,7 @@
           "named": true
         },
         {
-          "type": "verbatim_line",
+          "type": "verbatim_param_list",
           "named": true
         },
         {
@@ -1980,14 +1980,24 @@
     }
   },
   {
-    "type": "verbatim_line",
+    "type": "verbatim_lines",
     "named": true,
     "fields": {}
   },
   {
-    "type": "verbatim_lines",
+    "type": "verbatim_param_list",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "escape_sequence",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "verbatim_ranged_tag",
@@ -2125,10 +2135,6 @@
     "named": false
   },
   {
-    "type": ":: ",
-    "named": false
-  },
-  {
     "type": "=",
     "named": false
   },
@@ -2154,10 +2160,6 @@
   },
   {
     "type": "^ ",
-    "named": false
-  },
-  {
-    "type": "^^ ",
     "named": false
   },
   {

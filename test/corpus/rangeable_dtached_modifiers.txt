@@ -7,7 +7,7 @@ asdf
 --------------------------------------------------------------------------------
 (document
   (footnote
-    (verbatim_line)
+    (verbatim_param_list)
     (paragraph
       (word)
       (paragraph_break)
@@ -23,7 +23,7 @@ word
 --------------------------------------------------------------------------------
 (document
   (footnote
-    (verbatim_line)
+    (verbatim_param_list)
     (paragraph
       (word)
       (paragraph_break)))

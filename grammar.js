@@ -508,18 +508,27 @@ module.exports = grammar({
                 $.definition,
                 $.table,
             ),
-        verbatim_line: (_) => repeat1(/.+/),
+        _verbatim_segment: ($) => repeat1(choice(/[^\s\\]+/, $.escape_sequence)),
+        verbatim_param_list: ($) => seq(
+            $._verbatim_segment,
+            repeat(
+                seq(
+                    whitespace,
+                    $._verbatim_segment,
+                )
+            )
+        ),
         footnote: ($) =>
             choice(
                 seq(
                     "^ ",
-                    $.verbatim_line,
+                    $.verbatim_param_list,
                     newline,
                     $.paragraph,
                 ),
                 seq(
                     token(seq("^^", choice(whitespace, newline_or_eof))),
-                    $.verbatim_line,
+                    $.verbatim_param_list,
                     newline,
                     repeat(
                         choice(
@@ -529,20 +538,20 @@ module.exports = grammar({
                             $.weak_delimiting_modifier,
                         ),
                     ),
-                    token(seq("^^", newline_or_eof)),
+                    token(prec(1, seq("^^", newline_or_eof))),
                 )
             ),
         definition: ($) =>
             choice(
                 seq(
                     "$ ",
-                    $.verbatim_line,
+                    $.verbatim_param_list,
                     newline,
                     $.paragraph,
                 ),
                 seq(
                     token(seq("$$", choice(whitespace, newline_or_eof))),
-                    $.verbatim_line,
+                    $.verbatim_param_list,
                     newline,
                     repeat(
                         choice(
@@ -552,20 +561,20 @@ module.exports = grammar({
                             $.weak_delimiting_modifier,
                         ),
                     ),
-                    token(seq("$$", newline_or_eof)),
+                    token(prec(1, seq("$$", newline_or_eof))),
                 )
             ),
         table: ($) =>
             choice(
                 seq(
                     ": ",
-                    $.verbatim_line,
+                    $.verbatim_param_list,
                     newline,
                     $.paragraph,
                 ),
                 seq(
                     token(seq("::", choice(whitespace, newline_or_eof))),
-                    $.verbatim_line,
+                    $.verbatim_param_list,
                     newline,
                     repeat(
                         choice(
@@ -575,7 +584,7 @@ module.exports = grammar({
                             $.weak_delimiting_modifier,
                         ),
                     ),
-                    token(seq("::", newline_or_eof)),
+                    token(prec(1, seq("::", newline_or_eof))),
                 )
             ),
         non_structural: ($) =>
