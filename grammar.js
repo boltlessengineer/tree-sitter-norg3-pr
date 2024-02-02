@@ -618,21 +618,21 @@ module.exports = grammar({
                 token(prec(1, '#')),
                 $.identifier,
                 repeat(seq(whitespace, field('param', $.identifier))),
-                $._newline,
+                choice($._newline, "\0"),
             ),
         weak_carryover_tag: ($) =>
             seq(
                 token(prec(1, '+')),
                 $.identifier,
                 repeat(seq(whitespace, field('param', $.identifier))),
-                $._newline,
+                choice($._newline, "\0"),
             ),
         infirm_tag: ($) =>
             seq(
                 '.',
                 $.identifier,
                 repeat(seq(whitespace, field('param', $.identifier))),
-                $._newline,
+                choice($._newline, "\0"),
             ),
         standard_ranged_tag: ($) =>
             seq(
@@ -642,7 +642,7 @@ module.exports = grammar({
                 $._newline,
                 repeat($.document_content),
                 alias($.std_ranged_tag_end, '|end'),
-                $._newline,
+                choice($._newline, "\0"),
             ),
         verbatim_ranged_tag: ($) =>
             seq(
@@ -657,7 +657,7 @@ module.exports = grammar({
                     )
                 ),
                 token(prec(1, '@end')),
-                $._newline,
+                choice($._newline, "\0"),
             ),
         macro_ranged_tag: ($) =>
             seq(
@@ -672,7 +672,7 @@ module.exports = grammar({
                     )
                 ),
                 token(prec(1, '=end')),
-                $._newline,
+                choice($._newline, "\0"),
             ),
         verbatim_lines: ($) => repeat1(seq(optional(/.*/), $._newline)),
         slide: ($) =>
