@@ -654,8 +654,15 @@
       }
     },
     "identifier": {
-      "type": "PATTERN",
-      "value": "[A-Za-z][A-Za-z\\-_\\.\\+=]+"
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 1,
+        "content": {
+          "type": "PATTERN",
+          "value": "[A-Za-z][A-Za-z\\-_\\.\\+=]+"
+        }
+      }
     },
     "attached_modifier_extension": {
       "type": "SEQ",

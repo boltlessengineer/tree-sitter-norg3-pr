@@ -260,7 +260,7 @@ module.exports = grammar({
                 ),
             ),
 
-        identifier: (_) => /[A-Za-z][A-Za-z\-_\.\+=]+/,
+        identifier: (_) => token(prec(1, /[A-Za-z][A-Za-z\-_\.\+=]+/)),
         attached_modifier_extension: ($) =>
             seq(
                 "(",
