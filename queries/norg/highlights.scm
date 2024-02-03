@@ -22,14 +22,21 @@
   (heading_prefix) @markup.heading.6.marker
   title: (_) @markup.heading.6
 ))))))
+; fallback highlight to level6 from level7
+(heading (heading (heading (heading (heading (heading (heading
+  (heading_prefix) @markup.heading.6.marker
+  title: (_) @markup.heading.6
+)))))))
 
 (bold) @markup.strong
 (italic) @markup.italic
 (underline) @markup.underline
 (strikethrough) @markup.strikethrough
-(verbatim) @markup.raw.verbatim
 (inline_comment) @comment
+(verbatim) @markup.raw.verbatim @nospell
+(math) @markup.math @nospell
 
+; TODO: only conceal on valid markup
 (_
   [
     (bold_open)
@@ -50,18 +57,46 @@
 ;   (whitespace) @conceal @markup.raw.verbatim
 ;   (#set! conceal "␣"))
 
-(
-  (inline_comment) @conceal
+((inline_comment) @conceal
+  (#set! conceal ""))
+
+(uri) @markup.link.url
+(description) @markup.link.label
+(link
+  [
+    "["
+    "]"
+    "{"
+    "}"
+  ] @markup.link
+  (#set! conceal ""))
+(link
+  target: (_) @markup.link
+  description: (_)
+  (#set! conceal ""))
+(anchor
+  [
+    "["
+    "]"
+    "{"
+    target: (_)
+    "}"
+  ] @markup.link
   (#set! conceal ""))
 
 (escape_sequence) @string.escape
 
-(
-  (escape_sequence) @conceal
-  (#offset! @conceal   0 -1)
+((escape_sequence) @conceal
+  (#offset! @conceal 0 0 0 -1)
   (#set! conceal ""))
 
-(verbatim_ranged_tag) @string.raw
+(verbatim_ranged_tag
+  "@" @markup.raw.delimiter
+  (identifier) @namespace
+  "@end" @markup.raw.delimiter)
+(verbatim_ranged_tag
+  content: (_) @markup.raw.block @nospell
+  (#set! "priority" 90))
 
 [
   (unordered_list_prefix)
@@ -80,6 +115,9 @@
   "+" @punctuation.special
   param: (_)? @parameter
 ) @type
+
+(weak_delimiting_modifier) @punctuation.special
+(strong_delimiting_modifier) @punctuation.special
 
 (open_conflict
   [
