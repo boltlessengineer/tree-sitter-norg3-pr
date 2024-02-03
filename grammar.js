@@ -504,7 +504,7 @@ module.exports = grammar({
                     field(
                         "title",
                         choice(
-                            alias($.paragraph, $.inline),
+                            $.paragraph,
                             $.slide,
                             $.indent_segment,
                         ),

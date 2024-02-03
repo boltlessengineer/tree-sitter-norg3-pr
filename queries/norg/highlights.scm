@@ -1,26 +1,26 @@
 (heading
   (heading_prefix) @markup.heading.1.marker
-  (inline) @markup.heading.1
+  title: (_) @markup.heading.1
 )
 (heading (heading
   (heading_prefix) @markup.heading.2.marker
-  (inline) @markup.heading.2
+  title: (_) @markup.heading.2
 ))
 (heading (heading (heading
   (heading_prefix) @markup.heading.3.marker
-  (inline) @markup.heading.3
+  title: (_) @markup.heading.3
 )))
 (heading (heading (heading (heading
   (heading_prefix) @markup.heading.4.marker
-  (inline) @markup.heading.4
+  title: (_) @markup.heading.4
 ))))
 (heading (heading (heading (heading (heading
   (heading_prefix) @markup.heading.5.marker
-  (inline) @markup.heading.5
+  title: (_) @markup.heading.5
 )))))
 (heading (heading (heading (heading (heading (heading
   (heading_prefix) @markup.heading.6.marker
-  (inline) @markup.heading.6
+  title: (_) @markup.heading.6
 ))))))
 
 (bold) @markup.strong
@@ -42,8 +42,13 @@
     (strikethrough_close)
     (verbatim_open)
     (verbatim_close)
+    (free_form_open)
+    (free_form_close)
   ] @conceal
   (#set! conceal ""))
+; (verbatim
+;   (whitespace) @conceal @markup.raw.verbatim
+;   (#set! conceal "␣"))
 
 (
   (inline_comment) @conceal
@@ -53,7 +58,7 @@
 
 (
   (escape_sequence) @conceal
-  (#offset! @conceal 0 0 0 -1)
+  (#offset! @conceal   0 -1)
   (#set! conceal ""))
 
 (verbatim_ranged_tag) @string.raw
@@ -75,8 +80,6 @@
   "+" @punctuation.special
   param: (_)? @parameter
 ) @type
-
-(punctuation) @punctuation
 
 (open_conflict
   [

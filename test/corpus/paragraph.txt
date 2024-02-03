@@ -126,7 +126,7 @@ word word
     (paragraph_break))
   (heading
     (heading_prefix)
-    (inline
+    (paragraph
       (word)
       (paragraph_break))))
 
@@ -134,8 +134,7 @@ word word
 para-07: Paragraph break by Detached modifier in standard Attached modifier
 ================================================================================
 *not
-* heading
-bold*
+* bold*
 --------------------------------------------------------------------------------
 (document
   (paragraph
@@ -145,9 +144,6 @@ bold*
     (paragraph_break))
   (heading
     (heading_prefix)
-    (inline
-      (word)
-      (paragraph_break))
     (paragraph
       (word)
       (punctuation)
@@ -157,8 +153,7 @@ bold*
 para-08: Paragraph break by Detached modifier in verbatim Attached modifier
 ================================================================================
 `not
-* heading
-verbatim`
+* verbatim`
 --------------------------------------------------------------------------------
 (document
   (paragraph
@@ -168,9 +163,6 @@ verbatim`
     (paragraph_break))
   (heading
     (heading_prefix)
-    (inline
-      (word)
-      (paragraph_break))
     (paragraph
       (word)
       (punctuation)

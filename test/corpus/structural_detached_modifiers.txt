@@ -24,46 +24,46 @@ paragraph
 (document
   (heading
     (heading_prefix)
-    title: (inline
+    title: (paragraph
       (word)
       (paragraph_break))
     (standard_ranged_tag
       (identifier)
       (heading
         (heading_prefix)
-        title: (inline
+        title: (paragraph
           (word)
           (paragraph_break))
         (heading
           (heading_prefix)
-          title: (inline
+          title: (paragraph
             (word)
             (paragraph_break))))
       (heading
         (heading_prefix)
-        title: (inline
+        title: (paragraph
           (word)
           (paragraph_break))
         (heading
           (heading_prefix)
-          title: (inline
+          title: (paragraph
             (word)
             (paragraph_break)))
         (heading
           (heading_prefix)
-          title: (inline
+          title: (paragraph
             (word)
             (paragraph_break))
           (standard_ranged_tag
             (identifier)
             (heading
               (heading_prefix)
-              title: (inline
+              title: (paragraph
                 (word)
                 (paragraph_break)))
             (heading
               (heading_prefix)
-              title: (inline
+              title: (paragraph
                 (word)
                 (paragraph_break))))
           (standard_ranged_tag
@@ -75,12 +75,12 @@ paragraph
             (paragraph_break)))
         (heading
           (heading_prefix)
-          title: (inline
+          title: (paragraph
             (word)
             (paragraph_break))))))
   (heading
     (heading_prefix)
-    title: (inline
+    title: (paragraph
       (word)
       (paragraph_break))))
 

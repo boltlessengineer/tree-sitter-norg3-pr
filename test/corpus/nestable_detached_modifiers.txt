@@ -113,7 +113,7 @@ list-01: dedent level with heading
 (document
   (heading
     (heading_prefix)
-    title: (inline
+    title: (paragraph
       (word)
       (paragraph_break))
     (quote_list
@@ -124,7 +124,7 @@ list-01: dedent level with heading
           (paragraph_break)))))
   (heading
     (heading_prefix)
-    title: (inline
+    title: (paragraph
       (word)
       (paragraph_break))))
 

@@ -2331,13 +2331,8 @@
               "type": "CHOICE",
               "members": [
                 {
-                  "type": "ALIAS",
-                  "content": {
-                    "type": "SYMBOL",
-                    "name": "paragraph"
-                  },
-                  "named": true,
-                  "value": "inline"
+                  "type": "SYMBOL",
+                  "name": "paragraph"
                 },
                 {
                   "type": "SYMBOL",

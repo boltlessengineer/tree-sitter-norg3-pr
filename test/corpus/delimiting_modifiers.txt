@@ -60,6 +60,7 @@ deli-03: Strong delimiting modifier after heading
 ================================================================================
 * heading
 ** heading
+
    paragraph
    ===
 paragraph
@@ -67,17 +68,17 @@ paragraph
 (document
   (heading
     (heading_prefix)
-    (inline
+    title: (paragraph
       (word)
       (paragraph_break))
-      (heading
-        (heading_prefix)
-        (inline
-          (word)
-          (paragraph_break))
-          (paragraph
-            (word)
-            (paragraph_break))))
+    (heading
+      (heading_prefix)
+      title: (paragraph
+        (word)
+        (paragraph_break))
+      (paragraph
+        (word)
+        (paragraph_break))))
   (strong_delimiting_modifier)
   (paragraph
     (word)
@@ -88,6 +89,7 @@ deli-04: Weak delimiting modifier after heading
 ================================================================================
 * heading
 ** heading
+
    paragraph
    ---
   paragraph
@@ -95,12 +97,12 @@ deli-04: Weak delimiting modifier after heading
 (document
   (heading
     (heading_prefix)
-    (inline
+    (paragraph
       (word)
       (paragraph_break))
     (heading
       (heading_prefix)
-      (inline
+      (paragraph
         (word)
         (paragraph_break))
       (paragraph
@@ -116,6 +118,7 @@ deli-05: Horizontal rule after heading
 ================================================================================
 * heading
 ** heading
+
    paragraph
    ___
   paragraph
@@ -123,12 +126,12 @@ deli-05: Horizontal rule after heading
 (document
   (heading
     (heading_prefix)
-    (inline
+    (paragraph
       (word)
       (paragraph_break))
     (heading
       (heading_prefix)
-      (inline
+      (paragraph
         (word)
         (paragraph_break))
       (paragraph

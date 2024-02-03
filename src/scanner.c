@@ -311,12 +311,9 @@ typedef struct Scanner Scanner;
 
 struct Scanner {
     TSLexer* lexer;
-    // std::unordered_map< char, std::vector<uint16_t> > indents;
-    // std::deque<TokenType> att_deque;
     vec_u32 att_stack;
     vec_u32 indent_heading;
     vec_u32 indent_list;
-    bool single_line_mode;
 };
 
 bool scan_newline(Scanner *self, const bool *valid_symbols) {
@@ -329,20 +326,7 @@ bool scan_newline(Scanner *self, const bool *valid_symbols) {
             self->lexer->mark_end(self->lexer);
 
         if (valid_symbols[NEWLINE]) {
-            self->single_line_mode = false;
             lex_set_result(NEWLINE);
-            return true;
-        }
-        if (self->single_line_mode) {
-            if (valid_symbols[FAILED_CLOSE] && !vec_u32_empty(&self->att_stack)) {
-                const token_type fail_type = vec_u32_pop(&self->att_stack);
-                lex_set_result(FAILED_CLOSE);
-                return true;
-            }
-            self->single_line_mode = false;
-            LOG("paragraph break in single line mode\n");
-            lex_set_result(PARAGRAPH_BREAK);
-            vec_u32_clear(&self->att_stack);
             return true;
         }
 
@@ -517,7 +501,6 @@ Action scan_detached_modifier(Scanner *self, const bool *valid_symbols, const in
     vec_u32_push(indent_vec, count);
     lex_mark_end();
     lex_set_result(kind);
-    self->single_line_mode = (kind == HEADING);
 
     return ACCEPT;
 }
@@ -708,8 +691,6 @@ bool scan(Scanner *self, const bool *valid_symbols) {
 
     TRY_SCAN(scan_detached_modifier(self, valid_symbols, character));
 
-    // TODO: add tags
-
     if (character == '|')
         return scan_free_form_close(self, valid_symbols, character);
 
@@ -722,7 +703,6 @@ void *tree_sitter_norg_external_scanner_create() {
     self->att_stack = vec_u32_new();
     self->indent_heading = vec_u32_new();
     self->indent_list = vec_u32_new();
-    self->single_line_mode = false;
     return self;
 }
 
