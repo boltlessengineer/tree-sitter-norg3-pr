@@ -32,7 +32,7 @@
 (italic) @markup.italic
 (underline) @markup.underline
 (strikethrough) @markup.strikethrough
-(inline_comment) @comment
+(inline_comment) @markup.raw
 (verbatim) @markup.raw.verbatim @nospell
 (math) @markup.math @nospell
 
@@ -47,18 +47,28 @@
     (underline_close)
     (strikethrough_open)
     (strikethrough_close)
+    (superscript_open)
+    (superscript_close)
+    (subscript_open)
+    (subscript_close)
+    (spoiler_open)
+    (spoiler_close)
     (verbatim_open)
     (verbatim_close)
+    (math_open)
+    (math_close)
+    (inline_comment_open)
+    (inline_comment_close)
     (free_form_open)
     (free_form_close)
   ] @conceal
   (#set! conceal ""))
 ; (verbatim
-;   (whitespace) @conceal @markup.raw.verbatim
+;   (whitespace) @markup.raw.verbatim.special
 ;   (#set! conceal "␣"))
 
-((inline_comment) @conceal
-  (#set! conceal ""))
+; ((inline_comment) @conceal
+;   (#set! conceal ""))
 
 (uri) @markup.link.url
 (description) @markup.link.label
@@ -86,9 +96,10 @@
 
 (escape_sequence) @string.escape
 
-((escape_sequence) @conceal
-  (#offset! @conceal 0 0 0 -1)
-  (#set! conceal ""))
+;; it breaks when treesitter tries to match hard break
+; ((escape_sequence) @conceal
+;   (#offset! @conceal 0 0 0 -1)
+;   (#set! conceal ""))
 
 (verbatim_ranged_tag
   "@" @markup.raw.delimiter
@@ -108,12 +119,12 @@
 
 (strong_carryover_tag
   "#" @punctuation.special
-  param: (_)? @parameter
+  argument: (_)? @parameter
 ) @type
 
 (weak_carryover_tag
   "+" @punctuation.special
-  param: (_)? @parameter
+  argument: (_)? @parameter
 ) @type
 
 (weak_delimiting_modifier) @punctuation.special

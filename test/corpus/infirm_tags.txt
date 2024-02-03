@@ -7,7 +7,7 @@ infirm-00: Basic infirm tag
 (document
   (infirm_tag
     (identifier)
-    param: (identifier)))
+    argument: (argument)))
 
 ================================================================================
 infirm-01: Not infirm tag

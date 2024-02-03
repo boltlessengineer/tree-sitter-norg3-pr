@@ -607,6 +607,7 @@ module.exports = grammar({
                 $.table,
             ),
         _verbatim_segment: ($) => repeat1(choice(/[^\s\\]+/, $.escape_sequence)),
+        argument: ($) => $._verbatim_segment,
         verbatim_param_list: ($) => seq(
             $._verbatim_segment,
             repeat(
@@ -707,28 +708,28 @@ module.exports = grammar({
             seq(
                 token(prec(1, '#')),
                 $.identifier,
-                repeat(seq(whitespace, field('param', $.identifier))),
+                repeat(seq(whitespace, field('argument', $.argument))),
                 choice($._newline, "\0"),
             ),
         weak_carryover_tag: ($) =>
             seq(
                 token(prec(1, '+')),
                 $.identifier,
-                repeat(seq(whitespace, field('param', $.identifier))),
+                repeat(seq(whitespace, field('argument', $.argument))),
                 choice($._newline, "\0"),
             ),
         infirm_tag: ($) =>
             seq(
                 '.',
                 $.identifier,
-                repeat(seq(whitespace, field('param', $.identifier))),
+                repeat(seq(whitespace, field('argument', $.argument))),
                 choice($._newline, "\0"),
             ),
         standard_ranged_tag: ($) =>
             seq(
                 alias($.std_ranged_tag_prefix, '|'),
                 $.identifier,
-                repeat(seq(whitespace, field('param', $.identifier))),
+                repeat(seq(whitespace, field('argument', $.argument))),
                 $._newline,
                 repeat($.document_content),
                 alias($.std_ranged_tag_end, '|end'),
@@ -738,7 +739,7 @@ module.exports = grammar({
             seq(
                 token(prec(1, '@')),
                 $.identifier,
-                repeat(seq(whitespace, field('param', $.identifier))),
+                repeat(seq(whitespace, field('argument', $.argument))),
                 $._newline,
                 optional(
                     field(
@@ -753,7 +754,7 @@ module.exports = grammar({
             seq(
                 prec(1, '='),
                 $.identifier,
-                repeat(seq(whitespace, field('param', $.identifier))),
+                repeat(seq(whitespace, field('argument', $.argument))),
                 $._newline,
                 optional(
                     field(

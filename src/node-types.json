@@ -250,6 +250,21 @@
     }
   },
   {
+    "type": "argument",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "escape_sequence",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "attached_modifier_extension",
     "named": true,
     "fields": {},
@@ -547,12 +562,12 @@
     "type": "infirm_tag",
     "named": true,
     "fields": {
-      "param": {
+      "argument": {
         "multiple": true,
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "argument",
             "named": true
           }
         ]
@@ -988,22 +1003,22 @@
     "type": "macro_ranged_tag",
     "named": true,
     "fields": {
+      "argument": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "argument",
+            "named": true
+          }
+        ]
+      },
       "content": {
         "multiple": false,
         "required": false,
         "types": [
           {
             "type": "verbatim_lines",
-            "named": true
-          }
-        ]
-      },
-      "param": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "identifier",
             "named": true
           }
         ]
@@ -1351,7 +1366,7 @@
   },
   {
     "type": "punctuation",
-    "named": true,
+    "named": false,
     "fields": {}
   },
   {
@@ -1509,12 +1524,12 @@
     "type": "standard_ranged_tag",
     "named": true,
     "fields": {
-      "param": {
+      "argument": {
         "multiple": true,
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "argument",
             "named": true
           }
         ]
@@ -1618,12 +1633,12 @@
     "type": "strong_carryover_tag",
     "named": true,
     "fields": {
-      "param": {
+      "argument": {
         "multiple": true,
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "argument",
             "named": true
           }
         ]
@@ -2141,22 +2156,22 @@
     "type": "verbatim_ranged_tag",
     "named": true,
     "fields": {
+      "argument": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "argument",
+            "named": true
+          }
+        ]
+      },
       "content": {
         "multiple": false,
         "required": false,
         "types": [
           {
             "type": "verbatim_lines",
-            "named": true
-          }
-        ]
-      },
-      "param": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "identifier",
             "named": true
           }
         ]
@@ -2177,12 +2192,12 @@
     "type": "weak_carryover_tag",
     "named": true,
     "fields": {
-      "param": {
+      "argument": {
         "multiple": true,
         "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "argument",
             "named": true
           }
         ]
