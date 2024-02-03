@@ -579,8 +579,13 @@ bool scan_attached_modifier(Scanner *self, const bool *valid_symbols, int32_t ch
 
     // _CLOSE
     const bool valid_failed_close = valid_symbols[FAILED_CLOSE] && vec_u32_back_or(&self->att_stack, 0) != kind_token;
-    if (!valid_symbols[NOT_CLOSE]
-        && (valid_symbols[close_token] || valid_failed_close)
+    if (valid_symbols[NOT_CLOSE]) {
+        if (!valid_symbols[kind_token]) {
+            lex_mark_end();
+            lex_set_result(NOT_CLOSE);
+            return true;
+        }
+    } else if ((valid_symbols[close_token] || valid_failed_close)
         && !is_word(lex_next)
         && vec_u32_has(&self->att_stack, kind_token)
     ) {
@@ -613,8 +618,12 @@ bool scan_attached_modifier(Scanner *self, const bool *valid_symbols, int32_t ch
         return true;
     }
     // _OPEN
-    if ((link_mod_left || !valid_symbols[NOT_OPEN])
-        && valid_symbols[kind_token]
+    if (!link_mod_left && valid_symbols[NOT_OPEN]) {
+        lex_mark_end();
+        lex_set_result(NOT_OPEN);
+        return true;
+    }
+    if (valid_symbols[kind_token]
         && !vec_u32_has(&self->att_stack, kind_token)
         && lex_next && !iswspace(lex_next)
     ) {
