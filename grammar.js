@@ -812,16 +812,19 @@ function gen_attached_modifier(kind) {
  */
 function gen_verbatim_attached_modifier(kind) {
     return (/** @type GrammarSymbols<any> */ $) =>
-        prec.right(
-            -1,
-            seq(
-                $[kind + "_open"],
-                choice(
-                    $._verbatim_free_form,
-                    $.verbatim_paragraph_inner,
+        prec.dynamic(
+            1,
+            prec.right(
+                -1,
+                seq(
+                    $[kind + "_open"],
+                    choice(
+                        $._verbatim_free_form,
+                        $.verbatim_paragraph_inner,
+                    ),
+                    $[kind + "_close"],
+                    optional($.attached_modifier_extension),
                 ),
-                $[kind + "_close"],
-                optional($.attached_modifier_extension),
-            ),
+            )
         )
 }

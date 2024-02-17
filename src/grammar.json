@@ -1130,129 +1130,141 @@
       ]
     },
     "verbatim": {
-      "type": "PREC_RIGHT",
-      "value": -1,
+      "type": "PREC_DYNAMIC",
+      "value": 1,
       "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "SYMBOL",
-            "name": "verbatim_open"
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "_verbatim_free_form"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "verbatim_paragraph_inner"
-              }
-            ]
-          },
-          {
-            "type": "SYMBOL",
-            "name": "verbatim_close"
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "attached_modifier_extension"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
-          }
-        ]
+        "type": "PREC_RIGHT",
+        "value": -1,
+        "content": {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "verbatim_open"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_verbatim_free_form"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "verbatim_paragraph_inner"
+                }
+              ]
+            },
+            {
+              "type": "SYMBOL",
+              "name": "verbatim_close"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "attached_modifier_extension"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     "math": {
-      "type": "PREC_RIGHT",
-      "value": -1,
+      "type": "PREC_DYNAMIC",
+      "value": 1,
       "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "SYMBOL",
-            "name": "math_open"
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "_verbatim_free_form"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "verbatim_paragraph_inner"
-              }
-            ]
-          },
-          {
-            "type": "SYMBOL",
-            "name": "math_close"
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "attached_modifier_extension"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
-          }
-        ]
+        "type": "PREC_RIGHT",
+        "value": -1,
+        "content": {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "math_open"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_verbatim_free_form"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "verbatim_paragraph_inner"
+                }
+              ]
+            },
+            {
+              "type": "SYMBOL",
+              "name": "math_close"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "attached_modifier_extension"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     "inline_macro": {
-      "type": "PREC_RIGHT",
-      "value": -1,
+      "type": "PREC_DYNAMIC",
+      "value": 1,
       "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "SYMBOL",
-            "name": "inline_macro_open"
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "_verbatim_free_form"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "verbatim_paragraph_inner"
-              }
-            ]
-          },
-          {
-            "type": "SYMBOL",
-            "name": "inline_macro_close"
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "attached_modifier_extension"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
-          }
-        ]
+        "type": "PREC_RIGHT",
+        "value": -1,
+        "content": {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "inline_macro_open"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_verbatim_free_form"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "verbatim_paragraph_inner"
+                }
+              ]
+            },
+            {
+              "type": "SYMBOL",
+              "name": "inline_macro_close"
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "attached_modifier_extension"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     "_link_description": {

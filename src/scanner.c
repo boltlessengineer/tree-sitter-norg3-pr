@@ -425,7 +425,6 @@ static bool scan_linkable_close(Scanner *self, const bool *valid_symbols, const 
 }
 
 Action scan_linkables(Scanner *self, const bool *valid_symbols) {
-    LOG("linkable\n");
     if (lex_next == '[' && valid_symbols[DESC_OPEN]) {
         lex_advance();
         lex_mark_end();

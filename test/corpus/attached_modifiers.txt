@@ -608,4 +608,26 @@ att-25: don't try pre-opened markup inside open_conflict
       (bold_close))
     (paragraph_break)))
 
+================================================================================
+att-26: higher dynamic precedence level to verbatim
+================================================================================
+`--word` word `word word
+--------------------------------------------------------------------------------
+(document
+  (paragraph
+    (verbatim
+      (verbatim_open)
+      (punctuation)
+      (word)
+      (verbatim_close))
+    (whitespace)
+    (word)
+    (whitespace)
+    (open_conflict
+      (verbatim_open)
+      (word)
+      (whitespace)
+      (word))
+    (paragraph_break)))
+
 ; vim:ts=2:sw=2:
