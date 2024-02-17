@@ -5,3 +5,5 @@
 * ( ) fix weak/strong carryover tags problem
 * ( ) fix parameter tokens to allow all types of punctuations
 * ( ) don't return `SOFT_BREAK` on ERROR MODE
+* ( ) rewrite `scanner.c` to C++. parser error is from `iswpunct`, not C++.
+* ( ) neovim crashes on `note.norg` file

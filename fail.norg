@@ -1,0 +1,115 @@
+- list item
+  single paragraph
+~~ sub list
+~~ sub list
+
+- ::
+  list
+-- ::
+   sub list
+--- ::
+    grand child
+
+    second paragraph
+    ::
+
+   second paragraph
+   ::
+
+  second paragraph
+  ::
+
+
+- word
+- word
+~~ word
+~~ word
+~ what is this
+
+* null detached modifier
+
+Null detached modifier is another type of detached modifiers different from structural/nestable detached modifiers.
+It is generally used to *extend* the detached modifier item.
+
+** general example
+
+|example
+- multiline
+  paragraph
+% second paragraph in first unordered list item
+% |example
+  you can put more than just paragraph in null detached modifier
+  |end
+- and this is second item of unordered list
+|end
+
+** nested example
+
+as null detached modifier also represents specific level by itself,
+it can be used as delimiting modifier for nestable detached modifiers
+
+|example
+- list item
+-- <nested list item>
+--- more nested list item
+---- moooore nested list item
+%% you can fallback to exact level you want
+   with null detached modifier
+%% ___
+%% still on {# nested list item}
+___
+delimiting modifier or even horizontal rule without null detached modifier will break the whole list
+|end
+
+|example
+* heading 1
+% |example
+  you can use null detached modifier for extending heading title
+  |end
+** heading 2
+% but it does nothing with heading levels
+  using null detached modifier like this will do nothing or be treated as syntax error
+   ---
+ you need delimiting modifier to control the heading level
+|end
+
+|example
+> multiline
+  paragraph
+% null detached modifier used for continuing the item
+  and yes, it does nothing on quote
+> because all items will be rendered as single quote block
+
+> and this is separate quote (rendered as second quote)
+|end
+
+* how to break the nestable detached modifier
+
+** paragraph break (aka. blank line)
+
+|example
+~ multiline
+  paragraph
+~ second list item
+
+~ separate list item starting from index 1
+|end
+
+** different kind of nestable detached modifier except null detached modifier will break the list
+
+|example
+~ list item starting from index 1
+- unordered
+- list
+~ separate list item starting from index 1
+|end
+
+
+* heading 1
+  paragraph 1-1
+
+  paragraph 1-2
+** heading 2
+   paragraph 2-1
+  ---
+  paragraph 1-3
