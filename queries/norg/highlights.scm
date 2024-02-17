@@ -32,7 +32,7 @@
 (italic) @markup.italic
 (underline) @markup.underline
 (strikethrough) @markup.strikethrough
-(inline_comment) @markup.raw
+(inline_comment) @comment
 (verbatim) @markup.raw.verbatim @nospell
 (math) @markup.math @nospell
 
@@ -67,8 +67,9 @@
 ;   (whitespace) @markup.raw.verbatim.special
 ;   (#set! conceal "␣"))
 
-; ((inline_comment) @conceal
-;   (#set! conceal ""))
+;; TODO: conceal only when used without extensions
+((inline_comment) @conceal
+  (#set! conceal ""))
 
 (uri) @markup.link.url
 (description) @markup.link.label
