@@ -1366,7 +1366,7 @@
   },
   {
     "type": "punctuation",
-    "named": true,
+    "named": false,
     "fields": {}
   },
   {

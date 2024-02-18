@@ -151,10 +151,12 @@ module.exports = grammar({
                 $._newline,
                 $.strong_delimiting_modifier,
                 // fake weak delimiting modifier
-                alias(
-                    token(seq(repeat2("-"), newline)),
-                    $.weak_delimiting_modifier
-                ),
+                $._fake_weak_delimiting_modfiier,
+            ),
+        _fake_weak_delimiting_modfiier: ($) =>
+            alias(
+                token(seq(repeat2("-"), newline)),
+                $.weak_delimiting_modifier
             ),
         paragraph: ($) => seq($.paragraph_inner, $.paragraph_break),
 
@@ -635,7 +637,7 @@ module.exports = grammar({
                             $.non_structural,
                             $._newline,
                             $.strong_delimiting_modifier,
-                            $.weak_delimiting_modifier,
+                            $._fake_weak_delimiting_modfiier,
                         ),
                     ),
                     token(prec(1, seq("^^", newline_or_eof))),
@@ -658,7 +660,7 @@ module.exports = grammar({
                             $.non_structural,
                             $._newline,
                             $.strong_delimiting_modifier,
-                            $.weak_delimiting_modifier,
+                            $._fake_weak_delimiting_modfiier,
                         ),
                     ),
                     token(prec(1, seq("$$", newline_or_eof))),
@@ -681,7 +683,7 @@ module.exports = grammar({
                             $.non_structural,
                             $._newline,
                             $.strong_delimiting_modifier,
-                            $.weak_delimiting_modifier,
+                            $._fake_weak_delimiting_modfiier,
                         ),
                     ),
                     token(prec(1, seq("::", newline_or_eof))),

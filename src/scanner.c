@@ -91,7 +91,7 @@ static uint32_t vec_u32_back(struct vec_u32* self) {
 	return self->vec[self->len - 1];
 }
 static uint32_t vec_u32_back_or(struct vec_u32* self, uint32_t fallback) {
-	assert(self != NULL, "vec_u32_back");
+	assert(self != NULL, "vec_u32_back_or");
 	if (self->len < 1) {
         return fallback;
 	}
@@ -450,6 +450,7 @@ Action scan_linkables(Scanner *self, const bool *valid_symbols) {
 }
 
 Action scan_detached_modifier(Scanner *self, const bool *valid_symbols, const int32_t character) {
+    LOG("scan_detached_modifier\n");
     const token_type kind = char_to_detached_mod(character);
     const bool is_weak_deli_valid = character == '-' && valid_symbols[WEAK_DELIMITING_MODIFIER];
     if (kind == 0
@@ -473,8 +474,10 @@ Action scan_detached_modifier(Scanner *self, const bool *valid_symbols, const in
             // Advance past the newline as well.
             lex_advance_newline();
 
-            if (!valid_symbols[FLAG_INDENT_SEGMENT_END])
+            if (!valid_symbols[ERROR_MODE] && !valid_symbols[FLAG_INDENT_SEGMENT_END]) {
+                LOG("FAIL\n");
                 vec_u32_pop(&self->indent_heading);
+            }
             // When `mark_end()` is called again we essentially move the previous checkpoint to the new "head".
             lex_mark_end();
             lex_set_result(WEAK_DELIMITING_MODIFIER);
@@ -486,12 +489,13 @@ Action scan_detached_modifier(Scanner *self, const bool *valid_symbols, const in
     // NULL list can be a child of preceding list item with same level
     if (kind == NULL_LIST) count ++;
 
-    if (valid_symbols[DEDENT_LIST] && (kind == HEADING || count <= vec_u32_back_or(&self->indent_list, 0))) {
+    if (!valid_symbols[ERROR_MODE] && valid_symbols[DEDENT_LIST] && (kind == HEADING || count <= vec_u32_back_or(&self->indent_list, 0))) {
+        LOG("try pop\n");
         vec_u32_pop(&self->indent_list);
         lex_set_result(DEDENT_LIST);
         return ACCEPT;
     }
-    if (valid_symbols[DEDENT] && kind == HEADING && count <= vec_u32_back_or(&self->indent_heading, 0)) {
+    if (!valid_symbols[ERROR_MODE] && valid_symbols[DEDENT] && kind == HEADING && count <= vec_u32_back_or(&self->indent_heading, 0)) {
         vec_u32_pop(&self->indent_heading);
         lex_set_result(DEDENT);
         return ACCEPT;
