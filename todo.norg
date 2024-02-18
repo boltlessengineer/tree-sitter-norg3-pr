@@ -8,3 +8,4 @@
 * ( ) rewrite `scanner.c` to C++. parser error is from `iswpunct`, not C++.
 * ( ) prevent accidental segment fault
 * (x) neovim crashes on `note.norg` file
+* ( ) add inline link syntax

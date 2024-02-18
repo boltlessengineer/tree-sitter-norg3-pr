@@ -1,0 +1,149 @@
+* Removed Slide/Indent segment
+
+  Both slide and indent segment are removed as they lead bunch of problems.
+
+* Generalized detached modifier syntax
+
+  Now all detached modifiers have {# head} and {# body} in common.
+
+  $$ head
+  /Head/ is what comes right after the prefix.
+  e.g.
+  - /title/ of /structural detached modifier/ (aka. heading)
+  - first child of list item (not first list item but a first child of all list
+    items)
+  - index part of /range-able detached modifiers/
+  $$
+
+  $$ body
+  /Body/ is what comes after the {# head}.
+  e.g.
+  - children excluding title of /heading/
+  - nested list of /list item/
+  - content part of /definition/
+  $$
+
+* Structural detached modifiers (aka. Headings)
+
+** Heading's title can be full paragraph
+
+   |example
+   * This is heading title.
+     This is part of title too.
+
+     This is paragraph below the heading
+   |end
+
+* Nestable detached modifiers (aka. lists, quotes)
+
+** tldr:
+
+   There are lot of changes in nestable detached modifiers. So here is tldr:
+
+   - /attributes/ are completely removed from entire syntax
+   - repeated nestable detached modifiers with same type construct "list"
+   - head can be single paragraph or tag
+   - body can only be multiple list
+   -- if you want to put plain paragraph or tag as list item's body, wrap them
+      as {# null detached modifier}
+   - {# null detached modifier} is new type of nestable detached modifier which
+     literally does nothing
+   -- null detached modifier's level is one level deeper than it's prefix to
+      give better look
+
+** Removed /attributes/
+
+   Attributes are completely removed from the Norg syntax. This makes sence
+   with following {** Unified nesting level}
+
+   Attributes will be reimplemented with macros and tags in future.
+
+** Unified nesting level
+
+   Now all nestable detached modifiers share same level when nested.
+   This includes unordered list items, ordered list items and quote items
+
+   |example
+   - This is unordered list item.
+   ~~ This is ordered list item below unordered list item.
+   >>> This is quote item below unordered list item.
+   ~~ Ordered list continues here so index is 2.
+   -- You can put multiple nestable list in body
+   -- like this
+   > This quote breaks the all nestable detached modifiers above
+   ~~ So this is new ordered list below quote starting from index 1.
+   - Unordered list is also broken now.
+   |end
+
+** Various /head/ types
+
+   Nestable detached modifiers can have single paragraph or tag as it's head.
+
+   |example
+   ~ simple
+     paragraph
+   ~ |example
+     standard ranged tag
+     |end
+   ~ @code python
+     print("verbatim ranged tag")
+     @end
+   ~ .image /infirm_tag.png
+   |end
+
+** Restricted /body/ type
+
+   While structural detached modifiers can have any kind of syntax as it's
+   body, Nestable detached modifiers can only have nestable detached modifiers
+   as body.
+
+   If you want to put more than one paragraph/tag as nestable detached modifier
+   item's body, you should rather use {* structural detached modifier} instead
+   or use {** Null detached modifier}.
+
+** Null detached modifier
+
+   Null detached modifier is one type of nestable detached modifier which is generally used to /extend/ the list item's children.
+
+   It's actual level is one level deeper than the number of prefixes.
+   You can think of Null detached modifier as having extra list that does
+   nothing with it's content.
+
+   |example
+   - This is first unordered list item's head.
+     which is paragraph, so you can span
+     multiple lines.
+   % This is still part of first unordered list item 
+   % |example
+     and this is too
+     |end
+   - This is second unordered list item
+   |end
+
+* Range-able detached modifiers
+
+** Verbatim line as head
+
+   Range-able detached modifiers have single verbatim line as it's /head/ and
+   single paragraph as it's body
+
+   |example
+   $ this is head
+   This is body
+   which is a paragraph.
+   |end
+
+** Accept newline instead of whitespace after doubled prefix
+
+   You can put newline instead of whitespace after the double prefix (e.g. `$$`.)
+
+   |example
+   ^^
+   footnote head
+   Actual foot note body starting from here.
+   ^^
+   |end
+
+   This change is made because of parser limitation on parsing paragraph break.
+   It's recommended to avoid doing this.
+
