@@ -32,37 +32,30 @@
 (italic) @markup.italic
 (underline) @markup.underline
 (strikethrough) @markup.strikethrough
+(spoiler) @markup.spoiler
+(superscript) @markup.superscript
+(subscript) @markup.subscript
 (inline_comment) @comment
 (verbatim) @markup.raw.verbatim @nospell
 (math) @markup.math @nospell
+(inline_macro) @macro @nospell
 
-; TODO: only conceal on valid markup
-(_
+(
   [
-    (bold_open)
-    (bold_close)
-    (italic_open)
-    (italic_close)
-    (underline_open)
-    (underline_close)
-    (strikethrough_open)
-    (strikethrough_close)
-    (superscript_open)
-    (superscript_close)
-    (subscript_open)
-    (subscript_close)
-    (spoiler_open)
-    (spoiler_close)
-    (verbatim_open)
-    (verbatim_close)
-    (math_open)
-    (math_close)
-    (inline_comment_open)
-    (inline_comment_close)
-    (free_form_open)
-    (free_form_close)
-  ] @conceal
+    (bold [(bold_open) (bold_close)] @conceal)
+    (italic [(italic_open) (italic_close)] @conceal)
+    (underline [(underline_open) (underline_close)] @conceal)
+    (strikethrough [(strikethrough_open) (strikethrough_close)] @conceal)
+    (spoiler [(spoiler_open) (spoiler_close)] @conceal)
+    (superscript [(superscript_open) (superscript_close)] @conceal)
+    (subscript [(subscript_open) (subscript_close)] @conceal)
+    (inline_comment [(inline_comment_open) (inline_comment_close)] @conceal)
+    (verbatim [(verbatim_open) (verbatim_close)] @conceal)
+    (math [(math_open) (math_close)] @conceal)
+    (inline_macro [(inline_macro_open) (inline_macro_close)] @conceal)
+  ]
   (#set! conceal ""))
+
 ; (verbatim
 ;   (whitespace) @markup.raw.verbatim.special
 ;   (#set! conceal "␣"))
