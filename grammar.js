@@ -624,13 +624,13 @@ module.exports = grammar({
             choice(
                 seq(
                     "^ ",
-                    $.verbatim_param_list,
+                    field("title", $.verbatim_param_list),
                     choice(newline, $._intersecting_modifier),
                     $.paragraph,
                 ),
                 seq(
                     token(seq("^^", choice(whitespace, newline_or_eof))),
-                    $.verbatim_param_list,
+                    field("title", $.verbatim_param_list),
                     newline,
                     repeat(
                         choice(
@@ -647,13 +647,13 @@ module.exports = grammar({
             choice(
                 seq(
                     "$ ",
-                    $.verbatim_param_list,
+                    field("title", $.verbatim_param_list),
                     choice(newline, $._intersecting_modifier),
                     $.paragraph,
                 ),
                 seq(
                     token(seq("$$", choice(whitespace, newline_or_eof))),
-                    $.verbatim_param_list,
+                    field("title", $.verbatim_param_list),
                     newline,
                     repeat(
                         choice(
@@ -670,13 +670,13 @@ module.exports = grammar({
             choice(
                 seq(
                     ": ",
-                    $.verbatim_param_list,
+                    field("title", $.verbatim_param_list),
                     choice(newline, $._intersecting_modifier),
                     $.paragraph,
                 ),
                 seq(
                     token(seq("::", choice(whitespace, newline_or_eof))),
-                    $.verbatim_param_list,
+                    field("title", $.verbatim_param_list),
                     newline,
                     repeat(
                         choice(

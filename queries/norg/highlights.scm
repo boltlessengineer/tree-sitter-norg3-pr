@@ -53,6 +53,8 @@
     (verbatim [(verbatim_open) (verbatim_close)] @conceal)
     (math [(math_open) (math_close)] @conceal)
     (inline_macro [(inline_macro_open) (inline_macro_close)] @conceal)
+    (free_form_open) @conceal
+    (free_form_close) @conceal
   ]
   (#set! conceal ""))
 
@@ -66,16 +68,18 @@
 
 (uri) @markup.link.url
 (description) @markup.link.label
+;; FIX(boltless): maybe I can warp these two queries in single query
 (link
   [
     "["
     "]"
     "{"
     "}"
-  ] @markup.link
+  ] @conceal
   (#set! conceal ""))
+(link target: (_) @markup.link.url)
 (link
-  target: (_) @markup.link
+  target: (_) @conceal
   description: (_)
   (#set! conceal ""))
 (anchor
@@ -83,7 +87,7 @@
     "["
     "]"
     "{"
-    target: (_)
+    target: (_) @markup.link.url
     "}"
   ] @markup.link
   (#set! conceal ""))
@@ -96,12 +100,20 @@
 ;   (#set! conceal ""))
 
 (verbatim_ranged_tag
-  "@" @markup.raw.delimiter
-  (identifier) @namespace
-  "@end" @markup.raw.delimiter)
+  "@" @keyword
+  (identifier) @keyword
+  "@end" @keyword)
 (verbatim_ranged_tag
   content: (_) @markup.raw.block @nospell
   (#set! "priority" 90))
+(standard_ranged_tag
+  ;; FIX: "|" here is invalid. I have no idea why
+  ;; "|" @keyword
+  (identifier) @namespace
+  "|end" @namespace)
+(infirm_tag
+  "." @namespace
+  (identifier) @namespace)
 
 [
   (unordered_list_prefix)
@@ -110,6 +122,13 @@
 ] @markup.list
 
 (null_list_prefix) @comment
+
+(footnote
+  title: (_) @markup.strong)
+(definition
+  title: (_) @markup.strong)
+(table
+  title: (_) @markup.strong)
 
 (strong_carryover_tag
   "#" @punctuation.special
@@ -129,8 +148,7 @@
     (bold_open)
     (italic_open)
     ;; TODO: add more
-  ] @warn
-)
+  ] @warn)
 
 (ERROR) @error
 

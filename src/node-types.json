@@ -349,10 +349,21 @@
   {
     "type": "definition",
     "named": true,
-    "fields": {},
+    "fields": {
+      "title": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "verbatim_param_list",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "non_structural",
@@ -360,10 +371,6 @@
         },
         {
           "type": "strong_delimiting_modifier",
-          "named": true
-        },
-        {
-          "type": "verbatim_param_list",
           "named": true
         },
         {
@@ -465,10 +472,21 @@
   {
     "type": "footnote",
     "named": true,
-    "fields": {},
+    "fields": {
+      "title": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "verbatim_param_list",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "non_structural",
@@ -476,10 +494,6 @@
         },
         {
           "type": "strong_delimiting_modifier",
-          "named": true
-        },
-        {
-          "type": "verbatim_param_list",
           "named": true
         },
         {
@@ -1366,7 +1380,7 @@
   },
   {
     "type": "punctuation",
-    "named": false,
+    "named": true,
     "fields": {}
   },
   {
@@ -1792,10 +1806,21 @@
   {
     "type": "table",
     "named": true,
-    "fields": {},
+    "fields": {
+      "title": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "verbatim_param_list",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "non_structural",
@@ -1803,10 +1828,6 @@
         },
         {
           "type": "strong_delimiting_modifier",
-          "named": true
-        },
-        {
-          "type": "verbatim_param_list",
           "named": true
         },
         {

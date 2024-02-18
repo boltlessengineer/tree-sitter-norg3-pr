@@ -2897,8 +2897,12 @@
               "value": "^ "
             },
             {
-              "type": "SYMBOL",
-              "name": "verbatim_param_list"
+              "type": "FIELD",
+              "name": "title",
+              "content": {
+                "type": "SYMBOL",
+                "name": "verbatim_param_list"
+              }
             },
             {
               "type": "CHOICE",
@@ -2985,8 +2989,12 @@
               }
             },
             {
-              "type": "SYMBOL",
-              "name": "verbatim_param_list"
+              "type": "FIELD",
+              "name": "title",
+              "content": {
+                "type": "SYMBOL",
+                "name": "verbatim_param_list"
+              }
             },
             {
               "type": "CHOICE",
@@ -3081,8 +3089,12 @@
               "value": "$ "
             },
             {
-              "type": "SYMBOL",
-              "name": "verbatim_param_list"
+              "type": "FIELD",
+              "name": "title",
+              "content": {
+                "type": "SYMBOL",
+                "name": "verbatim_param_list"
+              }
             },
             {
               "type": "CHOICE",
@@ -3169,8 +3181,12 @@
               }
             },
             {
-              "type": "SYMBOL",
-              "name": "verbatim_param_list"
+              "type": "FIELD",
+              "name": "title",
+              "content": {
+                "type": "SYMBOL",
+                "name": "verbatim_param_list"
+              }
             },
             {
               "type": "CHOICE",
@@ -3265,8 +3281,12 @@
               "value": ": "
             },
             {
-              "type": "SYMBOL",
-              "name": "verbatim_param_list"
+              "type": "FIELD",
+              "name": "title",
+              "content": {
+                "type": "SYMBOL",
+                "name": "verbatim_param_list"
+              }
             },
             {
               "type": "CHOICE",
@@ -3353,8 +3373,12 @@
               }
             },
             {
-              "type": "SYMBOL",
-              "name": "verbatim_param_list"
+              "type": "FIELD",
+              "name": "title",
+              "content": {
+                "type": "SYMBOL",
+                "name": "verbatim_param_list"
+              }
             },
             {
               "type": "CHOICE",
