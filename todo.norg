@@ -9,3 +9,4 @@
 * ( ) prevent accidental segment fault
 * (x) neovim crashes on `note.norg` file
 * ( ) add inline link syntax
+* ( ) `@@code ... @@end` to allow `@end` in verbatim ranged tag

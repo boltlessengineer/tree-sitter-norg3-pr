@@ -66,7 +66,17 @@
 ((inline_comment) @conceal
   (#set! conceal ""))
 
-(uri) @markup.link.url
+[
+  (uri)
+  (link_target_file)
+  (link_target_wiki)
+  (link_target_magic)
+  (link_target_timestamp)
+  ] @markup.link.url
+(norg_file (path) @markup.link.url)
+(norg_file
+  ":" @punctuation.delimiter
+  (#set! conceal ""))
 (description) @markup.link.label
 ;; FIX(boltless): maybe I can warp these two queries in single query
 (link
@@ -77,7 +87,11 @@
     "}"
   ] @conceal
   (#set! conceal ""))
-(link target: (_) @markup.link.url)
+(link
+  target: [
+            (norg_file (path) @markup.link.url)
+          ]
+  )
 (link
   target: (_) @conceal
   description: (_)
