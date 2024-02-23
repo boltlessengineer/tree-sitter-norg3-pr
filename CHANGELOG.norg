@@ -2,9 +2,11 @@
 
   Both slide and indent segment are removed as they lead bunch of problems.
 
+  See {:./doc/removing_indent_segment:} for detailed information.
+
 * Generalized detached modifier syntax
 
-  Now all detached modifiers have {# head} and {# body} in common.
+  All detached modifiers have {# head} and {# body} in common.
 
   $$ head
   /Head/ is what comes right after the prefix.
@@ -19,7 +21,7 @@
   /Body/ is what comes after the {# head}.
   e.g.
   - children excluding title of /heading/
-  - nested list of /list item/
+  - nested lists of /list item/
   - content part of /definition/
   $$
 
@@ -54,7 +56,7 @@
 ** Removed /attributes/
 
    Attributes are completely removed from the Norg syntax. This makes sence
-   with following {** Unified nesting level}
+   with following {** Unified nesting level}.
 
    Attributes will be reimplemented with macros and tags in future.
 
@@ -75,7 +77,7 @@
    - Unordered list is also broken now.
    |end
 
-** Various /head/ types
+** Various {# head} types
 
    Nestable detached modifiers can have single paragraph or tag as it's head.
 
@@ -103,7 +105,8 @@
 
 ** Null detached modifier
 
-   Null detached modifier is one type of nestable detached modifier which is generally used to /extend/ the list item's children.
+   Null detached modifier is one type of nestable detached modifier which is
+   generally used to /extend/ the list item's children.
 
    It's actual level is one level deeper than the number of prefixes.
    You can think of Null detached modifier as having extra list that does
@@ -119,6 +122,8 @@
      |end
    - This is second unordered list item
    |end
+
+   > Read {:./doc/removing_indent_segment:} for detailed explanation.
 
 * Range-able detached modifiers
 

@@ -1,0 +1,479 @@
+* Slide/Indent segment are bad syntax.
+
+  Even though I'm arguing both of them are bad and should be removed/replaced
+  from spec, I'll mostly talk about indent segments.
+
+** Why do we need them in first place?
+
+*** Non-paragraph children for single list item
+
+    @code
+    - :
+      @@code python
+      print("hi")
+      @@end
+    - :
+      .image /path/to/image.png
+    @end
+
+*** Multiple paragraphs for single list item
+
+    @code
+    - ::
+      single list item
+
+      with two paragraphs
+      ---
+    - another list item
+    @end
+
+    As nestable detached modifier accepts single paragraph by default,
+
+*** Continue list item after the sublist
+
+    @code
+    - ::
+      list item
+
+    -- sublist item
+    -- sublist item
+
+      list item continues
+      ---
+    - nest list item
+    @end
+
+** Why is it bad
+
+*** It can't be used for all detached modifiers.
+
+    Easy example would be range-able detached modifiers.
+
+    - They don't need it because normally range-able detached modifiers expect
+      single verbatim line as first child.
+    - If we allow it anyway, Neorg-like application have to handle nonsense
+      like "definition for 1 paragraph and 2 codeblock", or "table cell
+      positioned at 3 infirm tag and 1 paragraph"
+
+    @code
+    : ::
+      .some
+      |example
+      nonsense
+      |end
+      here
+      ---
+      table cell
+    @end
+
+*** It breaks core concept of nestable detached modifier
+
+    @code
+    - first list item
+    -- sublist item
+    -- sublist item
+    - first list item
+    @end
+
+    Normally we use nestable detached modifier like this.
+
+    - repeated prefix represents each nestable detached modifier's nested level
+    - empty line will break the continuation of list
+
+    @code
+    - ::
+      first list item
+    - sublist item
+    - sublist item
+    ---
+    - second list item
+    @end
+
+    Second example looks crazy but it generates exactly same AST with first
+    example.
+
+    Existence of indent segment breaks /repeated prefix represents nested level/
+    rule. So `- sublist item` is child of `list item` even though it has only
+    one prefix character.
+
+    We should not solve "allow multiple blocks" with ranged varient for this
+    reason.
+
+*** Too many steps to do simple job
+
+    @code
+    - red
+    -- apple
+    -- blood
+    @end
+
+    Imagine if you have a list like this, cursor positioned at line 3 and want
+    to put additional paragraph under the `- red` list item.
+
+    ~ go up to line 1
+    ~ add `::` before `red` to wrap list item with indent segment
+    ~ back to line 3, type paragraph break to terminate the sublist
+    ~ type the paragraph
+    ~ don't forget to close indent segment with weak delimiting modifier
+
+    @code
+    - ::
+      red
+    -- apple
+    -- blood
+
+      often associated with passion, energy, and intensity
+      ---
+    @end
+
+    It's way easier if you put quote instead of paragraph here.
+
+    ~ type `>>` to start nested paragraph in next line
+    ~ type the paragraph
+
+    @code
+    - red
+    -- apple
+    -- blood
+    >> often associated with passion, energy, and intensity
+    @end
+
+*** Ambiguity between structural and nestable detached modifiers
+
+    I will use "heading" and "list item" as short term here.
+
+    Headings are used for structuring the document. So it is designed to have
+    all sorts of complex items as children.
+
+    List items are used for structuring more smaller section. e.g. structuring
+    multiple paragraphs, images, or representing nested quotes. That's why
+    blank line can be used to break the list. If you are putting that much
+    complex items inside single list item, you should consider using headings
+    instead.
+
+    @code
+    - ( ) TODO
+    -- ( ) rewrite neovim config with luarocks
+    -- ( ) complete v3 parser
+    -- ( ) Neorg-like mobile application
+    @end
+
+    @code
+    * ( ) TODO
+
+    ** ( ) rewrite neovim config with luarocks
+
+       (detailed explain about why I need luarocks for neovim config)
+
+    ** ( ) complete v3 parser
+
+       (edge-case codeblocks and paragraphs explaining them)
+
+    ** ( ) Neorg-like mobile application
+
+       (research about cross-platform frameworks)
+    @end
+
+    In short term, headings are used with spreaded contents while list items
+    are used with more condenced contents.
+
+    This difference disappears when we use indent segments:
+
+    @code
+    - ( ) TODO
+    -- ( ) ::
+       rewrite neovim config with luarocks
+
+       (detailed explain about why I need luarocks for neovim config)
+       ---
+    -- ( ) ::
+       complete v3 parser
+
+       (edge-case codeblocks and paragraphs explaining them)
+       ---
+    -- ( ) ::
+       Neorg-like mobile application
+
+       (research about cross-platform frameworks)
+       ---
+    @end
+
+    Now list items are too similar to headings. Using blank line between
+    children is heading's style. List items lost their identity here.
+
+*** Endless weak delimiting modifier
+
+    Extreme example:
+
+    @code
+    - ::
+      (complex list item, level 1)
+    - ::
+      (complex list item, level 2)
+    - ::
+      (complex list item, level 3)
+    - simple list item (level 4)
+    -- ::
+       (complex list item, level 5)
+    - ::
+      (complex list item, level 6)
+    ---
+    ---
+    ---
+    what's the nested level here?
+    @end
+
+* How to replace them with other syntax
+
+** Remove from structural detached modifier
+
+   We can safely remove it from structural detached modifier, considering we
+   don't put non-paragraph or multiple items in heading title.
+
+** Remove from nestable detached modifier with new syntax
+
+*** Nestable detached modifier can have single tag as it's head by default.
+
+    @code
+    - @@code python
+      print("hi")
+      @@end
+    - .image /path/to/image.png
+    - #carryover
+    - paragraph
+    @end
+
+*** Null detached modifier
+
+    I'm adding new kind of nestable detached modifier called "null detached
+    modifier" to allow multiple children in single list item.
+
+    before:
+
+    @code
+    ~ ::
+      first list item
+      @@code python
+      print("hi")
+      @@end
+      - sublist item
+      - sublist item
+
+      paragraph
+      after sublist
+
+      one more paragraph
+      ---
+    ~ second list item
+    @end
+
+    after:
+
+    @code
+    - first list item
+    %% @@code python
+       print("hi")
+       @@end
+    -- sublist item
+    -- sublist item
+    %% paragraph
+       after sublist
+    %% one more paragraph
+    - second list item
+    @end
+
+    Null varient works same with any other nestable detached modifiers (orderd
+    / unordered lists, quotes).
+    It's just another sublist doing nothing to it's list items.
+
+    So `- first list item` here has total 3 sublists
+
+    - null sublist with one list item
+    - unordered sublist with two list items
+    - null sublist with two list items
+
+**** Some syntax sugar for null detached modifier
+
+     We can adjust null detached modifier's nest level to match the indent
+     level.
+
+     @code
+     - first list item
+     % @@code python
+       print("hi")
+       @@end
+     -- sublist item
+     -- sublist item
+     % paragraph
+       after sublist
+     % one more paragraph
+     - second list item
+     @end
+
+     Define null detached modifier always have one unshown list prefix, so `%`
+     represents level 2 and `%%` represents level 3.
+
+     Though this is not a needed change and can be done from concealer instead.
+     In the examples that follow, I don't apply this syntax sugar.
+
+*** Carryover tag for sublist
+
+    @code
+    - list
+    -- list
+    --- list
+    %% #carryover
+    -- list
+    @end
+
+    This is only edge-case this document introduce.
+
+    `%% #carryover` is parsed to single `(carryover)` instead of
+    `(null_list (null_list_item (carryover)))`
+
+**** Remove null detached modifier from AST
+
+     We can even remove this edge-case by removing all null detached modifiers
+     from AST.
+
+     @code
+     - first list item
+     %% @@code python
+        print("hi")
+        @@end
+     -- sublist item
+     -- sublist item
+     >> another sublist
+        with different kind
+     %% paragraph
+        after sublist
+     %% one more paragraph
+     - second list item
+     @end
+     @code query
+     (unordered_list
+       (unordered_list_item
+         (paragraph)
+         (verbatim_ranged_tag)
+         (unordered_list
+           (unordered_list_item
+             (paragraph))
+           (unordered_list_item
+             (paragraph)))
+         (quote_list
+           (quote_list_item
+             (paragraph)))
+         (paragraph)
+         (paragraph))
+       (unordered_list_item
+         (paragraph)))
+     @end
+     ---
+
+    So it can attached to list starting with `-- list` at line 5 without
+    breaking `- list` list item at line 1.
+
+    - User can think this happens to all other null detached modifiers.
+    - Neorg-like application can think `|%% |` in front of carryover tag
+      doesn't even exists.
+
+    @code query
+    (unordered_list
+      (unordered_list_item
+        (unordered_list
+          (unordered_list_item
+            (unordered_list
+              (unordered_list_item))))
+        (carryover_tag)
+        (unordered_list
+          (unordered_list_item))))
+    @end
+
+**** Carryover tag followed by list of different level
+
+     @code
+     %% #carryover
+     --- list
+     @end
+
+     - User's POV: list is under first list item of null list
+     - Parser's POV: it's single carryover followed by list
+
+     @code
+     - list
+     -- list
+     --- list
+     %% #carryover
+     - list
+     @end
+
+     Carryover tag is belong to first `- list`, so second `- list` won't be
+     passed to carryover tag here.
+
+**** Carryover tag breaking the entire list
+
+     @code norg
+     - list
+     -- list
+     --- list
+     #carryover
+     -- list
+     @end
+
+     If you use carryover tag without wrapping it with null detached modifier,
+     it is still valid syntax but carryover tag here will terminate the first
+     list (`- list`), so `-- list` becomes separate level-1 list.
+
+     @code query
+     (unordered_list
+       (unordered_list_item
+         (unordered_list
+           (unordered_list_item
+             (unordered_list
+               (unordered_list_item))))))
+     (carryover_tag)
+     (unordered_list
+       (unordered_list_item))
+     @end
+
+**** Carryover tag with non-sublist
+
+     You can still put pure carryover tag for list.
+
+     @code
+     * heading
+
+       #carryover
+       - list
+       - list
+       - list
+     @end
+
+     As there is no sublist situation here, it is safe to use carryover tag
+     without wrapping with null detached modifier.
+
+**** Carryover tag in other nestable detached modifiers
+
+     @code
+     ~ #carryover
+     ~ list (index 2)
+     ~ list (index 3)
+     @end
+     @code
+     (ordered_list
+       (ordered_list_item
+         (carryover_tag))
+       (ordered_list_item
+         (paragraph))
+       (ordered_list_item
+         (paragraph))
+     @end
+
+     As ordered item *will* wrap it's contents to single `(ordered_list_item)`,
+     carryover tag don't have any siblings here.
+     So it's not affecting anything.
+
+* Summary
+
+  - remove slide, indent segment from syntax
+  - 
