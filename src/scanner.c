@@ -486,9 +486,6 @@ Action scan_detached_modifier(Scanner *self, const bool *valid_symbols, const in
         return FAIL;
     }
 
-    // NULL list can be a child of preceding list item with same level
-    if (kind == NULL_LIST) count ++;
-
     if (!valid_symbols[ERROR_MODE] && valid_symbols[DEDENT_LIST] && (kind == HEADING || count <= vec_u32_back_or(&self->indent_list, 0))) {
         LOG("try pop\n");
         vec_u32_pop(&self->indent_list);

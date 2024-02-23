@@ -2,24 +2,24 @@
 list-00: hard test
 ================================================================================
 --- list
-%%% |example
-    - list
-    -- list
-    - list
-    ----- list
-    -- list
-    %% |example
-       ------ list
-       - list
-       |end
-    %% |example
-       ===
-       ---
-       |end
-    %% para-
-       graph
-    -- list
-    |end
+%%%% |example
+     - list
+     -- list
+     - list
+     ----- list
+     -- list
+     %%% |example
+         ------ list
+         - list
+         |end
+     %%% |example
+         ===
+         ---
+         |end
+     %%% para-
+         graph
+     -- list
+     |end
 --- list
 --------------------------------------------------------------------------------
 (document
