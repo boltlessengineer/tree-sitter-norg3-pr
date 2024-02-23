@@ -476,4 +476,5 @@
 * Summary
 
   - remove slide, indent segment from syntax
-  - 
+  - add null varient to nestable detached modifiers. Which won't be shown on
+    AST.
