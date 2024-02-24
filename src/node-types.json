@@ -1566,6 +1566,10 @@
           "named": true
         },
         {
+          "type": "std_ranged_tag_prefix",
+          "named": true
+        },
+        {
           "type": "strong_delimiting_modifier",
           "named": true
         },
@@ -2470,6 +2474,10 @@
   },
   {
     "type": "spoiler_open",
+    "named": true
+  },
+  {
+    "type": "std_ranged_tag_prefix",
     "named": true
   },
   {

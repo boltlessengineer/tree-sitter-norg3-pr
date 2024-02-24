@@ -729,7 +729,7 @@ module.exports = grammar({
             ),
         standard_ranged_tag: ($) =>
             seq(
-                alias($.std_ranged_tag_prefix, '|'),
+                $.std_ranged_tag_prefix,
                 $.identifier,
                 repeat(seq(whitespace, field('argument', $.argument))),
                 $._newline,

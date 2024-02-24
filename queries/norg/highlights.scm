@@ -121,8 +121,8 @@
   content: (_) @markup.raw.block @nospell
   (#set! "priority" 90))
 (standard_ranged_tag
-  ;; FIX: "|" here is invalid. I have no idea why
-  ;; "|" @keyword
+  ;; HACK: aliased "|" here is invalid. I have no idea why
+  (std_ranged_tag_prefix) @namespace
   (identifier) @namespace
   "|end" @namespace)
 (infirm_tag

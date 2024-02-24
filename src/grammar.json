@@ -3693,13 +3693,8 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "ALIAS",
-          "content": {
-            "type": "SYMBOL",
-            "name": "std_ranged_tag_prefix"
-          },
-          "named": false,
-          "value": "|"
+          "type": "SYMBOL",
+          "name": "std_ranged_tag_prefix"
         },
         {
           "type": "SYMBOL",
