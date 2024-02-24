@@ -18,3 +18,11 @@
    #NOTE
    > You should disable [neorg]{https://github.com/nvim-neorg/neorg} plugin and
      uninstall existing norg parser to avoid conflict.
+   > Expect plugins like [headlines.nvim], [nvim-treesitter-context] breaks
+     when using this parser. It's not compatible with v1 parser's queries.
+
+===
+|hide
+[headlines.nvim]{https://github.com/lukas-reineke/headlines.nvim}
+[nvim-treesitter-context]{https://github.com/nvim-treesitter/nvim-treesitter-context}
+|end
