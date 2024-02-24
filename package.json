@@ -4,9 +4,11 @@
     "description": "tree-sitter parser for Norg format",
     "main": "bindings/node",
     "scripts": {
-        "generate": "make generate",
+        "gen": "tree-sitter generate",
+        "build": "tree-sitter generate && tree-sitter test",
         "test": "tree-sitter test",
         "parse": "tree-sitter parse",
+        "build:wasm": "tree-sitter build-wasm",
         "size": "du -h ~/.cache/tree-sitter/lib/norg*.so"
     },
     "keywords": [
@@ -15,14 +17,19 @@
         "norg"
     ],
     "license": "MIT",
+    "dependencies": {
+        "nan": "^2.18.0"
+    },
     "devDependencies": {
-        "tree-sitter-cli": "^0.20.8",
-        "@types/node": "^20.9.2"
+        "@types/node": "^20.9.2",
+        "tree-sitter-cli": "^0.20.8"
     },
     "tree-sitter": [
         {
             "scope": "source.norg",
-            "file-types": ["norg"],
+            "file-types": [
+                "norg"
+            ],
             "highlights": [
                 "queries/highlights.scm"
             ],

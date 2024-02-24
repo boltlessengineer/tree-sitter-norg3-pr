@@ -1,0 +1,20 @@
+* Tree-sitter parser for Norg syntax
+
+** How to try it in Neovim
+
+   You should manually bulid & register the parser to neovim.
+
+   @code sh
+   pnpm install
+   pnpm build
+   @end
+
+   @code vim
+   :source register.lua
+   " or you can paste the content of `init.lua` in your config.
+   " you don't need nvim-treesitter to run this snippet
+   @end
+
+   #NOTE
+   > You should disable [neorg]{https://github.com/nvim-neorg/neorg} plugin and
+     uninstall existing norg parser to avoid conflict.

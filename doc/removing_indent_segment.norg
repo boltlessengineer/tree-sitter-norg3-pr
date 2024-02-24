@@ -473,6 +473,8 @@
      carryover tag don't have any siblings here.
      So it's not affecting anything.
 
+*** Macro expand inside link
+
 * Summary
 
   - remove slide, indent segment from syntax

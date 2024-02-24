@@ -5,9 +5,89 @@
 * ( ) fix weak/strong carryover tags problem
 * ( ) fix parameter tokens to allow all types of punctuations
 * ( ) don't return `SOFT_BREAK` on ERROR MODE
-* ( ) rewrite `scanner.c` to C++. parser error is from `iswpunct`, not C++.
+* (?) rewrite `scanner.c` to C++. parser error is from `iswpunct`, not C++.
 * ( ) prevent accidental segment fault
 * (x) neovim crashes on `note.norg` file
-* ( ) add inline link syntax
-* ( ) `@@code ... @@end` to allow `@end` in verbatim ranged tag
+* (?) add inline link syntax
 * ( ) range-able detached modifier list
+* (?) `elseif` tyle syntax for detached modifier list
+* (?) `@@code ... @@end` to allow `@end` in verbatim ranged tag
+* (?) refactor extension syntax
+
+  to make all extensions share same rules.
+
+  @code
+  *bold*(macro param\ with\ whitespace|second macro)
+
+  e.g. `print("hi")`(lang python)
+
+  * ( |macro param\ with\ whitespace|third macro) heading
+
+  e.g.
+  * ( |# A) heading
+  @end
+
+  so `*bold*( |# A)` is now valid in syntax, but invalid in semantic
+
+  `*bold*(red)`
+
+  @code
+  =red %attached
+  .macro-eval color red &attached
+  =end
+  @end
+
+* (?) refactor link targets
+
+  - Scoped targets
+  -- Heading
+  -- Definition
+  -- Footenote
+  -- magic
+  -- norg_file
+  - File path (with `|/ |` prefix)
+  - URI target (fallback)
+
+** extendable target is replaced to macro target
+
+   before:
+
+   @code
+   {= some text}[a description](macro-name)
+   @end
+
+   after:
+
+   @code
+   {= macro-name some\ text}[a description]
+   @end
+
+   and implementation is:
+
+   @code
+   =macro-name param
+   ...
+   =end
+   @end
+
+** `:` at the end of norg_file target is optional
+
+   - `{:norg/file}` - valid
+   - `{:norg/file:}` - valid, prefered by formatter
+   - `{: norg/file:}` - valid
+   - `{: norg/file :}` - valid
+   - `{: norg/file : }` - valid
+   - `|{: norg/file\ name : }|` - valid
+
+   `:` at the end is just empty scope.
+
+   As we won't never create link target to table cell, it's safe to use `|: |`
+   as norg_file target prefix.
+
+   All scope delimiter should be preceded/followed by whitespaces to not
+   conflict with link modifiers.
+
+** norg_file target + wikilink
+
+   `{:some_norg_file}` is now wikilink.
+   If you mean file in same directory, start with `:./`
