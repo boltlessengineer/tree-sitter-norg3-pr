@@ -33,6 +33,7 @@ list-00: hard test
         (null_list_item
           (null_list_prefix)
           (standard_ranged_tag
+            (std_ranged_tag_prefix)
             (identifier)
             (unordered_list
               (unordered_list_item
@@ -66,6 +67,7 @@ list-00: hard test
                       (null_list_item
                         (null_list_prefix)
                         (standard_ranged_tag
+                          (std_ranged_tag_prefix)
                           (identifier)
                           (unordered_list
                             (unordered_list_item
@@ -81,6 +83,7 @@ list-00: hard test
                       (null_list_item
                         (null_list_prefix)
                         (standard_ranged_tag
+                          (std_ranged_tag_prefix)
                           (identifier)
                           (strong_delimiting_modifier)
                           (weak_delimiting_modifier)))

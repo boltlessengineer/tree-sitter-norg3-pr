@@ -28,6 +28,7 @@ paragraph
       (word)
       (paragraph_break))
     (standard_ranged_tag
+      (std_ranged_tag_prefix)
       (identifier)
       (heading
         (heading_prefix)
@@ -55,6 +56,7 @@ paragraph
             (word)
             (paragraph_break))
           (standard_ranged_tag
+            (std_ranged_tag_prefix)
             (identifier)
             (heading
               (heading_prefix)
@@ -67,6 +69,7 @@ paragraph
                 (word)
                 (paragraph_break))))
           (standard_ranged_tag
+            (std_ranged_tag_prefix)
             (identifier)
             (strong_delimiting_modifier)
             (weak_delimiting_modifier))
