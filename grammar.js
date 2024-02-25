@@ -310,7 +310,7 @@ module.exports = grammar({
         _link_description: ($) =>
             seq(
                 alias($.desc_open, "["),
-                field("description", $.description),
+                optional(field("description", $.description)),
                 alias($.desc_close, "]"),
             ),
         description: ($) => $.paragraph_inner,
