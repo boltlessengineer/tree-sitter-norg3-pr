@@ -12,6 +12,9 @@
 * ( ) range-able detached modifier list
 * (?) `elseif` tyle syntax for detached modifier list
 * (?) `@@code ... @@end` to allow `@end` in verbatim ranged tag
+* ( ) move infirm tag and weak carryover tag to paragraph
+* ( ) make sure indent vectors are cleared properly
+* ( ) OSC8 links ({https://github.com/nvim-neorg/neorg/issues/1318}[neorg#1318])
 * (?) refactor extension syntax
 
   to make all extensions share same rules.
@@ -40,12 +43,17 @@
 * (?) refactor link targets
 
   - Scoped targets
-  -- Heading
-  -- Definition
-  -- Footenote
-  -- magic
-  -- norg_file
-  - File path (with `|/ |` prefix)
+  %% @table
+     | Type       | Prefix | Content     |
+     |------------|--------|-------------|
+     | Heading    | `|* |` | paragraph   |
+     | Footnote   | `|^ |` | identifiers |
+     | Definition | `|$ |` | identifiers |
+     | Magic      | `|# |` | identifiers |
+     | Macro Link | `=`    | identifiers |
+     | Norg File  | `:`    | file path   |
+     @end
+  - File path `|/ filepath|`
   - URI target (fallback)
 
 ** extendable target is replaced to macro target
@@ -70,6 +78,16 @@
    =end
    @end
 
+*** how it works differently from link extensions
+
+    @code
+    {= macro1 some\ text}[a description](macro2 param)
+
+    {expanded-link-target}[a description](macro2 param)
+
+    #macro2 param
+    @end
+
 ** `:` at the end of norg_file target is optional
 
    - `{:norg/file}` - valid
@@ -81,7 +99,7 @@
 
    `:` at the end is just empty scope.
 
-   As we won't never create link target to table cell, it's safe to use `|: |`
+   As we will never create link target to table cell, it's safe to use `|: |`
    as norg_file target prefix.
 
    All scope delimiter should be preceded/followed by whitespaces to not
