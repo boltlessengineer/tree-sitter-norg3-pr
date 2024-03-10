@@ -1,0 +1,390 @@
+* Idea
+
+  Weak carryover tag in 1.0 spec is too hard to work with structural / nestable
+  detached modifiers. This document suggests change on bunch of changes around
+  it.
+
+** Affected grammars
+
+   - weak carryover tag
+   - attribute
+   - extensions (attached modifiers/detached modifiers/linkables)
+   - extendable link target
+   - inline link
+   - inline image implementation
+   - macros
+   - tag's parameter
+
+** TL;DR
+
+   - Weak carryover tag / extensions are form of grammar
+   - Attribute exists as base syntax in Norg. There is no macro magic behind
+   - Macro is categorized into 3 types (block/inline/target)
+   - Inline link is changed to inline macro/attribute
+   - extendable link target is changed to target-macro
+
+* Separating attribute from macro
+
+** Reasons
+
+   Followings are reasons why we need attribute syntax in addition to macros.
+
+*** Make Norg easy to export
+
+    imagine we have something like this:
+
+    @code norg
+    #color red
+    #font-family sans-serif
+    #font-size 2rem
+    some
+    paragraph
+    @end
+
+    which will be exported to:
+
+    @code html
+    <div style="color: red">
+      <div style="font-family: sans-serif">
+        <div style="font-size: 2rem">
+          <p>some paragraph</p>
+        </div>
+      </div>
+    </div>
+    @end
+
+    but most users will expect this:
+
+    @code html
+    <p style="color: red; font-family: sans-serif; font-size: 2rem"
+    >some paragraph</p>
+    @end
+
+    Of course it is possible to do same thing with macro by doing some type
+    checking in exporter and passing raw AST to next macro, but similar thing
+    should be implemented to almost all macros.
+
+*** Attached modifier extensions should not be macro
+
+    Norg prioritizes inner data than the visible text. Previous strong/weak
+    carryover tag syntax and Links are common example for this rule.
+
+    @code norg
+    #color red
+    paragraph
+
+    - list item
+    +color red
+    - red list item
+
+    {https://example.com}[link description] come after the link target
+
+    [anchor description]{# target} comes before because it is more important
+    @end
+
+    But when we pass macro as attached modifier extension, it comes after the
+    text.
+
+    @code
+    %word%(color red)
+    @end
+
+    Also due to tree-sitter's limitation, we've decided to put weak carryover
+    tags *after* the target.
+
+    @code
+    ~ +carryover to first list item
+      paragraph-1
+      +carryover to paragraph-1
+    ~ second list item
+    @end
+
+    Separating these two (attached modifier extension, weak carryover tag) from
+    macro makes overall syntax more consistent. Macros come *before* the
+    target, Attributes come *after* the target ({*** `<+key value>`}[or exist
+    inside the target])
+
+*** We need some kind of inline-defined data anyways
+
+    Need and use-cases for inline data is explained well from `@Sevoris`'s
+    inline link pdf.
+
+    And if we have inline data, there is no reason to not have attachable data
+    syntax for blocks too.
+
+** Implementation
+
+*** Weak carryover tag (block-attribute)
+
+    Weak carryover tags are way to put key-value pair to block-level element.
+
+    |example
+    paragraph
+    +color red
+
+    .image /path/to/image
+    +desc description for image
+
+    @code javascript
+    // this is javascript
+    console.log("highlighted")
+    console.log("lines")
+    // ...
+    @end
+    +filename filename.js
+    +highlight 2-3
+    |end
+
+    Weak carryover tags can be used in single line. When used with tags, it can
+    be passed as named parameter.
+
+    |example
+    .image /path/to/image +desc description for image
+
+    @code javascript +filename filename.js +highlight 2-3
+    // this is javascript
+    console.log("highlighted")
+    console.log("lines")
+    // ...
+    @end
+    |end
+
+**** Using with detached modifiers
+
+     Weak carryover tags applied to detached modifiers come right after the
+     prefix.
+
+     |example
+     * +color red
+       blue paragraph (title)
+       +color blue
+
+       red paragraph
+
+     * normal heading
+     |end
+
+     In this example, first `+color red` is applied to whole header and second
+     `+color blue` is applied to header's title which is a paragraph.
+
+*** Attached modifier / link extensions (inline-attribute)
+
+    @code
+    *bold*(color red|font-size 1.2rem)
+
+    {https://example.com}[description](color red|newtab)
+    @end
+
+*** Detached modifier extension (alias to block-attribute)
+
+    Proper way to set attributes to detached modifier is using weak carryover
+    tags, but you can also use extension syntax similar to attached modifier's
+    one.
+
+    @code
+    * (x|# A) heading
+
+    * +todo done
+      +priority A
+      heading
+    @end
+
+    These two headings are equivalent.
+
+    You can even mix two syntax.
+
+    @code
+    * +due Tue 5th Feb
+      +priority A
+      (x) heading
+    @end
+
+*** Inline Links
+
+    One thing we loose by separating attribute syntax from macros is inline
+    image. For that job, inline links are extended to inline macro. (`&var&` is
+    now just inline variable, and not a whole macro which usually can have
+    properties and so)
+
+    New inline macro has several types like link
+
+    - `<+key value>`
+    - `<.image /path/to/image.png>`
+    - `<#bold some word>`
+    - `<some word>` (shortcut to `<#target some word>`)
+
+**** `<+key value>`
+
+     This one works as inline link idea from `@Sevoris`.
+     It sets attribute to a paragraph and rendered as passed parameter, so
+     `+key some value` will be rendered as `some value`
+
+**** `<.image /path/to/image.png>`
+
+     is inline style of
+
+     @code
+     .image /path/to/image.png
+     @end
+
+**** `<#bold some word>`
+
+     This works similar to `<.invoke ...>` inline macro, but it receives valid
+     inline norg markup as a parameter.
+
+     It corresponds to block-level strong carryover tag. Because it's inline,
+     it receives _next sibling_ in this case, it's ranged inline markup.
+
+**** `<my target>`
+
+     is shortcut to `<#target my target>`. So we can write
+     `<*bold*/inline/_target_>`
+
+**** Mixing with inline attributes
+
+     Inline attributes can be used with other inline tags.
+
+     @code
+     <.image image.png +desc with description +id and targetable id>
+
+     {# and targetable id}[my image]
+     @end
+
+***** Why don't use `:` to share same syntax with scoped-targets?
+
+      Because scoped-targets and attributes are completely different syntax.
+      Scopes are joined to construct single scoped-target, attributes are just
+      named parameter.
+      ---
+
+**** Arrows?
+
+     Even v1 spec document has bunch of `<-` and `->` and these are invalid
+     syntax as they can be opening/closing modifier of inline links and
+     strikethrough.
+
+     Maybe... just maybe we can have "arrows" in spec to avoid this happening.
+
+*** New Macro system
+
+    Macros will always return abstract object, and exporters will provide what
+    attributes it expects from each AOs (aka. schema). Macro itself won't
+    include exporter. Even things like images are AO with custom type defined
+    from external exporter. When macro returns abstract object that isn't
+    defined from exporter, the exporter won't render anything (Neorg will warn
+    about this before exporting)
+
+    In summary:
+
+    - external exporters define schema of each node including custom nodes like
+      images.
+    - Norg document only contains data
+    - Macros are invoked to abstract object and not as raw norg markup
+
+**** Issues on invoking to raw norg markup
+
+***** Inline macros
+
+      @code norg
+      =my-macro
+      *bold*
+      =end
+
+      *already &my-macro& bold*
+
+      &my-macro&(some-meta:data)some word without link modifier (`:`)
+
+      this is a paragraph with &my-macro& - this is not a list item
+      @end
+
+      In this example, invoking `my-macro` inside these three paragraphs will
+      all fail.
+
+***** Block macros
+
+      @code norg
+      =my-macro
+      list item
+      ~ injected list item
+      =end
+
+      ~ .my-macro
+      ~ 2nd list item
+      @end
+
+      This is quick example showing how raw injection is dangerous.
+      ----
+     ----
+
+    To avoid these cases, it is safe to check return value type of macro before
+    invoking. Even if macro ranged tag (aka. macro definition) receives ranged
+    norg markup, external software should parse it first before invoking.
+
+    v1.0 semantics defines macro to invoke raw norg markup in the end. In new
+    semantics, macros will be invoked to abstract object eventually. If macro
+    is defined with raw norg markup, Neorg-like software will parse the inner
+    norg markup to abstract object first and then return the parsed AO instead
+    of direct replacing.
+
+    And if pure norg markup is not the end result, we don't need special type
+    for macro ranged tag.
+
+    @code
+    |def-macro my-bold content
+    *&content&*
+    |end
+
+    paragraph <.my-bold text> paragraph continues
+
+    .my-bold
+    @end
+
+    @code
+    |def-macro my-heading title
+    * &title&
+    |end
+
+    paragraph <.my-heading text> you can't use it like this
+    @end
+
+    As `my-heading` macro returns non-paragraph Abstract object, you can't use
+    it as inline macro and LSP will warn you.
+
+* ps. Removing janet?
+
+  > I have low knowledge about janet so I might be totally wrong.
+  > This proposal is not indended to completely remove janet, but rather aims
+    to reduce the frequency of janet use and reduce the need for users to learn
+    janet. I'm not saying that using janet is bad, I just don't think it's
+    necessary now so we can reconsider using it.
+  > Instead of replacing janet to lua, maybe we can have both. using janet
+    internally for stuffs like type checking.
+
+  Original reasons for using janet might be changed now by introducing schema
+  based macros and new attribute syntax.
+
+  Janet is good choice for macro system, but its relatively hard to learn
+  compared to lua. Instead of writting complex janet macro, users can write lua
+  script to post-process the returned abstract object from exporter.
+
+** Lua's strength points
+
+   Most of Janet's strength points are still true but Lua's strength points are
+   also hard than ever.
+
+   - Now macros will work as pre-processor for abstract objects. Exactly same
+     thing is done on Pandoc's lua filter and it works well. Pandoc also
+     provides LPEG library by default.
+   - Lua has bigger community, this really important point on growing Norg
+     community.
+   - we can use "luarocks"
+   - Pandoc also accepts custom reader written in lua, so pandoc support will be
+     easier than ever. From `tree-sitter -> rust with janet -> json -> pandoc`
+     to `tree-sitter -> lua -> pandoc`. Imagine single lua code connected to
+     norgopolis with official lua binding, running as Pandoc lua reader,
+     uploaded in luarocks.
+
+** Defining macros outside of norg document.
+
+   With schema based macro system, users can define macros /outside/ of norg
+   document and use it directly.

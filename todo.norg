@@ -15,7 +15,7 @@
 * ( ) move infirm tag and weak carryover tag to paragraph
 * ( ) make sure indent vectors are cleared properly
 * ( ) OSC8 links ({https://github.com/nvim-neorg/neorg/issues/1318}[neorg#1318])
-* (?) refactor extension syntax
+* (_) refactor extension syntax
 
   to make all extensions share same rules.
 
@@ -105,7 +105,8 @@
    All scope delimiter should be preceded/followed by whitespaces to not
    conflict with link modifiers.
 
-** norg_file target + wikilink
+** wikilink as part of norg_file varient
 
    `{:some_norg_file}` is now wikilink.
-   If you mean file in same directory, start with `:./`
+   If you mean file in same directory, start with `:./` like
+   `{:./sibling_file}`
