@@ -15,6 +15,11 @@
 * ( ) move infirm tag and weak carryover tag to paragraph
 * ( ) make sure indent vectors are cleared properly
 * ( ) OSC8 links ({https://github.com/nvim-neorg/neorg/issues/1318}[neorg#1318])
+* ( ) allow softbreak after link target prefix
+  @code
+  some long long text with {**
+  heading}
+  @end
 * (_) refactor extension syntax
 
   to make all extensions share same rules.
@@ -110,3 +115,22 @@
    `{:some_norg_file}` is now wikilink.
    If you mean file in same directory, start with `:./` like
    `{:./sibling_file}`
+
+===
+
+* draft
+
+** Wikilink in workspace
+
+   @code
+   {$workspace:wikilink}
+   @end
+
+   with standalone, it links to `index.norg` from workspace root
+
+   @code
+   {$workspace : * Some heading}
+   @end
+
+   so this link is targeting to `* Some heading` from `index.norg` of different
+   workspace.

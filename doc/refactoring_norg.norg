@@ -1,0 +1,907 @@
+> I rewrote the whole document in flow of my thought to show why I ended up
+  with this syntax including more detailed edge-case explanations.
+
+I've made a lot of syntax changes since {:./removing_indent_segment:}. Creating
+more problems like macro invoking and so on. Even more I still found some weird
+syntax designs I want to fix based on Norg's design goal.\
+This document will solve /all/ issues from my previous syntax changes I made
+and some issues left from v1.0 norg syntax. I tried my best to fit all things
+in Norg-way.
+
+> One thing I haven't even thought about is table syntax. Both range-able
+  detached modifier and `@table` ranged tag.
+
+* TL;DR
+
+** Affected grammars
+
+   - weak carryover tag
+   - attribute
+   - extensions (attached modifiers/detached modifiers/linkables)
+   - extendable link target
+   - inline link (or inline block)
+   - inline image implementation
+   - macro system
+
+** What is changed
+
+   - Weak carryover tag is now called "attribute".
+   - Attribute concept exists as base syntax in Norg. There is no
+     macro/exporter magic behind.
+   - Macros are categorized into 3 types (block/inline/target)
+   - extendable link target is changed to target-macro.
+   - Inline link (or inline block) is changed to "inline tag"
+
+* Main Problems
+
+  The following are main issues with current syntax. Syntax changes in this
+  document solves more than issues below, but I will mention these first to
+  show the flow of thoughts.
+
+** Indent segment issues
+
+   Indent segments & slides are bad syntax. See {:./removing_indent_segment:}.
+
+** Weak carryover tag issues
+
+   |quote
+   Weak carryover tags only apply to the next element; their behavior is as
+   follows:
+   - When the element has children, the weak carryover tag only applies to the
+     single item (it does not carry over to its children).
+   - When the element is part of an object, no items other than the one below
+     the weak carryover tag is affected.
+   - An exception is made when a weak carryover tag is applied to an indent
+     segment or a ranged tag, in which case everything within that segment/tag
+     is affected.
+   |end
+   \- from norg specification v1.0
+
+   It's definition is already way too complex compared to strong carryover tag
+   which is "apply to the next single sibling".
+
+*** 3 different ranges in lists
+
+    Structural detached modifiers (aka. headings) have two types of ranges.\
+    One is heading's title and other is whole heading node including all
+    children below that section. This is why v1.0 spec had two different kind
+    of carryover tags.
+
+    But in case of nestable detached modifiers (aka. lists) have three
+    different types.
+
+    - whole list node
+    - list item
+    - child of list item (e.g. paragraph excluding sublist)
+
+    This leads ambiguity in where weak carryover tag is attached.
+
+    @code norg
+    - normal list item
+    +color red
+    - red list item
+    -- red sublist item????
+    >> red sublist item????
+    @end
+
+    Here, it is unclear if `+color red` is applied to all level 2 sublists.
+
+*** How to parse it?
+
+    > v1 parser didn't have this problem because it's indent system only
+      depends on repeated count of each prefix characters.
+    > v3 parser knows the context of indent level allowing it to parse more
+      than level 6.
+
+    Strong carryover tag is easy to parse as it is in same level as the /next
+    node/ it is attached.
+
+    @code
+    #color red
+    ** red heading
+
+       red paragraph
+
+       #color green
+       ---
+    #color blue
+    * blue heading
+    @end
+    @code scheme
+    (strong_carryover_tag)
+    (heading
+      title: (paragraph)
+      (paragraph)
+      (strong_carryover_tag)
+      (_weak_delimiting_modifier))
+    (strong_carryover_tag)
+    (heading
+      title: (paragraph))
+    @end
+
+    `#color green` here isn't affecting anything because it has no next sibling
+    node (`(_weak_delimiting_modifier)` is hidden node and not an abstract
+    object on it's own. It's just part of `(heading)` node.) User should close
+    the heading first with weak delimiting modifier to not include strong
+    carryover tag inside heading like `#color blue`.
+
+    Changing strong carryover tag to weak varient won't be a problem with
+    headings.
+
+    Problem occurs when using with nestable detached nodes (aka. lists) and
+    range-able detached nodes (e.g. footnotes, tables) where multiple detached
+    modifiers group to construct single node like `list` and `table`.
+
+    @code norg
+    ~ normal list item (index 1)
+    +color red
+    ~ red list item (index 2)
+
+    : _ : first table cell
+    +color red
+    : > : second table cell
+    @end
+
+    When parser meet `+color`, it can't know if `+color` is attached to node
+    that don't break the list group or not.
+
+    Usually this is done by looking the followed list item's prefix count. If
+    next item's prefix count is same or more than current indent level, parser
+    closes the current list item by returning `_dedent` zero-width token from
+    lexer. With weak carryover tag in between two list items, this is not
+    possible.
+
+** Macros in list item
+
+   > This may sound like problem occured by {:./removing_indent_segment:}.
+     To show that this isn't the case, I'm using original v1.0 spec here.
+
+*** Can't insert sublist with macro
+
+    *example:*
+    @code
+    =my-macro
+    paragraph
+    - injected list item
+    =end
+
+    - :
+      .my-macro
+    - second list item
+    @end
+    *result:*
+    @code
+    - :
+      paragraph
+    - injected list item
+    - second list item
+    @end
+    *expected:*
+    @code
+    - paragraph
+    -- injected list item
+    - second list item
+    @end
+    > Ignore about the missing slide here. I removed it from *expected* example
+      to focus on syntax tree.
+
+    Injected list item became second item of list. But as it's child of
+    `my-macro`, users will expect all paragraph and injected list item become
+    children of single list item where injected list item becomes sublist item.
+
+*** Different invoked type in list item
+
+    *example:*
+    @code
+    =my-macro
+    * I'm heading
+    =end
+
+    - :
+      .my-macro
+    - second list item
+    @end
+    *result:*
+    @code
+    - :
+      * I'm heading
+    - second list item
+    @end
+
+    As `* I'm heading` is right below the slide prefix, it's single paragraph
+    but not a heading. To prevent/warn about this, Neorg-like applications
+    should parse the macro's content as AST and do some type checking.
+
+** Inline macro breaking paragraph
+
+   @code
+   =my-macro
+   *text*
+   =end
+   @end
+
+   Assume that you have a macro like this. It will be invoked in following
+   steps.
+
+   ~ @code
+     word &my-macro& word
+     @end
+   ~ @code
+     word
+     &my-macro&
+     word
+     @end
+   ~ @code
+     word
+     *text*
+     word
+     @end
+   ~ @code
+     word *text* word
+     @end
+
+   This works well because Norg doesn't care about soft breaks much.
+
+*** Inline macros without surrounding whitespaces
+
+    But how to handle when it's used without whitespaces?
+
+    ~ @code
+      word:&my-macro&:word
+
+      /word/&my-macro&/word/
+
+      &my-macro&(color:red)word
+      @end
+    ~ @code
+      word
+      &my-macro&
+      word
+
+      /word/
+      &my-macro&
+      /word/
+
+      &my-macro&(color:red)
+      word
+      @end
+
+    Now we just added soft break from nowhere.
+
+*** Inline macros with markup that is already active.
+
+    There is yet another example:
+
+    ~ @code
+      *already &my-macro& bold*
+      @end
+    ~ @code
+      *already *text* bold*
+      @end
+
+    Bold ends at `text*` because first closing modifier is more prioritized.
+    ---
+
+   To avoid this, all Neorg-like applications or macros themselve need to check
+   surrounding AST context.
+
+** Inline block on detached modifier
+
+   @code
+   * ( |# A) < id > heading
+   @end
+
+   This is bad syntax in multiple reasons.
+
+*** overlapping with detached modifier extension
+
+    Both are used to attach some data to detached modifier and made in are
+    implemented as inline-style. Why don't extned the detached modifier
+    extension syntax instead of placing similar syntax next to it?
+
+*** Direct against to Norg's design decision
+
+    Norg had already chosen `(x)` over `[x]` to avoid conflicts with links.
+    `< id >` in front of heading title is introducing same issue again.
+
+* Solutions
+
+  The following are solutions to the above-mentioned problems. These may
+  include additional context of issues and reasons to change.
+
+** Null detached modifiers
+
+   See {:./removing_indent_segment:}.
+
+   {* Indent segment issues} can be solved with null detached modifiers. It
+   solves syntactic issue but still leaves {** How to invoke macros in list
+   items}[semantic issue]. This will be addressed in the sections below.
+
+** Attributes
+
+   By replacing weak carryover tag to attribute, we can solve all weak
+   carryover tags issues.
+
+*** Step 1. Separating attribute syntax from macros
+
+    Followings are reasons why we need attribute syntax in addition to macros.
+
+**** Make Norg easy to export
+
+     imagine you have something like this:
+
+     @code norg
+     #color red
+     #font-family sans-serif
+     #font-size 2rem
+     some
+     paragraph
+     @end
+
+     which will be exported to:
+
+     @code html
+     <div style="color: red">
+       <div style="font-family: sans-serif">
+         <div style="font-size: 2rem">
+           <p>some paragraph</p>
+         </div>
+       </div>
+     </div>
+     @end
+
+     but most users will expect this:
+
+     @code html
+     <p style="color: red; font-family: sans-serif; font-size: 2rem"
+     >some paragraph</p>
+     @end
+
+     Of course it is possible to do same thing with macro by doing some type
+     checking in exporter and passing raw AST to next macro, but similar thing
+     should be implemented to almost all macros.
+
+**** Following Norg's paradigm
+
+     Norg prioritizes inner data than the visible text. Previous strong/weak
+     carryover tag syntax and links are common example for this rule.
+
+     @code
+     #color red
+     red paragraph
+
+     - list item
+     +color red
+     - red list item
+
+     {example.com}[link description] comes after the link target
+
+     [anchor description]{example.com} comes before because it is more
+     important
+     @end
+
+***** Detached modifier extensions
+
+      @code
+      - ( ) todo list item
+      @end
+
+      Detached modifier extensions come *after* the prefix.
+
+***** Weak carryover tags
+
+      Also due to {** Weak carryover tag issues}, we've decided to put weak
+      carryover tag *after* the detached modifier prefix.
+
+      @code
+      ~ +color red
+        red list item
+      ~ second list item with normal color
+      @end
+
+***** Attached modifier extensions
+
+      But when we pass macro as attached modifier extension, it comes after the
+      text.
+
+      @code
+      %word%(color red)
+      @end
+
+***** Link extensions
+
+      Same nonsense happens on inline image syntax.
+
+      @code
+      {= path/to/image.png}[image description](image)
+      @end
+
+      `image` macro consumed both link target and description and turn the
+      whole link into inline image. As `image` itself represents the abstract
+      object type, it must come before the other data.
+
+      > Btw {** Attributes} don't solve the inline image case by itself. I'm
+        mentioning this here to show that macro is placed in wrong place. About
+        reimplementing inline image will be explained
+        {** Inline infirm tag}[below].
+      ---
+
+     Separating these four (attached/detached modifier extensions, link
+     extensions, weak carryover tags) from macros makes syntax more consistent.
+     Macros come *before* the target, Attributes come *after* the target.
+
+**** We need some kind of inline-defined data anyway
+
+     Need and use-cases for inline data are explained well from `@Sevoris`'s
+     inline block pdf.
+
+     And if we have inline data, there is no reason to not have attacheable
+     data syntax for blocks. (In fact, there is some attached data in abstract
+     objects but we have to expose those by grammar.)
+
+*** Step 2. General implementation
+
+    Block attributes (previously weak carryover tags) are way to put key-value
+    pair to block-level elements.
+
+    |example
+    red paragraph
+    +color red
+
+    .image /path/to/image.png
+    +desc description for image
+
+    @code javascript
+    // this is javascript
+    console.log("highlighted")
+    console.log("lines")
+    // ...
+    @end
+    +title filename.js
+    +highlight 2-3
+    |end
+
+    Attached modifier extension is inline varient of block attributes.
+
+    @code
+    *bold*(color red|font-family sans-serif)
+    @end
+
+**** Using in detached modifiers
+
+     #note
+     > I'm using over-complex example here to show how it solves the problems.
+       It won't be this terrible in general cases.
+
+     @code
+     #color green
+     - +color red
+       blue paragraph
+       +color blue
+     -- red sublist item
+     - green list item
+     @end
+
+     This clearly distinguishes between {*** 3 different ranges in lists}.
+
+     Using with headings will look like this:
+
+     @code
+     * +color red
+       blue title
+       +color blue
+
+       red paragraph
+
+     * normal title
+     @end
+
+     It works same to `#color` strong carryover tag. Actualy this is final
+     invoked result of `#color` strong carryover tag. As attributes are not
+     macros, `+color red` remains in final result.
+
+     It may seem too complex so most users will use `#color red` rather than
+     `+color red` here like this:
+
+     @code
+     #color red
+     * blue title
+       +color blue
+
+       red paragraph
+
+     * normal title
+     @end
+
+     But if they are doing this with lists, they have no choice but writing
+     complex carryover tag syntax. If you really want to do "List with first
+     item in red color but its first paragraph should be blue and ...", you
+     made your choice to suffer.
+
+     Attributes are direct replace to inline block attached on detached
+     modifiers, resolving {* Inline block on detached modifier} issue.
+
+**** Using with detached modifier extensions
+
+     Detached modifier extensions are shortcut to write attributes.
+
+     @code
+     * (x|# A) heading
+
+     * +todo.status done
+       +todo.priority A
+       heading
+     @end
+
+     > `x` and `#` are alias to `todo.status done` and `todo.priority`
+       attributes. I'm still not sure about these semantic design but showing
+       as an example.
+
+     You can even mix two syntax.
+
+     @code
+     * +todo.due Tue 5th Feb
+       +todo.priority A
+       ( ) heading
+     @end
+
+**** Using inline
+
+     Attached modifier extensions and link extensions are inline-form of
+     attributes.
+
+     @code
+     *bold*(color red|font-size 1.2rem)
+
+     {https://example.com}[description](color red|newtab)
+     @end
+
+     |quote
+     * Missing inline image syntax
+
+       Note that with this, we loose inline image syntax which was done with
+       `{= path/to/image.png}[image description](image)`. This worked because
+       `image` here is actually a macro that receives link target and
+       description. Now it's not.
+     |end
+
+*** Step 3. Change the position of attributes on ranged tags
+
+    @code
+    ``` javascript title="index.js"
+    console.log('hi')
+    ```
+    @end
+
+    Some Markdown varients have this type of named attributes for codeblock.
+
+    |example
+    @code javascript
+    console.log('hi')
+    @end
+    +title index.js
+    +number
+    +nowrap
+    |end
+
+    But with block-level attributes, they have to be placed below the whole
+    code block. Which is fine in some cases like description for images, but
+    users still want to have named-parameter style attributes.
+
+**** Option 1. Dedicated strong carryover tag to apply attributes to next node
+
+     Instead of having global `#title` macro, we can make dedicated strong
+     carryover tag only to apply some attribute with given name.
+     `+` seems reasonable choice as it feels like org syntax.
+
+     |example
+     #+ title index.js
+     #+ number true
+     #+ wrap false
+     @code javascript
+     console.log('hi')
+     @end
+     |end
+
+**** Option 2. Introducing named parameters for macros
+
+     Otherwise, we can implement named parameters for macros by extending
+     attributes syntax. `+` is new type of prefix for parameter definition.
+
+     |example
+     =code lang @content +title +number
+     ...implementation of `code`...
+     =end
+     @code javascript +title index.js
+     console.log('hi')
+     @end
+     |end
+
+     This may look too complecated to read. Here are reasons why it's designed
+     like this.
+
+     - `,` or `\|` to separate parameters is not necessary because whitespace
+       does the work.
+     - `"` to wrap the value is not necessary. We don't have any similar syntax
+       in whole Norg syntax, not even in norg_meta syntax. Attached modifier
+       extensions also work well without `"`.
+     - Same happens to `=`.
+
+     This syntax will make sense with {*** Mixing with inline attributes}[
+     inline varients].
+
+**** Option 3. Use both?
+
+     Maybe we can use both ways in same time.
+
+** New Macro system
+
+*** Macros /always/ return abstract object and not raw norg markup
+
+    Invoking macro is mostly done when /exporting/ the Norg document, and in
+    those cases final values will eventually be some abstract object.
+    There are some cases when final value should be norg markup (norg to norg),
+    but as described from {* Problems} section, Neorg-like applications should
+    parse invoked value to abstract object at some point for type safety. For
+    inline macro, macro should only return single paragraph. For macro inside
+    list item, it should not contain any detachable modifiers (this is also
+    true with indent segment-like solutions.)
+
+    Exporters will provide what attributes it expects from each abstract
+    objects (aka. schema.) Macros themselve won't include exporter. Even things
+    like images are AO with custom type defined from external exporter. When
+    macro returns abstract object that isn't defined from exporter, the
+    exporter won't render anything (Neorg-like application will warn about this
+    before exporting.)
+
+    In summary:
+
+    - external exporters define schema of each node including custom nodes like
+      images.
+    - Norg document only contains data
+    - Macros are invoked to abstract object and not as raw norg markup
+
+*** Users can still define macro with raw norg markup
+
+    Norg's macro system was designed for users than computers. That's why
+    macros were originally designed to defined with raw norg markup. User can
+    still do that but the internal logic is different.
+
+    @code
+    =my-macro var
+    *&var&*
+    - sub list
+    =end
+
+    -- .my-macro hello\ world
+    @end
+
+    When invoked,
+
+    ~ Parse the inner content of `my-macro` to create AST. Which is one
+      paragraph and list with single list item (list level should not matter
+      here.)
+    ~ Parse entire document to AST and check where the macro is placed. I this
+      case, it's list item.
+    ~ Fill the inline variables (`&...&`) with given parameters.
+    ~ Replace the macro to invoked AST content.
+
+    @code scheme
+    (unordered_list
+      (unordered_list_item
+        ; MACRO START
+        (paragraph
+          (bold
+            ; VARIABLE START
+            (word) ; "hello world"
+            ; VARIABLE END
+          )
+        )
+        (unordered_list
+          (unordered_list_item
+            (paragraph) ; "sub list"
+          ))
+        ; MACRO END
+      ))
+    @end
+
+    It will be very rare that the result of a macro needs to be raw norg
+    markup. This can be done by comparing two AST and replacing the changed
+    range of text. Here is additional steps to invoke macro to norg markup.
+
+    #start-index 5
+    ~ compare the changed range of document
+    ~ generate norg markup from AST and replace the changed range.
+
+*** Good support for WYSIWYG editor
+
+    First-class AST support is crutial to WYSIWYG editor support.
+
+** Inline macro syntax
+
+   To solve inline macro issues, I introduce new inline macro syntax which is
+   renamed from inline links.
+
+   New inline macro has several types like link targets. But it doesn't share
+   same prefix rules as it's macro, not link.
+
+   - Inline attribute     `<+key value>`
+   - Inline infirm tag    `<.img /path/to/image.png>`
+   - Inline carryover tag `<#bold some word>`
+   - Inline ranged tag    `<some /markup/>`
+
+   |quote
+   * About using prefix in inline macro
+
+     `@Sevoris` mentioned about this syntax in his document:
+
+     > The challenge is we now have to solve how to interpret the inline
+       target. One idea to discriminate a normal link target from key-value
+       pair is a leading character, such as `<! key: value>` or `<# key: value>`.
+     > We found this solution unsatisfying because it was not consistent. It
+       created a lot of special cases where a common base behaved wildly
+       different depending on the leading character.
+
+     This isn't a case here as we are borrowing same syntax from tags like
+     link targets borrowed the prefixes from various targetable objects.
+   |end
+
+*** Inline attribute
+
+    @code
+    Inside <+key value> paragraph
+    @end
+
+    This one works as inline link idea from `@Sevoris`.
+    It sets attribute to a paragraph and rendered as passed parameter, so
+    `+key some value` will be rendered as `some value`
+
+*** Inline infirm tag
+
+    @code
+    Inside <.img /path/to/image.png> paragraph
+    @end
+
+    is inline style of
+
+    @code
+    .image /path/to/image.png
+    @end
+
+    This type will be used most often as custom inline abstract object. e.g.
+
+    - inline image
+    - keymap
+    - emoji
+
+    Inline infirm tag will be new way to write inline image. Combining with
+    {** New Macro system}, exporter will know what `img` macro returns and that
+    it is inline-able by `paragraph` node's schema but `image` isn't. This will
+    be how Norg distinguish inline-level and block-level image.
+
+*** Inline carryover tag
+
+    @code
+    <#bold some /markup/ text>
+    @end
+
+    This works similar to `<.invoke ...>` inline macro, but it receives inline
+    norg markup as a parameter.
+
+    It corresponds to block-level strong carryover tag. Because it's inline,
+    it receives _next sibling_ in this case, it's ranged inline markup.
+
+    General use-case of this syntax is for user-defined inline style.
+
+    #note
+    > Inline carryover tag can't have positional parameters like it's
+      block-level varient.
+
+*** Inline ranged tag
+
+    @code
+    <some /markup/ text>
+    @end
+
+    Without any prefix, `<some...text>` is used to wrap the inline range and
+    make a standalone abstract object inside paragraph. We don't need prefix
+    and macro name like `\|example` here because same thing is done by
+    {** inline carryover tag}.
+    Like all abstract objects are targetable, this ranged inline object is
+    targetable too and its content become its id like heading.
+
+    @code
+    * my heading
+
+    {* my heading}
+
+    my <ranged section> in paragraph
+
+    {# ranged section}
+    @end
+
+    Can you feel the consistency here? :)
+
+*** Mixing with inline attributes
+
+    Inline attributes can be used with other inline tags.
+
+    @code
+    <.img image.png +desc with description +id and targetable id>
+
+    {# and targetable id}[my image]
+    @end
+
+    Good use-case for this is to set targetable id to really long {*** Inline
+    ranged tag}.
+
+    @code
+    Here is <some very long long sentence that I don't want to rewrite again,
+    but I want to mention about this very long long section several times below
+    some more text +id that-section>.
+
+    ...
+
+    {# that-section}[As I described above], ...
+    @end
+
+**** Why don't use `:` to share same syntax with scoped-targets?
+
+     Because scoped-targets and attributes are completely different syntax.
+     Scopes are chained to construct single scoped-target, attributes are just
+     named parameter attached to specific abstract object.
+
+     If you want to chain some multiple macros, you can do that without `:`.
+
+     @code
+     <#macro1 *param1* <.macro2 param2 +named param2> +named param1>
+     @end
+
+     Looks terrible I know, but you should consider that implementing/using
+     chained macros in markup language is already quite cursed idea.
+
+* Fixing more problems
+
+  There are some more issues come up from above solutions. Let's fix those.
+
+** `Extendable Link Target` to `Target Macro`
+
+   @code
+   {= some param}[description](my-macro)
+   @end
+
+   again, macro should be placed first.
+
+   @code
+   {=my-macro some param}[description](key value)
+   @end
+
+   Both link description and link extension won't be passed to `my-macro`.
+   Only `some` and `param` are parameters that is passed to `my-macro`.
+
+   It is bit too complex but you can put named parameter for target macros like
+   {**** Option 2. Introducing named parameters for macros}[block-level tag's
+   named parameters].
+
+   @code
+   {=my-macro some param +named value}
+   @end
+
+*** Inline macro inside link target
+
+    Here is `.see` infirm macro example from 1.0 specification document.
+
+    @code
+    =see url
+    (see {&url&})
+    =end
+    @end
+
+    `&url&` in that position is invalid syntax.
+    This can be solved by target macro
+
+    @code
+    =see url
+    (see {=url})
+    =end
+    @end
