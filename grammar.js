@@ -2,7 +2,7 @@
 // @ts-check
 const newline = choice("\n", "\r", "\r\n");
 const newline_or_eof = choice("\n", "\r", "\r\n", "\0");
-const whitespace = token(prec(1, /\p{Zs}+/u));
+const whitespace = /\p{Zs}+/u;
 const whitespace_or_newline = token(prec.right(choice(
     whitespace,
     newline,
@@ -190,7 +190,7 @@ module.exports = grammar({
         _word: (_) => /[\p{L}\p{N}]+/,
         word: ($) => $._word,
         whitespace: (_) => token(prec(1, whitespace)),
-        soft_break: (_) => token(prec(1, seq(optional(whitespace), newline))),
+        soft_break: (_) => token(prec(1, newline)),
 
         escape_sequence: (_) => token(seq("\\", choice(/./, newline))),
 
@@ -417,32 +417,46 @@ module.exports = grammar({
 
         strong_delimiting_modifier: (_) => token(seq(repeat2("="), newline)),
         horizontal_rule: (_) => token(prec(1, seq(repeat2("_"), newline))),
+        _semi: (_) => token(seq(";", optional(newline))),
         extensions: ($) =>
             seq(
                 token(prec(1, "(")),
-                repeat1($.ext_attribute),
+                optional(newline),
+                repeat(
+                    choice(
+                        $.ext_attribute,
+                        $._semi,
+                    ),
+                ),
                 ")",
             ),
         // TODO: add support for escape sequence in identifier/parameter
         ext_identifier: (_) => token(/[^\s\n\r;\(\)]+/),
         ext_param: (_) => token(/[^\n\r;\(\)]+/),
+        ws_or_nl: (_) => whitespace_or_newline,
         ext_attribute: ($) =>
-            prec.right(
+            prec.right(1, choice(
                 seq(
-                    choice(
-                        whitespace_or_newline,
-                        seq(
-                            optional(whitespace_or_newline),
-                            field("key", $.ext_identifier),
-                            optional(
-                                seq(whitespace, field("value", $.ext_param))
-                            ),
-                        )
+                    optional(whitespace),
+                    field("key", $.ext_identifier),
+                    optional(whitespace),
+                    optional(
+                        field("value", $.ext_param)
                     ),
-                    optional(newline),
-                    optional(seq(";", optional(whitespace), optional(newline))),
+                    optional(choice(
+                        $._semi,
+                        newline,
+                    )),
                 ),
-            ),
+                seq(
+                    // alias(whitespace, $.undone),
+                    whitespace,
+                    optional(choice(
+                        $._semi,
+                        newline,
+                    )),
+                )
+            )),
         heading: ($) =>
             prec.right(
                 seq(

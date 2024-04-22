@@ -180,6 +180,10 @@
   name: (_) @attribute
   argument: (_)? @string)
 
+; HACK: for debug perpose
+(ext_attribute
+  !key) @markup.underline
+
 (ERROR) @error
 
 ; vim:ts=2:sw=2:

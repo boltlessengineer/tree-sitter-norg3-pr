@@ -42,6 +42,7 @@ word
     (word)
     (whitespace)
     (word)
+    (whitespace)
     (soft_break)
     (word)
     (paragraph_break)))
