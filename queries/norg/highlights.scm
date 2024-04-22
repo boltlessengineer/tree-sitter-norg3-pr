@@ -129,6 +129,18 @@
   "." @namespace
   (identifier) @namespace)
 
+((strong_carryover_tag
+  (identifier) @_name
+  (#eq? @_name "comment"))
+  .
+  (_) @comment
+  (#set! "priority" 90))
+; (standard_ranged_tag
+;   (identifier) @_name
+;   content: (_) @comment
+;   (#eq? @_name "comment")
+;   (#set! "priority" 90))
+
 [
   (unordered_list_prefix)
   (ordered_list_prefix)
@@ -144,16 +156,6 @@
 (table
   title: (_) @markup.strong)
 
-(strong_carryover_tag
-  "#" @punctuation.special
-  argument: (_)? @parameter
-) @type
-
-(weak_carryover_tag
-  "+" @punctuation.special
-  argument: (_)? @parameter
-) @type
-
 (weak_delimiting_modifier) @punctuation.special
 (strong_delimiting_modifier) @punctuation.special
 
@@ -163,6 +165,20 @@
     (italic_open)
     ;; TODO: add more
   ] @warn)
+
+(ext_attribute
+  key: (_) @variable.member)
+(ext_attribute
+  value: (_) @string)
+(weak_carryover_tag
+  "+" @punctuation.special
+  key: (_) @variable.member)
+(weak_carryover_tag
+  value: (_) @string)
+(strong_carryover_tag
+  "#" @punctuation.special
+  name: (_) @attribute
+  argument: (_)? @string)
 
 (ERROR) @error
 

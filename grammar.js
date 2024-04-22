@@ -3,6 +3,11 @@
 const newline = choice("\n", "\r", "\r\n");
 const newline_or_eof = choice("\n", "\r", "\r\n", "\0");
 const whitespace = token(prec(1, /\p{Zs}+/u));
+const whitespace_or_newline = token(prec.right(choice(
+    whitespace,
+    newline,
+    seq(whitespace, newline),
+)))
 
 const ATTACHED_MODIFIERS = [
     "bold",
@@ -139,7 +144,6 @@ module.exports = grammar({
         $.tag,
         $.nestable_detached_modifiers,
         $.rangeable_detached_modifiers,
-        $.todo_item,
     ],
 
     rules: {
@@ -150,7 +154,6 @@ module.exports = grammar({
                 $.non_structural,
                 $._newline,
                 $.strong_delimiting_modifier,
-                // fake weak delimiting modifier
                 $._fake_weak_delimiting_modfiier,
             ),
         _fake_weak_delimiting_modfiier: ($) =>
@@ -158,7 +161,11 @@ module.exports = grammar({
                 token(seq(repeat2("-"), newline)),
                 $.weak_delimiting_modifier
             ),
-        paragraph: ($) => seq($.paragraph_inner, $.paragraph_break),
+        paragraph: ($) => seq(
+            repeat($.weak_carryover_tag),
+            $.paragraph_inner,
+            $.paragraph_break
+        ),
 
         punctuation: ($) => choice(
             token(repeat1('*')),
@@ -254,22 +261,7 @@ module.exports = grammar({
                 ),
             ),
 
-        identifier: (_) => token(prec(1, /[A-Za-z][A-Za-z\-_\.\+=]+/)),
-        attached_modifier_extension: ($) =>
-            seq(
-                "(",
-                $.kv_pair,
-                repeat(
-                    seq(",", $.kv_pair),
-                ),
-                ")",
-            ),
-        kv_pair: ($) =>
-            seq(
-                alias($.identifier, $.param),
-                ":",
-                alias($.identifier, $.value),
-            ),
+        identifier: (_) => token(prec(1, /[0-9A-Za-z][0-9A-Za-z\-_\.\+=]*/)),
         _free_form: ($) =>
             seq(
                 $.free_form_open,
@@ -425,72 +417,31 @@ module.exports = grammar({
 
         strong_delimiting_modifier: (_) => token(seq(repeat2("="), newline)),
         horizontal_rule: (_) => token(prec(1, seq(repeat2("_"), newline))),
-        // TODO: should parsing todo items done by tree-sitter?
-        // or can we just use similar thing like verbatim_line here
-        detached_modifier_extension: ($) =>
+        extensions: ($) =>
             seq(
-                "(",
-                $.todo_item,
-                repeat(
-                    seq(
-                        token(prec(1, "|")),
-                        $.todo_item,
-                    )
-                ),
+                token(prec(1, "(")),
+                repeat1($.ext_attribute),
                 ")",
             ),
-        todo_item: ($) =>
-            choice(
-                $.todo_item_done,
-                $.todo_item_undone,
-                $.todo_item_uncertain,
-                $.todo_item_urgent,
-                $.todo_item_pending,
-                $.todo_item_hold,
-                $.todo_item_cancelled,
-                $.todo_item_priority,
-                $.todo_item_recurring,
-                $.todo_item_timestamp,
-                $.todo_item_start_date,
-                $.todo_item_due_date,
-            ),
-        todo_item_done: (_) => "x",
-        todo_item_undone: (_) => " ",
-        todo_item_uncertain: (_) => "?",
-        todo_item_urgent: (_) => "!",
-        // TODO: add optional date
-        todo_item_pending: (_) => "-",
-        todo_item_hold: (_) => "=",
-        todo_item_cancelled: (_) => "_",
-        todo_item_priority: ($) =>
-            seq(
-                "#",
-                whitespace,
-                $.identifier,
-            ),
-        timestamp: ($) => repeat1(choice($._word, $.punctuation, whitespace)),
-        todo_item_recurring: ($) =>
-            seq(
-                "+",
-                optional(seq(whitespace, $.timestamp))
-            ),
-        todo_item_timestamp: ($) =>
-            seq(
-                "@",
-                whitespace,
-                $.timestamp
-            ),
-        todo_item_start_date: ($) =>
-            seq(
-                ">",
-                whitespace,
-                $.timestamp
-            ),
-        todo_item_due_date: ($) =>
-            seq(
-                "<",
-                whitespace,
-                $.timestamp
+        // TODO: add support for escape sequence in identifier/parameter
+        ext_identifier: (_) => token(/[^\s\n\r;\(\)]+/),
+        ext_param: (_) => token(/[^\n\r;\(\)]+/),
+        ext_attribute: ($) =>
+            prec.right(
+                seq(
+                    choice(
+                        whitespace_or_newline,
+                        seq(
+                            optional(whitespace_or_newline),
+                            field("key", $.ext_identifier),
+                            optional(
+                                seq(whitespace, field("value", $.ext_param))
+                            ),
+                        )
+                    ),
+                    optional(newline),
+                    optional(seq(";", optional(whitespace), optional(newline))),
+                ),
             ),
         heading: ($) =>
             prec.right(
@@ -499,7 +450,7 @@ module.exports = grammar({
                     whitespace,
                     optional(
                         seq(
-                            $.detached_modifier_extension,
+                            $.extensions,
                             whitespace,
                         )
                     ),
@@ -522,7 +473,10 @@ module.exports = grammar({
                 $.quote_list,
                 $.null_list,
             ),
-        unordered_list: ($) => prec.right(repeat1($.unordered_list_item)),
+        unordered_list: ($) => seq(
+            repeat($.weak_carryover_tag),
+            prec.right(repeat1($.unordered_list_item))
+        ),
         unordered_list_item: ($) =>
             prec.right(
                 seq(
@@ -530,7 +484,7 @@ module.exports = grammar({
                     whitespace,
                     optional(
                         seq(
-                            $.detached_modifier_extension,
+                            $.extensions,
                             whitespace,
                         )
                     ),
@@ -542,7 +496,10 @@ module.exports = grammar({
                     optional($._dedent_list),
                 )
             ),
-        ordered_list: ($) => prec.right(repeat1($.ordered_list_item)),
+        ordered_list: ($) => seq(
+            repeat($.weak_carryover_tag),
+            prec.right(repeat1($.ordered_list_item))
+        ),
         ordered_list_item: ($) =>
             prec.right(
                 seq(
@@ -550,7 +507,7 @@ module.exports = grammar({
                     whitespace,
                     optional(
                         seq(
-                            $.detached_modifier_extension,
+                            $.extensions,
                             whitespace,
                         )
                     ),
@@ -562,7 +519,10 @@ module.exports = grammar({
                     optional($._dedent_list),
                 )
             ),
-        quote_list: ($) => prec.right(repeat1($.quote_list_item)),
+        quote_list: ($) => seq(
+            repeat($.weak_carryover_tag),
+            prec.right(repeat1($.quote_list_item))
+        ),
         quote_list_item: ($) =>
             prec.right(
                 seq(
@@ -570,7 +530,7 @@ module.exports = grammar({
                     whitespace,
                     optional(
                         seq(
-                            $.detached_modifier_extension,
+                            $.extensions,
                             whitespace,
                         )
                     ),
@@ -582,7 +542,10 @@ module.exports = grammar({
                     optional($._dedent_list),
                 )
             ),
-        null_list: ($) => prec.right(repeat1($.null_list_item)),
+        null_list: ($) => seq(
+            repeat($.weak_carryover_tag),
+            prec.right(repeat1($.null_list_item))
+        ),
         null_list_item: ($) =>
             prec.right(
                 seq(
@@ -590,7 +553,7 @@ module.exports = grammar({
                     whitespace,
                     optional(
                         seq(
-                            $.detached_modifier_extension,
+                            $.extensions,
                             whitespace,
                         )
                     ),
@@ -624,12 +587,14 @@ module.exports = grammar({
             choice(
                 seq(
                     "^ ",
+                    optional(seq($.extensions, whitespace)),
                     field("title", $.verbatim_param_list),
                     choice(newline, $._intersecting_modifier),
                     $.paragraph,
                 ),
                 seq(
-                    token(seq("^^", choice(whitespace, newline_or_eof))),
+                    token(seq("^^", whitespace_or_newline)),
+                    optional(seq($.extensions, whitespace)),
                     field("title", $.verbatim_param_list),
                     newline,
                     repeat(
@@ -647,12 +612,14 @@ module.exports = grammar({
             choice(
                 seq(
                     "$ ",
+                    optional(seq($.extensions, whitespace)),
                     field("title", $.verbatim_param_list),
                     choice(newline, $._intersecting_modifier),
                     $.paragraph,
                 ),
                 seq(
-                    token(seq("$$", choice(whitespace, newline_or_eof))),
+                    token(seq("$$", whitespace_or_newline)),
+                    optional(seq($.extensions, whitespace)),
                     field("title", $.verbatim_param_list),
                     newline,
                     repeat(
@@ -671,11 +638,13 @@ module.exports = grammar({
                 seq(
                     ": ",
                     field("title", $.verbatim_param_list),
+                    optional(seq($.extensions, whitespace)),
                     choice(newline, $._intersecting_modifier),
                     $.paragraph,
                 ),
                 seq(
-                    token(seq("::", choice(whitespace, newline_or_eof))),
+                    token(seq("::", whitespace_or_newline)),
+                    optional(seq($.extensions, whitespace)),
                     field("title", $.verbatim_param_list),
                     newline,
                     repeat(
@@ -700,7 +669,6 @@ module.exports = grammar({
         tag: ($) =>
             choice(
                 $.strong_carryover_tag,
-                $.weak_carryover_tag,
                 $.infirm_tag,
                 $.standard_ranged_tag,
                 $.verbatim_ranged_tag,
@@ -709,15 +677,17 @@ module.exports = grammar({
         strong_carryover_tag: ($) =>
             seq(
                 token(prec(1, '#')),
-                $.identifier,
+                field("name", $.identifier),
                 repeat(seq(whitespace, field('argument', $.argument))),
                 choice($._newline, "\0"),
             ),
         weak_carryover_tag: ($) =>
             seq(
                 token(prec(1, '+')),
-                $.identifier,
-                repeat(seq(whitespace, field('argument', $.argument))),
+                field("key", $.ext_identifier),
+                optional(
+                    seq(whitespace, field("value", $.ext_param))
+                ),
                 choice($._newline, "\0"),
             ),
         infirm_tag: ($) =>
@@ -805,7 +775,7 @@ function gen_attached_modifier(kind) {
                 $.paragraph_inner,
             ),
             $[kind + "_close"],
-            optional($.attached_modifier_extension),
+            optional($.extensions),
         )
 }
 
@@ -825,7 +795,7 @@ function gen_verbatim_attached_modifier(kind) {
                         $.verbatim_paragraph_inner,
                     ),
                     $[kind + "_close"],
-                    optional($.attached_modifier_extension),
+                    optional($.extensions),
                 ),
             )
         )

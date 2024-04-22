@@ -152,3 +152,30 @@
    This change is made because of parser limitation on parsing paragraph break.
    It's recommended to avoid doing this.
 
+* Detached modifier extensions
+
+  Detached modifier extensions are now used to attach attributes to detached
+  modifiers. This partialy replaces need of weak carryover tag.
+
+  |example
+  * ( ;color red) heading
+  * ( ;
+     color red;
+    ) heading
+
+  - (x;color blue) list item
+  - (x;
+     color blue;
+    ) list item
+
+  $ (x) word
+  definition
+  $ (x;
+     color blue;
+    ) word
+  definition
+  |end
+
+* Strict identifier rules
+
+  - can't contain `()[]{}\\;` or any types of whitespace characters
