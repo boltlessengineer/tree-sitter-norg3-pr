@@ -264,4 +264,23 @@ ext-06: Ignoring whitespaces
       (word)
       (paragraph_break))))
 
+================================================================================
+ext-07: Semicolon after auto-semicolon by newline
+================================================================================
+* (asdf
+; asdf
+) word
+--------------------------------------------------------------------------------
+(document
+  (heading
+    (heading_prefix)
+    (extensions
+      (ext_attribute
+        key: (ext_identifier))
+      (ext_attribute
+        key: (ext_identifier)))
+    title: (paragraph
+      (word)
+      (paragraph_break))))
+
 ; vim:ts=2:sw=2:
