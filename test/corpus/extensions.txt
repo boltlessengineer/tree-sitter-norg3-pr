@@ -1,5 +1,5 @@
 ================================================================================
-attri-00: Attributes in attached modifier
+ext-00: Attributes in attached modifier
 ================================================================================
 *bold*(color red;font sans-serif)
 --------------------------------------------------------------------------------
@@ -19,7 +19,7 @@ attri-00: Attributes in attached modifier
     (paragraph_break)))
 
 ================================================================================
-attri-01: failed extension by verbatim close
+ext-01: failed extension by verbatim close
 ================================================================================
 `*word*(word`
 --------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ attri-01: failed extension by verbatim close
     (paragraph_break)))
 
 ================================================================================
-attri-02: Attributes in structural detached modifier
+ext-02: Attributes in structural detached modifier
 ================================================================================
 * (x;@ A) heading
 * ( ;
@@ -73,7 +73,7 @@ attri-02: Attributes in structural detached modifier
       (paragraph_break))))
 
 ================================================================================
-attri-03: Attributes in nestable detached modifier
+ext-03: Attributes in nestable detached modifier
 ================================================================================
 - (x;@ A) list item
 - ( ;
@@ -113,7 +113,7 @@ attri-03: Attributes in nestable detached modifier
         (paragraph_break)))))
 
 ================================================================================
-attri-04: Attributes in range-able detached modifier
+ext-04: Attributes in range-able detached modifier
 ================================================================================
 ^ (x;@ A) word
 footnote
@@ -183,7 +183,7 @@ footnote
       (paragraph_break))))
 
 ================================================================================
-attri-05: Trailing whitespace
+ext-05: Trailing whitespace
 ================================================================================
 * ( ;      
    color red) heading
