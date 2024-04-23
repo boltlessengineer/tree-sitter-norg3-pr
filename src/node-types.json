@@ -409,16 +409,6 @@
           }
         ]
       }
-    },
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "undone",
-          "named": true
-        }
-      ]
     }
   },
   {
@@ -1344,7 +1334,7 @@
   },
   {
     "type": "punctuation",
-    "named": true,
+    "named": false,
     "fields": {}
   },
   {
@@ -2185,6 +2175,10 @@
     "named": false
   },
   {
+    "type": ";",
+    "named": false
+  },
+  {
     "type": "=",
     "named": false
   },
@@ -2382,10 +2376,6 @@
   },
   {
     "type": "underline_open",
-    "named": true
-  },
-  {
-    "type": "undone",
     "named": true
   },
   {

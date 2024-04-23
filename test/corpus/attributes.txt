@@ -182,4 +182,33 @@ footnote
       (word)
       (paragraph_break))))
 
+================================================================================
+attri-05: Trailing whitespace
+================================================================================
+* ( ;      
+   color red) heading
+* (       
+   color red) heading
+--------------------------------------------------------------------------------
+(document
+  (heading
+    (heading_prefix)
+    (extensions
+      (ext_attribute)
+      (ext_attribute
+        (ext_identifier)
+        (ext_param)))
+    (paragraph
+      (word)
+      (paragraph_break)))
+  (heading
+    (heading_prefix)
+    (extensions
+      (ext_attribute
+        (ext_identifier)
+        (ext_param)))
+    (paragraph
+      (word)
+      (paragraph_break))))
+
 ; vim:ts=2:sw=2:

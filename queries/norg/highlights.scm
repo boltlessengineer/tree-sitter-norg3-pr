@@ -182,7 +182,15 @@
 
 ; HACK: for debug perpose
 (ext_attribute
-  !key) @markup.underline
+  !key) @markup.todo.undone
+(ext_attribute
+  key: (_) @conceal @markup.todo.done
+  (#eq? @conceal "x")
+  (#set! conceal "⨯"))
+(ext_attribute
+  key: (_) @conceal @markup.todo.recurring
+  (#eq? @conceal "+")
+  (#set! conceal "↺"))
 
 (ERROR) @error
 

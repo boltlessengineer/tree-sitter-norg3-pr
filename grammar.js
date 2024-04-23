@@ -109,6 +109,7 @@ module.exports = grammar({
         $.__indent_seg_end,
         $.std_ranged_tag_prefix,
         $.std_ranged_tag_end,
+        $._auto_semi,
 
         $._error_sentinel,
     ],
@@ -417,25 +418,23 @@ module.exports = grammar({
 
         strong_delimiting_modifier: (_) => token(seq(repeat2("="), newline)),
         horizontal_rule: (_) => token(prec(1, seq(repeat2("_"), newline))),
-        _semi: (_) => token(seq(";", optional(newline))),
         extensions: ($) =>
             seq(
                 token(prec(1, "(")),
-                optional(newline),
                 repeat(
                     choice(
                         $.ext_attribute,
-                        $._semi,
+                        ";",
+                        token(seq(optional(whitespace), newline)),
                     ),
                 ),
                 ")",
             ),
         // TODO: add support for escape sequence in identifier/parameter
         ext_identifier: (_) => token(/[^\s\n\r;\(\)]+/),
-        ext_param: (_) => token(/[^\n\r;\(\)]+/),
-        ws_or_nl: (_) => whitespace_or_newline,
+        ext_param: (_) => token(/[^\s\n\r;\(\)][^\n\r;\(\)]*/),
         ext_attribute: ($) =>
-            prec.right(1, choice(
+            choice(
                 seq(
                     optional(whitespace),
                     field("key", $.ext_identifier),
@@ -443,20 +442,20 @@ module.exports = grammar({
                     optional(
                         field("value", $.ext_param)
                     ),
-                    optional(choice(
-                        $._semi,
-                        newline,
-                    )),
+                    choice(
+                        ";",
+                        $._auto_semi,
+                    ),
                 ),
                 seq(
                     // alias(whitespace, $.undone),
                     whitespace,
-                    optional(choice(
-                        $._semi,
-                        newline,
-                    )),
+                    choice(
+                        ";",
+                        $._auto_semi,
+                    ),
                 )
-            )),
+            ),
         heading: ($) =>
             prec.right(
                 seq(

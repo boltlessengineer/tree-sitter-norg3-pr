@@ -212,6 +212,7 @@ enum token_type {
     FLAG_INDENT_SEGMENT_END,
     STD_RANGED_PREFIX,
     STD_RANGED_END,
+    AUTO_SEMI,
 
     ERROR_MODE,
 };
@@ -658,6 +659,13 @@ bool scan(Scanner *self, const bool *valid_symbols) {
     lex_mark_end();
     if (iswspace(lex_next))
         return scan_newline(self, valid_symbols);
+
+    if (valid_symbols[AUTO_SEMI] && !error_mode) {
+        if (lex_next == ')' || is_newline(lex_next)) {
+            lex_set_result(AUTO_SEMI);
+            return true;
+        }
+    }
 
     TRY_SCAN(scan_linkables(self, valid_symbols));
 
