@@ -211,4 +211,57 @@ ext-05: Trailing whitespace
       (word)
       (paragraph_break))))
 
+================================================================================
+ext-06: Ignoring whitespaces
+================================================================================
+* (x ) heading
+* ( x) heading
+* ( x ) heading
+* ( x ;) heading
+* (
+  x ;
+  ) heading
+--------------------------------------------------------------------------------
+(document
+  (heading
+    (heading_prefix)
+    (extensions
+      (ext_attribute
+        key: (ext_identifier)))
+    title: (paragraph
+      (word)
+      (paragraph_break)))
+  (heading
+    (heading_prefix)
+    (extensions
+      (ext_attribute
+        key: (ext_identifier)))
+    title: (paragraph
+      (word)
+      (paragraph_break)))
+  (heading
+    (heading_prefix)
+    (extensions
+      (ext_attribute
+        key: (ext_identifier)))
+    title: (paragraph
+      (word)
+      (paragraph_break)))
+  (heading
+    (heading_prefix)
+    (extensions
+      (ext_attribute
+        key: (ext_identifier)))
+    title: (paragraph
+      (word)
+      (paragraph_break)))
+  (heading
+    (heading_prefix)
+    (extensions
+      (ext_attribute
+        key: (ext_identifier)))
+    title: (paragraph
+      (word)
+      (paragraph_break))))
+
 ; vim:ts=2:sw=2:
